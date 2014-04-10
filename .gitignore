@@ -2,9 +2,6 @@
 *.mcd
 *.mat
 
-#Macs
-*DS_Store
-
 # Python bytecode:
 *.py[co]
 
