@@ -24,6 +24,8 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
+from os import walk
+import sys
 
 ##  @package grafica_spikes
 #   Script de prueba para graficado spikes timestamps sin procesamiento
@@ -42,6 +44,26 @@ font = {'family' : 'serif',
 ##  @var spikes
 #   Aca se almacena valores cargados desde archivo        
 spikes = []
+
+##  @var archivos
+#   Aca se almacena listado de archivos procesados        
+archivos = []
+
+##  carga_spikes Dado un directorio carga los spikes desde los archivos
+#   disponibles (*txt) en el
+def carga_sipkes(directorio,spikes,archivos):
+    for (dirpath, dirnames, filenames) in walk(directorio):
+		for archivo in filenames:
+			archivos.append(archivo)
+			spikes_archivo = []
+			f = open(directorio+archivo, 'r')
+			for line in f:
+				spikes_archivo.append(float(line))
+			f.close()
+			spikes.append(spikes_archivo)
+
+    
+'''	
 ##  @var f
 #   Archivo que contiene timestamps de los spikes
 f = open('../clustering_mj/TS_datos0003_2/A2a.txt', 'r')
@@ -64,6 +86,14 @@ plt.ylabel('eventos', fontdict=font)
 plt.xlim(0,2000)
 plt.ylim([0, 2])
 plt.subplots_adjust(left=0.15)
-plt.plot(spikes,y,'g^') 
+plt.plot(spikes,y,'rx') 
 plt.show()
+
+'''
+
+carga_sipkes(sys.argv[1],spikes,archivos)
+for x in range(0,len(spikes)):
+	print " "
+	print archivos[x]
+	print spikes[x]
 
