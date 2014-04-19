@@ -97,3 +97,4 @@ for x in range(0,len(spikes)):
 	print archivos[x]
 	print spikes[x]
 
+print "geany"
