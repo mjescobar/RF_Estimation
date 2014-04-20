@@ -50,7 +50,13 @@ spikes = []
 archivos = []
 
 ##  carga_spikes Dado un directorio carga los spikes desde los archivos
-#   disponibles (*txt) en el
+#   disponibles (*txt) en el.
+#   @param directorio diretorio que contiene los .txt (se recibe como 
+#   parametro de ejecución)
+#   @param spikes matriz donde se cargaran los tiempos de ocurrencia de
+#   los spikes
+#   @param archivos matriz donde se cargaran los nombres de los archivos
+#   de los cuales se recuperaron las matrices
 def carga_sipkes(directorio,spikes,archivos):
     for (dirpath, dirnames, filenames) in walk(directorio):
 		for archivo in filenames:
@@ -62,39 +68,26 @@ def carga_sipkes(directorio,spikes,archivos):
 			f.close()
 			spikes.append(spikes_archivo)
 
-    
-'''	
-##  @var f
-#   Archivo que contiene timestamps de los spikes
-f = open('../clustering_mj/TS_datos0003_2/A2a.txt', 'r')
-for line in f:
-	spikes.append(float(line))
-f.close()
 
-##  @var largo_datos
-#   auxiliar para largo de datos obtenidos
-largo_datos = len(spikes)
-##  @var y
-#   Arreglo de '1' para utilizar como coordenada de grafica
-y = []
-y = y + [1]*(largo_datos - len(y))
+##  grafica_spikes Dado los spikes recuperados realiza una unica grafica
+#   @param spikes matriz de los timestamps de las espigas, cargado en
+#   funcion carga_spikes
+#   @param archivos matriz con los nombres de los archivos desde los
+#   que se recupero los timestamps
+def grafica_todas_spikes(spikes,archivos):
+	for i in range(0,len(spikes)):
+		largo_datos = len(spikes[i])
+		y = []
+		y = y + [i]*(largo_datos - len(y))
+		plt.plot(spikes[i],y,'rx') 
+	plt.title('Spikes en el tiempo', fontdict=font)
+	plt.xlabel('tiempo', fontdict=font)
+	plt.ylabel('eventos', fontdict=font)
+	plt.xlim(0,1050)
+	plt.ylim([0, len(spikes)])
+	plt.subplots_adjust(left=0.15)
+	plt.show()
 
-plt.title('Spikes en el tiempo', fontdict=font)
-plt.xlabel('tiempo', fontdict=font)
-plt.ylabel('eventos', fontdict=font)
-#plt.xlim([spikes[0], spikes[-1]])
-plt.xlim(0,2000)
-plt.ylim([0, 2])
-plt.subplots_adjust(left=0.15)
-plt.plot(spikes,y,'rx') 
-plt.show()
-
-'''
-
+		
 carga_sipkes(sys.argv[1],spikes,archivos)
-for x in range(0,len(spikes)):
-	print " "
-	print archivos[x]
-	print spikes[x]
-
-print "geany"
+grafica_todas_spikes(spikes,archivos)
