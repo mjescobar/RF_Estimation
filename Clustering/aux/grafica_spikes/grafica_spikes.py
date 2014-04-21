@@ -99,20 +99,28 @@ def carga_sipkes(directorio,spikes,archivos):
 #   @param archivos matriz con los nombres de los archivos desde los
 #   que se recupero los timestamps
 def grafica_todas_spikes(spikes,archivos):
+	fig = plt.figure()
+	ax = fig.add_subplot(111)
 	for i in range(0,len(spikes)):
 		largo_datos = len(spikes[i])
 		y = []
 		y = y + [i*4]*(largo_datos - len(y))
-		plt.plot(spikes[i],y,colour_picker(i)+'x') 
+		ax.plot(spikes[i],y,colour_picker(i)+'x') 
 	plt.title('Spikes en el tiempo', fontdict=font)
 	plt.xlabel('Tiempo', fontdict=font)
 	plt.ylabel('Unidades (neuronas)', fontdict=font)
 	plt.xlim(0,1050)
 	plt.ylim([0, len(spikes)*4])
+	ax.set_yticks(range(0,len(archivos)*4,4))
+	ax.set_yticklabels(archivos)
+	plt.setp(ax.get_yticklabels(), fontsize=10)
 	plt.subplots_adjust(left=0.15)
 	plt.savefig('Spikes_en_tiempo.png', format='png', bbox_inches='tight')
 	plt.show()
 
-		
-carga_sipkes(sys.argv[1],spikes,archivos)
-grafica_todas_spikes(spikes,archivos)
+if len(sys.argv) == 2:
+	carga_sipkes(sys.argv[1],spikes,archivos)
+	grafica_todas_spikes(spikes,archivos)
+else:
+	print "Usage "
+	print "./grafica_spikes.py folder_with_timestamps"
