@@ -49,6 +49,30 @@ spikes = []
 #   Aca se almacena listado de archivos procesados        
 archivos = []
 
+##  colour_picker Seleccionar uno de los 7 colores de python (blanco 
+#   exlcluido) para el color de la espiga
+#   @param x x-esima espiga a graficar
+#   los colores a utilizar son
+#   b, g, r, c, m, y, k
+#   seleccionados secuencialmente
+def colour_picker(x):
+	modulo = x % 7
+	if modulo == 0:
+		return 'b'
+	elif modulo == 1:
+		return 'g'
+	elif modulo == 2:
+		return 'r'
+	elif modulo == 3:
+		return 'c'
+	elif modulo == 4:
+		return 'm'
+	elif modulo == 5:
+		return 'y'
+	elif modulo == 6:
+		return 'k'
+
+
 ##  carga_spikes Dado un directorio carga los spikes desde los archivos
 #   disponibles (*txt) en el.
 #   @param directorio diretorio que contiene los .txt (se recibe como 
@@ -69,7 +93,7 @@ def carga_sipkes(directorio,spikes,archivos):
 			spikes.append(spikes_archivo)
 
 
-##  grafica_spikes Dado los spikes recuperados realiza una unica grafica
+##  grafica_todas_spikes Dado los spikes recuperados realiza una unica grafica
 #   @param spikes matriz de los timestamps de las espigas, cargado en
 #   funcion carga_spikes
 #   @param archivos matriz con los nombres de los archivos desde los
@@ -78,14 +102,15 @@ def grafica_todas_spikes(spikes,archivos):
 	for i in range(0,len(spikes)):
 		largo_datos = len(spikes[i])
 		y = []
-		y = y + [i]*(largo_datos - len(y))
-		plt.plot(spikes[i],y,'rx') 
+		y = y + [i*4]*(largo_datos - len(y))
+		plt.plot(spikes[i],y,colour_picker(i)+'x') 
 	plt.title('Spikes en el tiempo', fontdict=font)
-	plt.xlabel('tiempo', fontdict=font)
-	plt.ylabel('eventos', fontdict=font)
+	plt.xlabel('Tiempo', fontdict=font)
+	plt.ylabel('Unidades (neuronas)', fontdict=font)
 	plt.xlim(0,1050)
-	plt.ylim([0, len(spikes)])
+	plt.ylim([0, len(spikes)*4])
 	plt.subplots_adjust(left=0.15)
+	plt.savefig('Spikes_en_tiempo.png', format='png', bbox_inches='tight')
 	plt.show()
 
 		
