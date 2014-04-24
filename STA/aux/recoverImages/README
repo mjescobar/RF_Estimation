@@ -1,0 +1,8 @@
+script Matlab para recuperar las imagenes de checkerboard a partir de una semilla.
+Primero deben cargar la semilla en el workspace y luego pasársela como parametro a recoverCheckBoardImages.m
+Ejemplo:
+
+>> nimag=54000;
+>> seed = load('../13-11-2013/Seed_2.mat');
+>> recoverCheckBoardImages(seed.s,nimag);
+
