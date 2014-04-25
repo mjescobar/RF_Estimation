@@ -89,19 +89,19 @@ parser = argparse.ArgumentParser(prog='sta_sspy.py',
  formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument('--getimagenames', default=0,
  help='0,1 load image name list with the stimulus ensemble',
- type=int, required=False)
+ type=int, choices=[0, 1], required=False)
 parser.add_argument('--openimagesandwrite', default=0,
  help='0,1 DO TESTS FOR READ AND WRITE IMAGES',
- type=int, required=False)
+ type=int, choices=[0, 1], required=False)
 parser.add_argument('--calculatemeanrf', default=0,
  help='0,1 LOAD ALL THE IMAGES FROM THE STIMULOS ENSEMBLE '+
  'AND CALCULATE THE MEAN STIMULUS',
- type=int, required=False)
+ type=int, choices=[0, 1], required=False)
 parser.add_argument('--algorithm', default=2,
  help='1,2 How to perform STA, '+
  '1 load all spike triggered stimuli,'+ 
  '2 for sequentially load',
- type=int, required=False)
+ type=int, choices=[1, 2], required=False)
 parser.add_argument('--unit',
  help='NAME OF THE TXT FILE WITH TIME STAMPS FOR LOAD',
  type=str, default='A10a', required=True)
@@ -141,7 +141,7 @@ parser.add_argument('--sizey',
  type=int, default=380, required=False)
 parser.add_argument('--dolog',
  help='0,1 logarithm analysis for plot',
- type=int, default=0, required=False)
+ type=int, default=0, choices=[0, 1], required=False)
 
 args = parser.parse_args()
 
