@@ -25,6 +25,7 @@
 import neuroshare as ns
 import numpy as np
 import matplotlib.pyplot as plt
+import argparse #argument parsing
 
 ##  Script de prueba par carga de datos desde .mcd
 #   Carga y grafica datos
@@ -34,9 +35,24 @@ import matplotlib.pyplot as plt
 #   ~/.neuroshare
 #   /usr/lib/neuroshare
 #   /usr/local/lib/neuroshare
-#   la biblioteca se encuentra en el repo /RF_Estimation/Clustering/lib
+#   la biblioteca se encuentra en el repo 
+#   /RF_Estimation/Clustering/lib/nsMCDLibrary
+#   ya sea la version de 32 o 64 bits
+#   pruede ser descargado de
+#   http://www.multichannelsystems.com/software/neuroshare-library
+#
+#   neuroshare debe ser clonado desde 
+#   https://github.com/G-Node/python-neuroshare
 
-fd = ns.File('/var/tmp/datos0003.mcd')
+parser = argparse.ArgumentParser(prog='prueba_carga.py',
+ description='Grafica datos almacenados en archivo MCD',
+ formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+parser.add_argument('--mcdfile', default=".",
+ help='Path to the MCD file',
+ type=str, required=True)
+args = parser.parse_args()
+
+fd = ns.File(args.mcdfile)
 analog = 2
 data = dict()
 font = {'family' : 'serif',
@@ -44,6 +60,7 @@ font = {'family' : 'serif',
         'weight' : 'normal',
         'size'   : 16,
         }
+        
 for i, entity in enumerate(fd.entities):
     if entity.entity_type == analog:
 		data1,time,count = entity.get_data()
