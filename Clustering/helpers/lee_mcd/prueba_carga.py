@@ -26,6 +26,8 @@ import neuroshare as ns
 import numpy as np
 import matplotlib.pyplot as plt
 import argparse #argument parsing
+import os.path
+import sys
 
 ##  Script de prueba par carga de datos desde .mcd
 #   Carga y grafica datos
@@ -52,7 +54,12 @@ parser.add_argument('--mcdfile', default=".",
  type=str, required=True)
 args = parser.parse_args()
 
-fd = ns.File(args.mcdfile)
+mcdfile=args.mcdfile
+if not os.path.isfile(mcdfile):
+	print 'File [' + mcdfile + '] not found'
+	sys.exit()
+
+fd = ns.File(mcdfile)
 analog = 2
 data = dict()
 font = {'family' : 'serif',
