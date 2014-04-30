@@ -87,4 +87,4 @@ for i, entity in enumerate(fd.entities):
 		plt.subplots_adjust(left=0.15)
 		plt.plot(x, datoAGraficar)
 		fig.savefig(channelName+'.png', dpi=fig.dpi)
-		plt.close
+		plt.close(fig)
