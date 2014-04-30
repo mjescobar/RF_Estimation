@@ -65,27 +65,26 @@ data = dict()
 font = {'family' : 'serif',
         'color'  : 'darkred',
         'weight' : 'normal',
-        'size'   : 16,
+        'size'   : 10,
         }
         
 for i, entity in enumerate(fd.entities):
     if entity.entity_type == analog:
 		data1,time,count = entity.get_data()
 		channelName = entity.label[0:4]+entity.label[23:]
+		print 'Procesando '+channelName
 		datos = np.array(data1)
-		largo_datos = len(datos)
-		data[channelName] = datos
-		print channelName
-		print len(datos)
+		largo_datos = len(datos)		
+		datoAGraficar=datos[1200001:1800000] #aca hay datos lindos
+		largo_datos = len(datoAGraficar)
 		x = np.linspace(1, largo_datos, largo_datos)
 		fig = plt.figure()
 		plt.title('Voltages/spikes', fontdict=font)
 		plt.xlabel('tiempo', fontdict=font)
 		plt.ylabel('voltage (uV)', fontdict=font)
-		plt.xlim([-1, largo_datos+1])
-		plt.ylim([-0.001, 0.001])
+#		plt.xlim([-1, largo_datos])
+#		plt.ylim([-0.0006, 0.0006])
 		plt.subplots_adjust(left=0.15)
-		plt.plot(x, datos)
-		#plt.show()
+		plt.plot(x, datoAGraficar)
 		fig.savefig(channelName+'.png', dpi=fig.dpi)
-
+		plt.close
