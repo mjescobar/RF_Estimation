@@ -1,0 +1,12 @@
+\BOOKMARK [1][-]{section.1}{ DESCRIPCI\323N INICIAL }{}% 1
+\BOOKMARK [1][-]{section.2}{ INSTRUCCIONES }{}% 2
+\BOOKMARK [2][-]{subsection.2.1}{ OBTENER LA SE\321AL DE SINCRON\315A }{section.2}% 3
+\BOOKMARK [2][-]{subsection.2.2}{ ANALIZAR LA SE\321AL DE SINCRON\315A }{section.2}% 4
+\BOOKMARK [2][-]{subsection.2.3}{ ANALIZAR DATOS DE REGISTRO: Ordenamiento de Espigas \(SPIKE SORTING\) }{section.2}% 5
+\BOOKMARK [2][-]{subsection.2.4}{ GUARDAR TIEMPOS DE SPIKES}{section.2}% 6
+\BOOKMARK [2][-]{subsection.2.5}{ SPIKE TRIGGERED AVERAGE \(STA\) }{section.2}% 7
+\BOOKMARK [3][-]{subsubsection.2.5.1}{ STA INDIVIDUAL: stapy}{subsection.2.5}% 8
+\BOOKMARK [3][-]{subsubsection.2.5.2}{ STA GRUPAL: stapy chain }{subsection.2.5}% 9
+\BOOKMARK [3][-]{subsubsection.2.5.3}{ STA R\341pido: stapy FAST }{subsection.2.5}% 10
+\BOOKMARK [2][-]{subsection.2.6}{ VALORIZACI\323N DE LOS CAMPOS RECEPTIVOS ESTIMADOS }{section.2}% 11
+\BOOKMARK [2][-]{subsection.2.7}{ REALIZAR AJUSTE GAUSSIANO DE LOS CAMPOS RECEPTIVOS }{section.2}% 12

@@ -1,0 +1,293 @@
+\newcommand{\ltr}[1]{\ensuremath{{\cal{L}}\left[#1\right]}} %Laplace transform
+\newcommand{\matriz}[1]{\left[\begin{matrix}#1\end{matrix}\right]}
+% Matrices
+\newcommand{\matrizr}[1]{\left(\begin{matrix}#1\end{matrix}\right)}
+\newcommand{\matrizsc}[1]{\begin{matrix}#1\end{matrix}}
+% Matrices sin corchetes
+%\newcommand{\findemo}{\vspace{-12mm}\begin{flushright}$\Box\Box\Box$\end{flushright}}
+
+\newcommand{\corregir}[1]{ \cal{K}_{\varepsilon} \ly #1 \ry }
+
+\newcommand{\bs}[1]{\boldsymbol{#1}}
+\newcommand{\ep}[0]{\operatorname{ep}}
+\newcommand{\bp}[0]{\operatorname{bp}}
+\newcommand{\opt}[0]{\operatorname{opt}}
+\newcommand{\aux}[0]{\operatorname{aux}}
+\newcommand{\stat}[0]{\operatorname{stat}}
+\newcommand{\implica}[0]{\Rightarrow}
+\newcommand{\contraimplica}[0]{\Leftarrow}
+\newcommand{\tq}[0]{\textrm{ such that }}
+\newcommand{\barra}[1]{\overline{#1}}
+\newcommand{\non}[0]{\nonumber }
+\newcommand{\ine}[1]{\left[ #1 \right]_{\mathcal{H}_2^{\perp}}}
+\newcommand{\inep}[1]{\left[ #1 \right]_{\perp}}
+\newcommand{\esti}[1]{\left[ #1 \right]_{\infty}}
+\newcommand{\est}[1]{\left[ #1 \right]_{\mathcal{H}_2}}
+\newcommand{\es}[0]{\textrm{ }}
+\newcommand{\norma}[1]{\left| \left| #1 \right| \right|}
+\newcommand{\equivale}[0]{\Leftrightarrow}
+
+%\newcommand{\arginf}[1]{}
+
+%\newcommand{\sol}[1]{\operatorname{sol} \left\{ #1 \right\}  }
+
+\newcommand{\adiag}[1]{\operatorname{adiag} \left\{ #1 \right\}  }
+\newcommand{\diag}[1]{\operatorname{diag} \left\{ #1 \right\}  }
+\newcommand{\diagn}[2]{\operatorname{diag} \left\{ #1 \right\}_{1,\cdots, #2}}
+\newcommand{\struc}[1]{\operatorname{structure}\left\{ #1 \right\}  }
+\newcommand{\traza}[1]{\operatorname{trace}\left\{ #1 \right\} }
+\newcommand{\den}[1]{\operatorname{den}\left\{ #1 \right\} }
+\newcommand{\num}[1]{\operatorname{num}\left\{ #1 \right\} }
+\newcommand{\spart}[1]{\operatorname{sp}\left\{ #1 \right\} }
+\newcommand{\grel}[1]{\operatorname{grel}\left\{ #1 \right\} }
+\newcommand{\gr}[1]{\operatorname{gr}\left\{ #1 \right\} }
+\newcommand{\mean}[1]{\mathcal{E}\left\{ #1 \right\} }
+\newcommand{\meanaux}[1]{\mathbb{E}\left\{ #1 \right\} }
+\newcommand{\meancr}[2]{\mathcal{E}_{#1}\left\{ #2 \right\} }
+\newcommand{\abs}[1]{\left| #1 \right| }
+\newcommand{\ejw}[0]{(e^{j\omega})}
+\newcommand{\ejwo}[0]{(e^{j\omega_o})}
+\newcommand{\ejws}[0]{e^{j\omega}}
+\newcommand{\z}[0]{(z)}
+\newcommand{\floor}[1]{ \left \lfloor #1 \right \rfloor}
+\newcommand{\treq}[0]{\triangleq}
+\newcommand{\normaex}[1]{\frac{1}{2\pi}\int_{-\pi}^{\pi} \abs{  #1  }^2 d\omega }
+\newcommand{\intpi}[1]{\int_{-\pi}^{\pi} #1 d\omega }
+\newcommand{\intpifrac}[1]{\frac{1}{2\pi}\int_{-\pi}^{\pi} #1 d\omega }
+\newcommand{\intpifracK}[2]{\frac{#1 }{2\pi}\int_{-\pi}^{\pi} #2 d\omega }
+\newcommand{\intbode}[1]{\frac{1}{2\pi}\int_{-\pi}^{\pi} \ln\lp #1 \rp d\omega }
+\newcommand{\intbodeK}[2]{\frac{#1}{2\pi}\int_{-\pi}^{\pi} \ln\lp #2 \rp d\omega }
+\newcommand{\intbodesin}[1]{\int_{-\pi}^{\pi} \ln\lp #1 \rp d\omega }
+\newcommand{\intbodemod}[1]{\frac{1}{2\pi}\int_{-\pi}^{\pi} \ln #1 d\omega }
+\newcommand{\intbodesinmod}[1]{\int_{-\pi}^{\pi} \ln #1  d\omega }
+\newcommand{\normaexsinpi}[1]{\int_{-\pi}^{\pi} \abs{  #1  }^2 d\omega }
+
+\newcommand{\evalinf}[1]{ \lpt \ly #1 \ry \right|_{z=\infty} }
+\newcommand{\eval}[2]{ \lpt \ly #1 \ry \right|_{z=#2} }
+\newcommand{\evalnoz}[3]{ \lpt \ly #1 \ry \right|_{#2=#3} }
+\newcommand{\evalnoy}[3]{ \lpt #1 \right|_{#2=#3} }
+\newcommand{\evalnoll}[3]{ \lpt #1 \right|_{#2=#3} }
+\newcommand{\dado}[2]{ \lpt #1 \right|_{#2} }
+
+\newcommand{\problemas}[1]{ \begin{pregunta} \emph{ #1 } \end{pregunta}}
+
+\newcommand{\MSS}{\operatorname{MSS}}
+
+\newcommand{\estimador}[2]{ \lpt \hat{#1} \right|_{#2} }
+
+\newcommand{\sat}[2]{\text{\rm sat} \left ( #1 ,#2 \right ) }
+\newcommand{\unif}[2]{\text{\rm Unif} \left (#1,#2\right)}
+
+\newcommand{\nf}{\operatorname{nf}}
+
+\renewcommand{\H}[0]{ \mathbb{H}}
+\newcommand{\D}[0]{ \mathbb{D}}
+\newcommand{\R}[0]{ \mathbb{R}}
+\newcommand{\T}[0]{ \mathbb{T}}
+\newcommand{\Q}[0]{ \mathbb{Q}}
+\newcommand{\N}[0]{ \mathbb{N}}
+\newcommand{\B}[0]{ \mathbb{B}}
+\newcommand{\X}[0]{ \mathbb{X}}
+\renewcommand{\P}[0]{ \mathbb{P}}
+\newcommand{\U}[0]{ \mathbb{U}}
+\newcommand{\Z}[0]{ \mathbb{Z}}
+\newcommand{\C}[0]{ \mathbb{C}}
+\newcommand{\prodin}[2]{ \left \langle \, #1, #2 \,\right \rangle }
+\newcommand{\signo}[1]{ \operatorname{sign}\lp #1\rp }
+\renewcommand{\cal}{\mathcal}
+\newcommand{\trafozb}[1]{\sum_{k=-\infty}^{\infty}  #1 z^{-k} }
+\newcommand{\trafoz}[1]{\sum_{k=0}^{\infty}  #1 z^{-k} }
+\newcommand{\sumainf}[1]{\sum_{#1 =-\infty}^{\infty} }
+\newcommand{\doscasos}[2]{\ly \begin{array}{l} #1 \\ #2 \end{array}
+\rpt}
+\newcommand{\doscasosTres}[3]{\ly \begin{array}{l} #1 \\ #2  \\ #3 \end{array}
+\rpt}
+\newcommand{\doscasosCuatro}[4]{\ly \begin{array}{l} #1 \\ #2  \\ #3  \\ #4 \end{array}
+\rpt}
+\newcommand{\casosdosxdos}[4]{\ly \begin{array}{ll} #1 & #2 \\ #3 & #4 \end{array}
+\rpt}
+\newcommand{\casostresxdos}[6]{\ly \begin{array}{ll} #1 & #2 \\ #3 & #4 \\ #5 & #6\end{array}
+\rpt}
+\newcommand{\casosM}[4]{\ly \begin{array}{ll} #1 & #2 \\ \\ #3 & #4 \end{array}
+\rpt}
+\newcommand{\casosd}[4]{\ly \begin{array}{ll} #1 & #2 \\ #3 & #4 \end{array}
+\ry}
+\newcommand{\Ginvdc}{G^{-1}(1)}
+\newcommand{\sigmaf}{\vec{\sigma}}
+\newcommand{\uf}{\vec{u}}
+\newcommand{\yf}{\vec{y}}
+\newcommand{\xf}{\vec{x}}
+\renewcommand{\sf}{\vec{s}}
+\newcommand{\uo}[0]{u_{opt}}
+\newcommand{\sigmaq}[0]{\sigma_{\hspace{-0.5mm} q}}
+\newcommand{\im}[1]{\operatorname{Im} \ly #1 \ry}
+
+\newcommand{\referencia}[0]{\operatorname{ref}}
+
+\newcommand{\igual}[1]{ \stackrel{_{(#1)}}{=} }
+\newcommand{\menori}[1]{ \stackrel{_{(#1)}}{\leq} }
+\newcommand{\mayori}[1]{ \stackrel{_{(#1)}}{\geq} }
+\newcommand{\mayor}[1]{ \stackrel{_{(#1)}}{>} }
+\newcommand{\menor}[1]{ \stackrel{_{(#1)}}{<} }
+\newcommand{\equivalen}[1]{ \stackrel{_{(#1)}}{\equivale} }
+
+\renewcommand{\det}[1]{ \operatorname{det}\lp #1 \rp}
+
+\newcommand{\dechat}[0]{ \bar{\mathscr{D}} }
+\newcommand{\enchat}[0]{ \bar{\mathscr{E}} }
+\newcommand{\markov}[0]{ \leftrightarrow }
+\newcommand{\tofrom}[0]{ \leftrightarrows }
+\newcommand{\dec}[0]{ \mathscr{D} }
+\newcommand{\enc}[0]{ \mathscr{E} }
+
+\newcommand{\arginf}[1]{ \underset{#1}{\operatorname{arg\, inf} } \; }
+\newcommand{\argmin}[1]{ \underset{#1}{\operatorname{arg\, min} } \; }
+
+\newcommand{\intomega}[1]{ \frac{1}{2\pi}\int_{-\pi}^{\pi} #1 d\omega }
+\newcommand{\intomegaK}[2]{ \frac{#1}{2\pi}\int_{-\pi}^{\pi} #2 d\omega }
+
+\newcommand{\mndelta}[0]{ \lp -\frac{\Delta}{2}, \frac{\Delta}{2} \rp }
+\newcommand{\prob}[1]{ \operatorname{P_r}\ly #1 \ry }
+
+\newcommand{\LT}[1]{ \cal{L}\ly #1 \ry }
+
+\newcommand{\iid}[0]{i.i.d. \hspace{-1.5mm}}
+\renewcommand{\ae}[0]{a.e. \hspace{-1mm}}
+
+\newcommand{\fn}{\operatorname{fn}}
+\newcommand{\activa}{\operatorname{act}}
+\newcommand{\FP}{\operatorname{FP}}
+\newcommand{\total}{\operatorname{total}}
+
+\def\qed{\relax\ifmmode\hskip2em \blacksquare \else\unskip\nobreak\hskip1em $\blacksquare$\fi}
+
+\newcommand{\mihrule}[0]{ \vspace*{2mm} \hrule \vspace*{2mm} }
+
+\newcommand{\EC}{\operatorname{EC}}
+\newcommand{\ECED}{\operatorname{EC-ED}}
+
+\newtheorem{solucion}{\textbf{Soluci\'on del Problema}}
+\newtheorem{pregunta}{\textbf{Problema}}[section]
+
+\newtheorem{assu}{\textbf{Suposición}}
+\newtheorem{problema}{\textbf{Problema}}
+\newtheorem{ejercicio}{\textbf{Ejercicio}}
+\newtheorem{problem}{\textbf{Problema}}
+\newtheorem{nota}{\textbf{Observación}}
+\newtheorem{coro}{\textbf{Corolario}}
+\newtheorem{propo}{\textbf{Proposition}}
+\newtheorem{lema}{\textbf{Lema}}
+\newtheorem{teorema}{\textbf{Teorema}}
+\newtheorem{ejemplo}{\textbf{Ejemplo}}
+\newtheorem{defi}{\textbf{Definición}}
+\newtheorem{remark}{\textbf{Nota}}
+%\newtheorem{claim}{\textbf{Claim}}
+%\newtheorem{req}{\textbf{Requirement}}
+%\newtheorem{constraint}{\textbf{Constraint}}
+\newtheorem{procedure}{\textbf{Procedure}}
+\newtheorem{property}{\textbf{Property}}
+%\newtheorem{fact}{\textbf{Fact}}
+\newtheorem{algoritmo}{\textbf{Algorithm}}
+
+%\newcommand{\findemo}{\hfill{$\blacksquare$}} %\hspace*{\fill}~$\square\square\square$} %\hfill{$\Box\Box\Box$} \\ }
+\newcommand{\finassu}{\hfill{$\Box\Box$} \\}
+\newcommand{\finejem}{\hfill{$\Box$} \\}
+\newcommand{\findef}{ $\Box$ }
+\newcommand{\fin}{~$\blacksquare$}
+\newcommand{\findemo}{\fin \bigskip}
+\newcommand{\finM}{\hspace*{\fill}~\square\square}
+
+\newcommand{\Perp}{\perp \! \! \! \perp}
+
+%\def\QED{\hfill{\mbox{\rule[0pt]{1.3ex}{1.3ex}}}} % for a filled box
+
+\def\proof{\noindent{\textbf{Demostración:} }}
+\def\endproof{\par\endtrivlist}
+
+\def\solucion{\noindent{\textbf{Solución:} }}
+\def\endproof{\par\endtrivlist}
+
+
+\newcommand{\indep}{\perp \! \! \! \perp}
+
+\def\further{\bigskip \noindent{\textbf{Further reading and sources:} \bfseries }}
+\def\endfurther{\bigskip}
+
+% Colores
+
+\newcommand {\fire}[1]{{\color[rgb]{0.6953, 0.1328, 0.1328} {#1}}}
+\newcommand {\green}[1]{{\color[rgb]{0,0.3906,0} {#1}}}
+\newcommand {\red}[1]{{\color[rgb]{1,0,0} {#1}}}
+\newcommand {\white}[1]{{\color[rgb]{1,1,1} {#1}}}
+\newcommand {\blue}[1]{{\color[rgb]{0,0,1} {#1}}}
+\newcommand {\magenta}[1]{{\color[rgb]{1,0,1} {#1}}}
+
+\newcommand{\Mbs}[1]{\ensuremath{\mathbf{#1}(s)}}
+\newcommand{\Mbz}[1]{\ensuremath{\mathbf{#1}[z]}}
+\newcommand{\Mbj}[1]{\ensuremath{\mathbf{#1}(j\omega)}}
+\newcommand{\Mb}[1]{\ensuremath{\mathbf{#1}}}
+%\newcommand{\jw}{j\omega}
+\newcommand{\wn}{\omega _n}
+\newcommand{\esd}{e^{s\Delta}}
+\newcommand{\ejwd}{e^{j\omega \Delta}}
+
+\newcommand{\inner}[1]{ \left\langle #1 \right\rangle }
+\newcommand{\gen}[1]{ \operatorname{span}\ly #1 \ry }
+\newcommand{\col}[1]{ \operatorname{col}\ly #1 \ry }
+
+\newcommand{\vecK}[1]{ \mathrm{vec}\ly #1 \ry}
+\newcommand{\reduce}{ \mathrm{red} }
+\newcommand{\vecKi}[1]{ \mathrm{vec}^{-1} \ly #1 \ry}
+
+\newcommand{\spec}[1]{ \mathrm{spec} \ly #1 \ry}
+
+%\newcommand{\eq}{\triangleq}
+\newcommand{\dw}{d\omega}
+
+\renewcommand{\Im}[1]{ \operatorname{Im} \ly #1 \ry }
+\renewcommand{\Re}[1]{ \operatorname{Re} \ly #1 \ry }
+
+
+%================================================================================
+% LO QUE SIGUE ERA DE DIEGO
+%================================================================================
+\newcommand{\rpt}{\right.}
+\newcommand{\lpt}{\left.}
+\newcommand{\lc}{\left[}
+\newcommand{\ly}{\left\{}
+\newcommand{\ry}{\right\}}
+\newcommand{\rc}{\right]}
+\newcommand{\lp}{\left(}
+\newcommand{\rp}{\right)}
+
+\newcommand{\ti}[1]{\ensuremath{\tilde{ #1 }}}
+\newcommand{\ninf}[1]{\ensuremath{\left|\left| #1 \right|\right|_\infty}}
+%\newcommand{\gr}[1]{\ensuremath{g_{r}\left\{#1\right\}}}
+\newcommand{\HH}{\mathcal{H}_2}
+\newcommand{\HHC}{\ensuremath{\mathcal{H}_2^{\perp}}}
+\newcommand{\RHinf}{\ensuremath{\mathcal{RH}_\infty}}
+
+\newcommand{\0}{\mathbf{0}}
+\newcommand{\Ti}{\ensuremath{\mathcal{T}_i}}
+\newcommand{\St}{\ensuremath{\mathcal{S}_t}}
+
+
+\newcommand{\vectri}{\mathrm{vec_T}}
+
+\newcommand{\SNR}{\text{SNR }}
+\newcommand{\snr}{\text{signal-to-noise ratio}}
+\newcommand{\Domega}{\Delta \omega}
+
+\def\sqrtR{\mathpalette\DHLhksqrt}
+\def\DHLhksqrt#1#2{\setbox0=\hbox{$#1\sqrt{#2\,}$}\dimen0=\ht0
+\advance\dimen0-0.2\ht0
+\setbox2=\hbox{\vrule height\ht0 depth -\dimen0}%
+{\box0\lower0.4pt\box2}}
+
+
+\newcommand{\iniciocomentario}{ \red{ \vspace{2mm} \hrule\vspace{2mm} } }
+\newcommand{\fincomentario}{ \red{ \vspace{2mm} \hrule \vspace{2mm}} }
+
+\newcommand{\derive}[2]{ \frac{\partial #1}{\partial #2}}
+
+%
