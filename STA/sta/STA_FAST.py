@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 #============================================================
 # STA FAST CHAIN
 # SPIKE TRIGGERED AVERAGE (STA) ALGORITHM FAST VERSION
@@ -51,89 +52,93 @@ import argparse #argument parsing
 #=============================================
 # Inputs
 #=============================================
-# parser = argparse.ArgumentParser(prog='sta_sspy.py',
- # description='Performs STA from a stimuli ensemble',
- # formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-# parser.add_argument('--getimagenames', default=0,
- # help='0,1 load image name list with the stimulus ensemble',
- # type=int, choices=[0, 1], required=False)
-# parser.add_argument('--openimagesandwrite', default=0,
- # help='0,1 DO TESTS FOR READ AND WRITE IMAGES',
- # type=int, choices=[0, 1], required=False)
-# parser.add_argument('--calculatemeanrf', default=0,
- # help='0,1 LOAD ALL THE IMAGES FROM THE STIMULOS ENSEMBLE '+
- # 'AND CALCULATE THE MEAN STIMULUS',
- # type=int, choices=[0, 1], required=False)
-# parser.add_argument('--algorithm', default=2,
- # help='1,2 How to perform STA, '+
- # '1 load all spike triggered stimuli,'+ 
- # '2 for sequentially load',
- # type=int, choices=[1, 2], required=False)
-# parser.add_argument('--unit',
- # help='NAME OF THE TXT FILE WITH TIME STAMPS FOR LOAD',
- # type=str, default='A10a', required=True)
-# parser.add_argument('--stafolder',
- # help='Output folder',
- # type=str, default='.', required=False)
-# parser.add_argument('--imagepath',
- # help='Path to images',
- # type=str, default='.', required=True)
-# parser.add_argument('--imagefolder',
- # help='Folder with the stimuli images',
- # type=str, default='.', required=True)
-# parser.add_argument('--imagefilter',
- # help='Filter for the stimuli images',
- # type=str, default='*.png')
-# parser.add_argument('--timefolder',
- # help='SPIKE TIME STAMPS FOLDER FOR LOAD SPIKE TRAINS',
- # type=str, default='.', required=True)
-# parser.add_argument('--syncfile',
- # help='SET THE NAME OF THE STIMULUS SYNCHRONY ANALYSIS FILE'+
- # 'IT CONTAINS THE INITIAL AND FINAL TIME STAMPS OF EACH FRAME',
- # type=str, default='.', required=True)
-# parser.add_argument('--samplingRate',
- # help='ADQUISITION SAMPLING RATE FOR THE RECORDS',
- # type=int, default=20000, required=False)
-# parser.add_argument('--numberframes',
- # help='NUMBER OF FRAMES BEFORE AND AFTER A SPIKE TO ANALISE',
- # type=int, default=13, required=False)
-# parser.add_argument('--numberframespost',
- # help='number of frames posterior to each spike for STA windows',
- # type=int, default=5, required=False)
-# parser.add_argument('--sizex',
- # help='SIZE OF EACH FRAME IN PIXELS X',
- # type=int, default=380, required=False)
-# parser.add_argument('--sizey',
- # help='SIZE OF EACH FRAME IN PIXELS Y',
- # type=int, default=380, required=False)
-# parser.add_argument('--dolog',
- # help='0,1 logarithm analysis for plot',
- # type=int, default=0, choices=[0, 1], required=False)
+parser = argparse.ArgumentParser(prog='STA_FAST.py',
+ description='Performs STA from a stimuli ensemble',
+ formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+parser.add_argument('--getimagenames', default=0,
+ help='0,1 load image name list with the stimulus ensemble',
+ type=int, choices=[0, 1], required=False)
+parser.add_argument('--openimagesandwrite', default=0,
+ help='0,1 DO TESTS FOR READ AND WRITE IMAGES',
+ type=int, choices=[0, 1], required=False)
+parser.add_argument('--calculatemeanrf', default=0,
+ help='0,1 LOAD ALL THE IMAGES FROM THE STIMULOS ENSEMBLE '+
+ 'AND CALCULATE THE MEAN STIMULUS',
+ type=int, choices=[0, 1], required=False)
+parser.add_argument('--algorithm', default=4,
+ help='1,2,4 How to perform STA, '+
+ '1 load all spike triggered stimuli,'+ 
+ '2 for sequentially load'+
+ '4 from text',
+ type=int, choices=[1, 2], required=False)
+parser.add_argument('--unit',
+ help='NAME OF THE TXT FILE WITH TIME STAMPS FOR LOAD',
+ type=str, default='A10a', required=False)
+parser.add_argument('--stafolder',
+ help='Output folder',
+ type=str, default='.', required=False)
+parser.add_argument('--path',
+ help='Path to files',
+ type=str, default='.', required=False)
+parser.add_argument('--folder',
+ help='Folder with the stimuli files',
+ type=str, default='.', required=False)
+parser.add_argument('--filter',
+ help='Filter for the stimuli images',
+ type=str, default='*.txt')
+parser.add_argument('--timefolder',
+ help='SPIKE TIME STAMPS FOLDER FOR LOAD SPIKE TRAINS',
+ type=str, default='.', required=True)
+parser.add_argument('--syncfile',
+ help='SET THE NAME OF THE STIMULUS SYNCHRONY ANALYSIS FILE'+
+ 'IT CONTAINS THE INITIAL AND FINAL TIME STAMPS OF EACH FRAME',
+ type=str, default='.', required=True)
+parser.add_argument('--samplingRate',
+ help='ADQUISITION SAMPLING RATE FOR THE RECORDS',
+ type=int, default=20000, required=False)
+parser.add_argument('--numberframes',
+ help='NUMBER OF FRAMES BEFORE AND AFTER A SPIKE TO ANALISE',
+ type=int, default=18, required=False)
+parser.add_argument('--numberframespost',
+ help='number of frames posterior to each spike for STA windows',
+ type=int, default=2, required=False)
+parser.add_argument('--sizex',
+ help='SIZE OF EACH FRAME IN PIXELS X',
+ type=int, default=19, required=False)
+parser.add_argument('--sizey',
+ help='SIZE OF EACH FRAME IN PIXELS Y',
+ type=int, default=19, required=False)
+parser.add_argument('--dolog',
+ help='0,1 logarithm analysis for plot',
+ type=int, default=0, choices=[0, 1], required=False)
+parser.add_argument('--stim_mini',
+ help='Stimuli matrix',
+ type=str, default='stim_mini.mat', required=True)
 
-# args = parser.parse_args()
+args = parser.parse_args()
 
 
 #=============================================
 # GET SPIKE TIME FILE NAMES
 #=============================================
 
-archivosruta = 'D:/sta_20_11_2013__bga50uM/'
+archivosruta = args.path
 
-archivosfolder = 'TS_datos0001/'
+archivosfolder = args.folder
 
-archivofiltro = '*.txt'
+archivofiltro = args.filter
 
 # FOLDER NAME TO SAVE EACH FOLDER RESULTS
-stafolder = 'STA_datos0001_fast'
+stafolder = args.stafolder
 
 # SET THE NAME OF THE STIMULUS SYNCHRONY ANALYSIS FILE
 # IT CONTAINS THE INITIAL AND FINAL TIME STAMPS OF EACH FRAME
-synchronyfile = 'inicio_fin_frame_datos0001.txt'
+synchronyfile = args.syncfile
 
-getimagenames = 0
-openimagesandwrite = 0
-calculatemeanrf = 0 
-tipoalgoritmo = 4
+getimagenames = args.getimagenames #must be 0
+openimagesandwrite = args.openimagesandwrite #must be 0
+calculatemeanrf = args.calculatemeanrf #must be 0
+tipoalgoritmo = args.algorithm
 
 # FOLDER NAME TO LOAD STIMULUS ENSEMBLE: IMAGE STIMULUS FOLDER
 # imageruta = 'C:/Users/ALIEN3/Desktop/'
@@ -144,24 +149,29 @@ tipoalgoritmo = 4
 timefolder = archivosfolder
 
 # SET THE ADQUISITION SAMPLING RATE OF THE RECORDS
-samplingRate = 20000 # Hz
+samplingRate = args.samplingRate # Hz
 
 # SET THE NUMBER OF FRAMES BEFORE AND AFTER A SPIKE TO ANALIZE:
 # number of frames previous to each spike for STA windows
-numberframes = 18
+numberframes = args.numberframes
 # number of frames posterior to each spike for STA windows
-numberframespost = 2
+numberframespost = args.numberframespost
 
 # SET THE SIZE OF EACH FRAME IN PIXELS
-sizex = 19 #380 #500 #750
-sizey = 19 #380 #500 #700
+sizex = args.sizex #19
+sizey = agrs.sizey #19
 
 # set if do logarithm analysis for plot:
-dolog = 0
+dolog = args.dolog
 
 # load image mat file
 #stim_mini
-ensemble = scipy.io.loadmat('stim_mini.mat')
+stimMini = args.stim_mini
+if not os.path.isfile(stimMini):
+	print 'File [' + stimMini + '] not found'
+	sys.exit()
+ensemble = scipy.io.loadmat(stimMini)
+
 estimulos = ensemble['stim']
 canal = 2 # same as choose channel 3 of RGB images
 estim = np.zeros(( sizex , sizey , 100000 ))
@@ -196,18 +206,19 @@ c = 1
 inicio = 201 - 1 #1 +10+10+50+50 + 4*4*3 -1
 final  = inicio + 600 #+ 3
 
-characterization = np.loadtxt('characterization_0001.txt')
-print 'len characterization ', len(characterization)
-print characterization[inicio:final]
+#characterization = np.loadtxt('characterization_0001.txt')
+#print 'len characterization ', len(characterization)
+#print characterization[inicio:final]
 
-f = open( 'units_0001.txt' ,'r')
-per_row = []
-for line in f:
-    per_row.append(line.split('\t'))
-# print 'len(per_row) ', len(per_row) ,'x', len(per_row[0]) 
-# print per_row[0][0]
-# print per_row[0][1]
-f.close()
+#vectores units y caracterizacion provienen de la tabla excel 
+#pwro como no la tenemoa...la primera vez se deben ignorar
+characterization = ones(600)  
+
+#f = open( 'units_0001.txt' ,'r')
+#per_row = []
+#for line in f:
+#    per_row.append(line.split('\t'))
+#f.close()
 
 # timestampName = 'L13b'
 
