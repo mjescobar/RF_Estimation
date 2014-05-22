@@ -208,12 +208,8 @@ meanimagearray = np.add.reduce(estim,axis=2) // (1.0* 100000)
 # # #----------------------------------
 
 c = 1
-inicio = 201 - 1 #1 +10+10+50+50 + 4*4*3 -1
-final  = inicio + 600 #+ 3
-
-#characterization = np.loadtxt('characterization_0001.txt')
-#print 'len characterization ', len(characterization)
-#print characterization[inicio:final]
+inicio = 1 - 1 #1 +10+10+50+50 + 4*4*3 -1
+final  = inicio + 599 #+ 3
 
 #vectores units y caracterizacion provienen de la tabla excel 
 #pwro como no la tenemoa...la primera vez se deben ignorar
@@ -221,16 +217,15 @@ characterization = np.loadtxt(args.characterisation)
 print 'len characterization ', len(characterization)
 print characterization[inicio:final]
 
+#Para que no pase de largo
+if final > len(characterization):
+	final=len(characterization)-inicio
+
 f = open( args.unit_files ,'r')
 per_row = []
 for line in f:
     per_row.append(line.split('\t'))
-# print 'len(per_row) ', len(per_row) ,'x', len(per_row[0]) 
-# print per_row[0][0]
-# print per_row[0][1]
 f.close()
-
-# timestampName = 'L13b'
 
 # SET THE NAME OF THE STIMULUS SYNCHRONY ANALYSIS FILE
 # IT CONTAINS THE INITIAL AND FINAL TIME STAMPS OF EACH FRAME
@@ -254,11 +249,7 @@ except OSError:
   pass
 
 cont = 0
-#for unitname in archivofilenames[inicio:final]:
 for kunit in range(inicio,final):
-	
-	# timestampName1 = os.path.basename(unitname)
-	# timestampName = os.path.splitext(timestampName1)[0]
 	timestampName = per_row[0][kunit]
 	
 	print timestampName,' ',characterization[kunit]
