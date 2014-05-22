@@ -82,13 +82,13 @@ parser.add_argument('--path',
  type=str, default='.', required=False)
 parser.add_argument('--folder',
  help='Folder with the stimuli files',
- type=str, default='.', required=False)
+ type=str, default='.', required=True)
 parser.add_argument('--filter',
  help='Filter for the stimuli images',
  type=str, default='*.txt')
 parser.add_argument('--timefolder',
  help='SPIKE TIME STAMPS FOLDER FOR LOAD SPIKE TRAINS',
- type=str, default='.', required=True)
+ type=str, default='.', required=False)
 parser.add_argument('--syncfile',
  help='SET THE NAME OF THE STIMULUS SYNCHRONY ANALYSIS FILE'+
  'IT CONTAINS THE INITIAL AND FINAL TIME STAMPS OF EACH FRAME',
@@ -114,7 +114,12 @@ parser.add_argument('--dolog',
 parser.add_argument('--stim_mini',
  help='Stimuli matrix',
  type=str, default='stim_mini.mat', required=True)
-
+parser.add_argument('--characterisation',
+ help='Characterisation',
+ type=str, default='characterization_0003.txt', required=True)
+parser.add_argument('--unit_files',
+ help='File with Units to process',
+ type=str, default='units_0003.txt', required=True)
 args = parser.parse_args()
 
 
@@ -159,7 +164,7 @@ numberframespost = args.numberframespost
 
 # SET THE SIZE OF EACH FRAME IN PIXELS
 sizex = args.sizex #19
-sizey = agrs.sizey #19
+sizey = args.sizey #19
 
 # set if do logarithm analysis for plot:
 dolog = args.dolog
@@ -212,13 +217,18 @@ final  = inicio + 600 #+ 3
 
 #vectores units y caracterizacion provienen de la tabla excel 
 #pwro como no la tenemoa...la primera vez se deben ignorar
-characterization = ones(600)  
+characterization = np.loadtxt(args.characterisation)
+print 'len characterization ', len(characterization)
+print characterization[inicio:final]
 
-#f = open( 'units_0001.txt' ,'r')
-#per_row = []
-#for line in f:
-#    per_row.append(line.split('\t'))
-#f.close()
+f = open( args.unit_files ,'r')
+per_row = []
+for line in f:
+    per_row.append(line.split('\t'))
+# print 'len(per_row) ', len(per_row) ,'x', len(per_row[0]) 
+# print per_row[0][0]
+# print per_row[0][1]
+f.close()
 
 # timestampName = 'L13b'
 
