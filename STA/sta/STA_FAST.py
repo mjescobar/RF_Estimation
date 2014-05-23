@@ -256,8 +256,6 @@ try:
 except OSError:
   pass
 
-cont = 0
-
 def sta_1():
 	# LOAD ALL THE FRAMES ACCORDING TO THE TIME STAMPS OF THE CELL
 	# NOT FUNCTIONAL ANYMORE
@@ -401,6 +399,34 @@ def sta_3():
 	timeAlgorithm3Total = timeAlgorithm3End - timeAlgorithm3Ini
 	print " Time process ", timeAlgorithm3Total, ' seg (', timeAlgorithm3Total/60, ' min)'
 
+def sta_4():
+	timeAlgorithm4Ini = time.time()
+	stac = np.zeros( ( sizex,sizey, numberframes+numberframespost ) ) # complete sta matrix 
+	for numeroframe in range(18): #for 18 frames
+		bigsta18 = np.zeros( ( sizex,sizey ) )
+		for kiter in range(len(stimei)):
+			bigsta18[:,:] = bigsta18[:,:] + estim[ :,:,stimei[kiter]-numeroframe ] - meanimagearray
+		sta18 = bigsta18 / (1.0 * len(stimei) ) # one part of the sta matrix
+		stac[:,:,18-1 - numeroframe] = sta18
+	acumula = np.zeros((sizex,sizey,numberframes+numberframespost))
+	STA = stac
+	print ' \n '
+	minimosta = np.min(np.min(np.min(STA)))
+	maximosta = np.max(np.max(np.max(STA)))
+	STA_desp = STA - minimosta
+	minimosta_desp = np.min(np.min(np.min(STA_desp)))
+	maximosta_desp = np.max(np.max(np.max(STA_desp)))
+	stavisual_lin = STA_desp * 255 # it is visualized with lineal scale
+	stavisual_lin = stavisual_lin // (maximosta_desp *1.0) # it is normalized with lineal scale
+	# FINAL NORMALIZATION FOR THE MEAN STA
+	MEANSTA_lin = ( np.add.reduce(stavisual_lin,axis=2) / (1.0 * (numberframes+numberframespost) ) )
+	timeAlgorithm4End = time.time()
+	timeAlgorithm4Total = timeAlgorithm4End - timeAlgorithm4Ini
+	print " Time process ", timeAlgorithm4Total, ' seg (', timeAlgorithm4Total/60, ' min)'
+	print '\nsize STA: ',len(STA),'x',len(STA[0]),'x',len(STA[0][0])
+	return (STA , stavisual_lin, MEANSTA_lin, STA_desp, acumula)
+
+
 for kunit in range(inicio,final):
 	timestampName = per_row[0][kunit]
 	
@@ -408,60 +434,39 @@ for kunit in range(inicio,final):
 	if characterization[kunit] > 0:
 		print 'Analysing Unit ',timestampName, ' loop :', c ,' unit n ', c + inicio
 		print '---------------------BEGIN---------------------------'
-
-		#============================================================
-		# DO STA
-		#============================================================
-
 		#--------------------------------------------------------
 		# get spike time stamps from file 
 		#--------------------------------------------------------
-
 		neurontag = timestampName # tag or number of cell
-
 		rastercelulatxtfile = timefolder + timestampName +'.txt'
-
 		timestamps = np.loadtxt(rastercelulatxtfile) # text file containing time spikes in datapoints
-
 		neuronresultfolder_lin = str(neurontag)+'_lineal'
-
 		try:
 		  os.mkdir( stafolder+'/'+neuronresultfolder_lin ) # create the folder
 		except OSError:
-		  pass
-		
+		  pass		
 		finalfolder_lin = stafolder+'/'+neuronresultfolder_lin
-
 		print 'size time stamps vector: ', len(timestamps) #, 'x',len(timestamps[0])
-
 		#--------------------------------------------------------
 		# get time spikes depending of the stimulus start (frame do not start in time=0)
 		#--------------------------------------------------------
-
 		#--------------------------------------------------------
 		# Conversion of spike times from seconds to POINTS:
 		#--------------------------------------------------------
 		vector_spikes = timestamps[:]*samplingRate # without first id zero column (1 COLUMMN)
-
 		stimei = []  # initialize time spike index depending of image time
-
 		spikeframe_matrix = np.zeros( (len(vector_spikes), 4) ) # [spike time, frame id, ini time frame, end time frame]
-
 		#--------------------------------------------------------
 		# convert stimes (SPIKE TIMES) to frame indexes (image index):
 		#--------------------------------------------------------
-
 		primer_frame = 0
 		frame_ant = 0
 		print 'Get the spike triggered stimuli indices: \n'
-
 		contator = 0
 		contator2 = 0
 		totalcont = len(vector_spikes) * len(range(primer_frame, len(vector_fin_frame)))
-		
 		for punto_spike in vector_spikes:
-			condicion = 1
-			
+			condicion = 1			
 			for i in range(primer_frame, len(vector_fin_frame)):
 				if (vector_inicio_frame[i] < punto_spike) & (punto_spike <= vector_fin_frame[i]):
 					# if the spike time is into a frame time points (start and ends)
@@ -473,29 +478,15 @@ for kunit in range(inicio,final):
 					frame_ant = i
 					break
 			sys.stdout.write("\r%d%%" %contator2)
-			sys.stdout.flush()
-			
+			sys.stdout.flush()			
 			contator = contator + 1 #
-			contator2 = contator * 100 // ( 1.0 * len(vector_spikes) )
-			
+			contator2 = contator * 100 // ( 1.0 * len(vector_spikes) )		
 			primer_frame = frame_ant
-			
-
 		print '\n'	
 		limite3 = len(stimei)
 		print 'length frames times vector', len(vector_fin_frame)
 		print "length time stamps vector: ", len(timestamps)
 		print "length spike triggered stimuli time i vector: ", len(stimei)
-
-		# #--------------------------------------------------------
-		# # load mean frame from mat file:
-		# #--------------------------------------------------------
-		# cadena_texto = "mean_image"
-		# #print "\t Loading mean frame from mat file: ",cadena_texto
-		# contenedor = scipy.io.loadmat(stafolder+'/'+cadena_texto+'.mat')
-		# meanimagearray = contenedor['meanimagearray']
-		# del contenedor
-
 		#--------------------------------------------------------
 		# STA Algorithm
 		#--------------------------------------------------------
@@ -515,63 +506,9 @@ for kunit in range(inicio,final):
 			
 		#===============================================================================
 		#------------------- ALGORITHM TYPE 4----------------------
-		if(tipoalgoritmo == 4): # LOAD entire matrix stimuli AND CALCULATES THE STA SEQUENTIALLY 
-			timeAlgorithm4Ini = time.time()
-
-			stac = np.zeros( ( sizex,sizey, numberframes+numberframespost ) ) # complete sta matrix 
+		if(tipoalgoritmo == 4): # LOAD entire matrix stimuli AND CALCULATES THE STA SEQUENTIALLY
+			STA , stavisual_lin , MEANSTA_lin, STA_desp, acumula = sta_4()
 			
-			for numeroframe in range(18): #for 18 frames
-				bigsta18 = np.zeros( ( sizex,sizey ) )
-				for kiter in range(len(stimei)):
-					bigsta18[:,:] = bigsta18[:,:] + estim[ :,:,stimei[kiter]-numeroframe ] - meanimagearray
-				sta18 = bigsta18 / (1.0 * len(stimei) ) # one part of the sta matrix
-				stac[:,:,18-1 - numeroframe] = sta18
-			#-------------------------------------------------------------
-			
-			acumula = np.zeros((sizex,sizey,numberframes+numberframespost))
-			
-			STA = stac
-			
-			print ' \n '
-			
-			minimosta = np.min(np.min(np.min(STA)))
-			maximosta = np.max(np.max(np.max(STA)))
-			# print '\nmin sta ', minimosta, ' max sta ', maximosta
-			
-			STA_desp = STA - minimosta
-			# if minimosta < 0:
-				# STA_desp = STA + np.abs(minimosta) # lineal shift
-			# if minimosta >= 0:
-				# STA_desp = STA - np.abs(minimosta) # lineal shift
-			minimosta_desp = np.min(np.min(np.min(STA_desp)))
-			maximosta_desp = np.max(np.max(np.max(STA_desp)))
-			# print 'min sta with bias', minimosta_desp
-			# print 'max sta with bias', maximosta_desp
-			
-			stavisual_lin = STA_desp * 255 # it is visualized with lineal scale
-			stavisual_lin = stavisual_lin // (maximosta_desp *1.0) # it is normalized with lineal scale
-			# print 'min sta visual lineal', np.min(np.min(np.min(stavisual_lin)))
-			# print 'max sta visual lineal', np.min(np.max(np.max(stavisual_lin)))
-			
-			# FINAL NORMALIZATION FOR THE MEAN STA
-			MEANSTA_lin = ( np.add.reduce(stavisual_lin,axis=2) / (1.0 * (numberframes+numberframespost) ) )
-			
-			timeAlgorithm4End = time.time()
-			timeAlgorithm4Total = timeAlgorithm4End - timeAlgorithm4Ini
-			print " Time process ", timeAlgorithm4Total, ' seg (', timeAlgorithm4Total/60, ' min)'
-			#===============================================================================
-			
-			
-
-		#============================================================
-		#============================================================
-
-		print '\nsize STA: ',len(STA),'x',len(STA[0]),'x',len(STA[0][0])
-
-		#----------------------------------------------------
-		# save results
-		#----------------------------------------------------
-
 		#----------------------------------------------------
 		# save spike time stamp and frame index
 		#----------------------------------------------------
@@ -589,15 +526,6 @@ for kunit in range(inicio,final):
 		scipy.io.savemat(finalfolder_lin+'/'+cadena_texto+'.mat',mdict={'STA_array':STA_array},oned_as='column')
 		
 		#----------------------------------------------------
-		# save true SMALL STA matrix (NON SCALED for visual plot)
-		#----------------------------------------------------
-		# if dosmall:
-			# STASmall_array = np.array(STASmall)
-			# cadena_texto = "stasmall_array_"+str(neurontag)
-			# print "\t Saving Small STA as mat file: ",cadena_texto
-			# scipy.io.savemat(finalfolder_lin+'/'+cadena_texto+'.mat',mdict={'STASmall_array':STASmall_array},oned_as='column')
-
-		#----------------------------------------------------
 		# save visual STA matrix ( RE SCALED for visual plot)
 		#----------------------------------------------------
 		stavisual_lin_array = np.array(stavisual_lin)
@@ -605,50 +533,14 @@ for kunit in range(inicio,final):
 		print "Saving visual STA (lineal) as mat file: ",cadena_texto
 		scipy.io.savemat(finalfolder_lin+'/'+cadena_texto+'.mat',mdict={'STAarray_lin':stavisual_lin_array},oned_as='column')
 
-		#----------------------------------------------------
-		# save visual SMALL STA matrix ( RE SCALED for visual plot)
-		#----------------------------------------------------
-		# if dosmall:
-			# sta_small_visual_lin_array = np.array(sta_small_visual_lin)
-			# cadena_texto = "stasmallvisual_lin_array_"+str(neurontag)
-			# print "\t Saving visual STA Small (lineal) as mat file: ",cadena_texto
-			# scipy.io.savemat(finalfolder_lin+'/'+cadena_texto+'.mat',mdict={'sta_small_visual_lin_array':sta_small_visual_lin_array},oned_as='column')
-
 		print 'Saving images in lineal scale...'
 		
-		# for b in range(numberframes+numberframespost):
-			# #print 'Image ', b
-			# sys.stdout.write("\r Image %d" %(b ) ) 
-			# sys.stdout.flush()
-			# component = stavisual_lin[:,:,b] #STA[:,:,b]
-			# pl.figure()
-			# #im = pl.imshow(component,interpolation = 'none')
-			# #im = pl.pcolor( component,vmin = 0,vmax = 255, cmap=cm.jet )
-			# im = pl.pcolormesh( component,vmin = 0,vmax = 255, cmap=cm.jet )
-			# #pl.contour(component)
-			# pl.colorbar(im)
-			# ax = pl.axes()
-			# ax.set_yticklabels([])
-			# ax.set_xticklabels([])
-			# #ax.annotate(str(a+1), (.1, 1.2), bbox=dict(boxstyle="round, pad=0.3", fc="w"), size=52 )
-			# pl.savefig(finalfolder_lin+"/STA-"+str(neurontag)+"-"+str(b)+"-g_.png",format='png', bbox_inches='tight')
-			# #pl.savefig(stafolder+"/STA-"+str(neurontag)+"-"+str(b)+"-g_.jpg",format='jpg', bbox_inches='tight')
-			# #del pl
-			# del component
-		
-		#------------------------------------------------------
 		plt.clf()
 		fig = plt.figure(1, figsize=(12,10))
 		
 		ax = fig.add_subplot(3,6,1)
 		component = stavisual_lin[:,:,0]
-		# im = pl.pcolormesh( component,vmin = 0,vmax = 255, cmap=cm.jet )
-		# pl.colorbar(im)
 		ax.pcolormesh( component,vmin = 0,vmax = 255, cmap=cm.jet )
-		# ax = pl.axes()
-		# ax.colorbar(im)
-		# ax = pl.axes()
-		#cbar = fig.colorbar( cax )
 		ax.set_yticklabels([])
 		ax.set_xticklabels([])
 		ax.set_aspect(1)
@@ -669,25 +561,6 @@ for kunit in range(inicio,final):
 		plt.clf()
 		#------------------------------------------------------
 
-		
-		# SMALL
-		# if dosmall:
-			# print '\nSaving Small images in lineal scale...'
-			# for b in range(numberframes+numberframespost):
-				# sys.stdout.write("\r Image %d" %(b ) ) 
-				# sys.stdout.flush()
-				# component = sta_small_visual_lin[:,:,b] #STA[:,:,b]
-				# pl.figure()
-				# im = pl.pcolormesh( component,vmin = 0,vmax = 255, cmap=cm.jet )
-				# #pl.contour(component)
-				# pl.colorbar(im)
-				# ax = pl.axes()
-				# ax.set_yticklabels([])
-				# ax.set_xticklabels([])
-				# #ax.annotate(str(a+1), (.1, 1.2), bbox=dict(boxstyle="round, pad=0.3", fc="w"), size=52 )
-				# pl.savefig(finalfolder_lin+"/Small_STA-"+str(neurontag)+"-"+str(b)+"-g_.png",format='png', bbox_inches='tight')
-				# del component
-
 		print 'Saving mean image in lineal scale...'
 		pl.figure()
 		im = pl.pcolormesh(MEANSTA_lin,vmin = 0,vmax = 255, cmap=cm.jet)
@@ -696,22 +569,13 @@ for kunit in range(inicio,final):
 		ax = pl.axes()
 		ax.set_yticklabels([])
 		ax.set_xticklabels([])
-		#ax.annotate(str(a+1), (.1, 1.2), bbox=dict(boxstyle="round, pad=0.3", fc="w"), size=52 )
 		pl.savefig(finalfolder_lin+"/MEANSTA-g_"+str(neurontag)+".png",format='png', bbox_inches='tight')
-		# del ax
-
 		print 'CELL ' + timestampName + ' FINISHED!!!'
 		print '-----------------------END---------------------------'
-		
 		del STA_desp 
 		del STA 
 		del stavisual_lin 
 		del spikeframe_matrix
-		#del imagen
 		del acumula
-		#----------------------------------------------------------------------
-		
 	c = c +1
-	cont = cont + 1
-	#gc.collect()
 
