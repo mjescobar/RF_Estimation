@@ -71,9 +71,12 @@ parser.add_argument('--algorithm', default=4,
  '2 for sequentially load'+
  '4 from text',
  type=int, choices=[1, 2], required=False)
-parser.add_argument('--unit',
- help='NAME OF THE TXT FILE WITH TIME STAMPS FOR LOAD',
- type=str, default='A10a', required=False)
+parser.add_argument('--start',
+ help='From which units should be processed',
+ type=int, default='0', required=False)
+parser.add_argument('--end',
+ help='Up to which units should be processed',
+ type=int, default='2', required=False)
 parser.add_argument('--stafolder',
  help='Output folder',
  type=str, default='.', required=False)
@@ -169,8 +172,7 @@ sizey = args.sizey #19
 # set if do logarithm analysis for plot:
 dolog = args.dolog
 
-# load image mat file
-#stim_mini
+# load image mat file stim_mini
 stimMini = args.stim_mini
 if not os.path.isfile(stimMini):
 	print 'File [' + stimMini + '] not found'
@@ -183,10 +185,7 @@ estim = np.zeros(( sizex , sizey , 100000 ))
 
 # transform each image from rgb to grayscale
 for ke in range(100000):
-	#estim[:,:,ke] = estimulos[:,:,canal,ke] 
 	rgb = estimulos[:,:,:,ke]
-	# r, g, b = rgb[:,:,0], rgb[:,:,1], rgb[:,:,2]
-	# gray = 0.2989 * r + 0.5870 * g + 0.1140 * b
 	gray = np.dot(rgb[...,:3], [0.299, 0.587, 0.144])
 	estim[:,:,ke] = gray
 
@@ -194,34 +193,39 @@ estim = np.array(estim)
 
 meanimagearray = np.add.reduce(estim,axis=2) // (1.0* 100000)
 
-# # #----------------------------------
-# for k in range(10):
-	# pl.figure()
-	# im = pl.pcolormesh(estim[:,:,k],vmin = 0,vmax = 255, cmap=cm.jet)
-	# pl.jet()
-	# pl.colorbar(im)
-	# ax = pl.axes()
-	# ax.set_yticklabels([])
-	# ax.set_xticklabels([])
-	# nombre = 'figura'+str(k)+'.png'
-	# pl.savefig(nombre,format='png', bbox_inches='tight')
-# # #----------------------------------
-
 c = 1
-inicio = 1 - 1 #1 +10+10+50+50 + 4*4*3 -1
-final  = inicio + 599 #+ 3
+inicio = args.start
+final  = args.end
 
+if inicio < 0:
+	print ''
+	print 'start can not be lesser than 0'
+	sys.exit()
+	
+if inicio > final:
+	print ''
+	print 'start can not be lesser than end'
+	sys.exit()
+	
 #vectores units y caracterizacion provienen de la tabla excel 
-#pwro como no la tenemoa...la primera vez se deben ignorar
-characterization = np.loadtxt(args.characterisation)
-print 'len characterization ', len(characterization)
-print characterization[inicio:final]
+#pero como no la tenemos...la primera vez se deben ignorar
+characterisationFile = args.characterisation
+if not os.path.isfile(characterisationFile):
+	print ''
+	print 'File [' + characterisationFile + '] not found'
+	sys.exit()
+characterization = np.loadtxt(characterisationFile)
 
 #Para que no pase de largo
 if final > len(characterization):
 	final=len(characterization)-inicio
 
-f = open( args.unit_files ,'r')
+unit_files = args.unit_files
+if not os.path.isfile(unit_files):
+	print ''
+	print 'File [' + unit_files + '] not found'
+	sys.exit()
+f = open( unit_files ,'r')
 per_row = []
 for line in f:
     per_row.append(line.split('\t'))
@@ -229,6 +233,10 @@ f.close()
 
 # SET THE NAME OF THE STIMULUS SYNCHRONY ANALYSIS FILE
 # IT CONTAINS THE INITIAL AND FINAL TIME STAMPS OF EACH FRAME
+if not os.path.isfile(synchronyfile):
+	print ''
+	print 'File [' + synchronyfile + '] not found'
+	sys.exit()
 inicio_fin_frame = np.loadtxt(synchronyfile)
 
 vector_fin_frame = inicio_fin_frame[:,1]
@@ -249,12 +257,156 @@ except OSError:
   pass
 
 cont = 0
+
+def sta_1():
+	# LOAD ALL THE FRAMES ACCORDING TO THE TIME STAMPS OF THE CELL
+	# NOT FUNCTIONAL ANYMORE
+	limite3 = len(stimei)
+	kframe = 0
+	spk = np.zeros((500,500,numberframes,limite3))
+	
+	for kiter in range(limite3):
+		kframe = stimei[kiter]
+		for b in range(numberframes):
+			print ' kiter: ',kiter, ' kframe: ',kframe, ' b: ',b
+			line = ifn2[kframe-(numberframes-1)+ b ]
+			imagen = scim.imread(line, flatten=True)
+			spk[:,:,b,kiter] = imagen - meanimagearray
+
+	N = len(stimei)
+	STA = ( np.add.reduce(spk,axis=3) / (1.0 * N) ) 
+	MEANSTA = ( np.add.reduce(STA,axis=2) / (1.0 * numberframes) )
+
+def sta_2():
+	# LOAD EACH FRAME AND CALCULATES THE STA SEQUENTIALLY
+	timeAlgorithm2Ini = time.time()
+	kframe = 0
+	cadena_texto = "mean_image"
+	contenedor = scipy.io.loadmat(stafolder+'/'+cadena_texto+'.mat')
+	meanimagearray = contenedor['meanimagearray']
+	del contenedor
+	sizex = 380
+	sizey = 380
+	acumula = np.zeros((sizex,sizey,numberframes+numberframespost))
+	print 'Get the spike triggered stimuli: \n '
+	for kiter in range(limite3):
+		timeProcessIni = time.time()
+		kframe = stimei[kiter]
+		for b in range(numberframes+numberframespost):
+			line = ifn2[kframe-(numberframes-1)+ b]
+			imagen = scim.imread( line, flatten=True )
+			acumula[:,:,b] = acumula[:,:,b] + (imagen - meanimagearray)
+		if kiter > len(stimei):
+			break
+		timeProcessFin = time.time() 
+		tiempoDiferencia = timeProcessFin - timeProcessIni
+		sys.stdout.write("\r%d%%" %((kiter+1)*100.0/limite3, ) ) 
+		sys.stdout.flush()
+	N = limite3 # len(stimei)
+	STA = acumula // N
+	print ' \n '
+	minimosta = np.min(np.min(np.min(STA)))
+	maximosta = np.max(np.max(np.max(STA)))
+	print '\nmin sta ', minimosta, ' max sta ', maximosta
+	if minimosta < 0:
+		STA_desp = STA + np.abs(minimosta) # lineal shift
+	if minimosta >= 0:
+		STA_desp = STA - np.abs(minimosta) # lineal shift
+	minimosta_desp = np.min(np.min(np.min(STA_desp)))
+	maximosta_desp = np.max(np.max(np.max(STA_desp)))
+	print 'min sta with bias', minimosta_desp
+	print 'max sta with bias', maximosta_desp
+	stavisual_lin = STA_desp*255 # it is visualized with lineal scale
+	stavisual_lin = stavisual_lin // (maximosta_desp *1.0) # it is normalized with lineal scale
+	print 'min sta visual lineal', np.min(np.min(np.min(stavisual_lin)))
+	print 'max sta visual lineal', np.min(np.max(np.max(stavisual_lin)))
+	# FINAL NORMALIZATION FOR THE MEAN STA
+	MEANSTA_lin =  np.add.reduce(stavisual_lin,axis=2) 
+	timeAlgorithm2End = time.time()
+	timeAlgorithm2Total = timeAlgorithm2End - timeAlgorithm2Ini
+	print " Time process ", timeAlgorithm2Total, ' seg (', timeAlgorithm2Total/60, ' min)'
+
+def sta_3():
+	timeAlgorithm3Ini = time.time()
+	print 'Get the spike triggered stimuli: \n '
+	sizechunk = 40
+	sizesmall = 20
+	acumula = np.zeros((sizex,sizey,numberframes+numberframespost))
+	if dosmall:
+		acumulaSmall = np.zeros((sizesmall,sizesmall,numberframes+numberframespost))
+	for kblock in range(np.round(limite3/sizechunk)):
+		spk = np.zeros((sizex,sizey,numberframes+numberframespost,sizechunk))
+		if dosmall:
+			spkSmall = np.zeros((sizesmall,sizesmall,numberframes+numberframespost,sizechunk))
+		for kiter in range(sizechunk):
+			kframe = stimei[kiter+kblock*sizechunk]
+			for b in range(numberframes+numberframespost):
+				line = ifn2[kframe-(numberframes-1)+ b ]
+				imagen = scim.imread(line, flatten = True )
+				if dosmall:
+					imagenSmall = scipy.misc.imresize(imagen, [sizesmall,sizesmall] , interp = 'bilinear' , mode = None )
+				spk[:,:,b,kiter] = imagen
+				if dosmall:
+					spkSmall[:,:,b,kiter] = imagenSmall
+		del imagen
+		del line
+		if dosmall:
+			del imagenSmall
+		acuchunk = ( np.add.reduce(spk,axis=3) ) 
+		acumula[:,:,:] = acumula[:,:,:] + acuchunk
+		if dosmall:
+			acuchunkSmall = ( np.add.reduce(spkSmall,axis=3) )
+			acumulaSmall[:,:,:] = acumulaSmall[:,:,:] + acuchunkSmall
+		if kblock > np.round(limite3/sizechunk):
+			break
+		sys.stdout.write("\r%d%%" % ((kblock+1)*100.0 /(np.round(limite3/sizechunk)), ) )
+		sys.stdout.flush()
+	N = limite3 
+	STA = acumula // N
+	for b in range(numberframes+numberframespost):
+		STA[:,:,b] = STA[:,:,b] - meanimagearray
+	if dosmall:
+		meansmall = scipy.misc.imresize(meanimagearray,[sizesmall,sizesmall], interp='bilinear', mode=None)
+		STASmall = acumulaSmall // N
+		for b in range(numberframes+numberframespost):
+			STASmall[:,:,b] = STASmall[:,:,b] - meansmall
+	print ' \n '
+	minimosta = np.min(np.min(np.min(STA)))
+	maximosta = np.max(np.max(np.max(STA)))
+	if minimosta < 0:
+		STA_desp = STA + np.abs(minimosta) # lineal shift
+	if minimosta >= 0:
+		STA_desp = STA - np.abs(minimosta) # lineal shift
+	minimosta_desp = np.min(np.min(np.min(STA_desp)))
+	maximosta_desp = np.max(np.max(np.max(STA_desp)))
+	stavisual_lin = STA_desp*255 # it is visualized with lineal scale
+	stavisual_lin = stavisual_lin // (maximosta_desp *1.0) # it is normalized with lineal scale
+	# FINAL NORMALIZATION FOR THE MEAN STA
+	MEANSTA_lin = ( np.add.reduce(stavisual_lin,axis=2) / (1.0 * (numberframes+numberframespost) ) )
+	if dosmall:
+		minstasmall = np.min(np.min(np.min(STASmall)))
+		maxstasmall = np.max(np.max(np.max(STASmall)))
+		if minstasmall < 0:
+			STA_Small_desp = STASmall + np.abs(minstasmall) # lineal shift
+		if minstasmall >= 0:
+			STA_Small_desp = STASmall - np.abs(minstasmall) # lineal shift
+		minstasmall_desp = np.min(np.min(np.min(STA_Small_desp)))
+		maxstasmall_desp = np.max(np.max(np.max(STA_Small_desp)))
+		sta_small_visual_lin = STA_Small_desp * 255 # it is visualized with lineal scale
+		sta_small_visual_lin = sta_small_visual_lin // (maxstasmall_desp *1.0) # it is normalized with lineal scale
+		# FINAL NORMALIZATION FOR THE MEAN STA
+		MEAN_STA_small_lin = ( np.add.reduce(sta_small_visual_lin,axis=2) / (1.0 * (numberframes+numberframespost) ) )
+			
+	timeAlgorithm3End = time.time()
+	timeAlgorithm3Total = timeAlgorithm3End - timeAlgorithm3Ini
+	print " Time process ", timeAlgorithm3Total, ' seg (', timeAlgorithm3Total/60, ' min)'
+
 for kunit in range(inicio,final):
 	timestampName = per_row[0][kunit]
 	
 	print timestampName,' ',characterization[kunit]
 	if characterization[kunit] > 0:
-		print 'Analyzing Unit ',timestampName, ' loop :', c ,' unit n ', c + inicio
+		print 'Analysing Unit ',timestampName, ' loop :', c ,' unit n ', c + inicio
 		print '---------------------BEGIN---------------------------'
 
 		#============================================================
@@ -287,17 +439,9 @@ for kunit in range(inicio,final):
 		#--------------------------------------------------------
 
 		#--------------------------------------------------------
-		# Conversion from microseconds to seconds
-		#--------------------------------------------------------
-		#timestamps2 = timestamps[:,1]/1000000
-		#print timestamps2[100,1]
-
-		#--------------------------------------------------------
 		# Conversion of spike times from seconds to POINTS:
 		#--------------------------------------------------------
-		#vector_spikes = timestamps[:,1]*samplingRate
 		vector_spikes = timestamps[:]*samplingRate # without first id zero column (1 COLUMMN)
-		#vector_spikes = timestamps[:,1]
 
 		stimei = []  # initialize time spike index depending of image time
 
@@ -308,9 +452,7 @@ for kunit in range(inicio,final):
 		#--------------------------------------------------------
 
 		primer_frame = 0
-
 		frame_ant = 0
-
 		print 'Get the spike triggered stimuli indices: \n'
 
 		contator = 0
@@ -321,35 +463,19 @@ for kunit in range(inicio,final):
 			condicion = 1
 			
 			for i in range(primer_frame, len(vector_fin_frame)):
-				#i = primer_frame
 				if (vector_inicio_frame[i] < punto_spike) & (punto_spike <= vector_fin_frame[i]):
 					# if the spike time is into a frame time points (start and ends)
-					
-					#print '\npunto de inicio de frame:\t',inicio_fin_frame[i,0]
-					#print 'punto de spike:\t\t\t',punto_spike
-					#print 'punto de final de frame:\t',inicio_fin_frame[i,1]
 					spikeframe_matrix[contator,0] = punto_spike
 					spikeframe_matrix[contator,1] = vector_fin_frame[i]
 					spikeframe_matrix[contator,2] = inicio_fin_frame[i,0]
 					spikeframe_matrix[contator,3] = inicio_fin_frame[i,1]
-					
-					#print '\r punto_spike: ',punto_spike, ' i: ',i
 					stimei.append(i)
 					frame_ant = i
 					break
-
-					#contator2 = contator * 100 // (1.0 * len(vector_spikes) * len(vector_fin_frame) )
-					#time.sleep(1)
-					#sys.stdout.write("\r%d%%" %contator2, "%d%%" %contator)    # or print >> sys.stdout, "\r%d%%" %i,
-					# sys.stdout.write("\r%d%%" %contator2)
-					# sys.stdout.flush()
-				
-			#i = i+1
 			sys.stdout.write("\r%d%%" %contator2)
 			sys.stdout.flush()
 			
 			contator = contator + 1 #
-			#contator2 = contator * 100 // (1.0 * len(vector_spikes) * len(vector_fin_frame) )/47*100
 			contator2 = contator * 100 // ( 1.0 * len(vector_spikes) )
 			
 			primer_frame = frame_ant
@@ -376,244 +502,17 @@ for kunit in range(inicio,final):
 
 		#------------------- ALGORITHM TYPE 1----------------------
 		if(tipoalgoritmo == 1):
-		# LOAD ALL THE FRAMES ACCORDING TO THE TIME STAMPS OF THE CELL
-		# NOT FUNCTIONAL ANYMORE
-			limite3 = len(stimei)
-			kframe = 0
-			spk = np.zeros((500,500,numberframes,limite3))
-			
-			for kiter in range(limite3):
-				kframe = stimei[kiter]
-			
-				for b in range(numberframes):
-					print ' kiter: ',kiter, ' kframe: ',kframe, ' b: ',b
-					line = ifn2[kframe-(numberframes-1)+ b ]
-					imagen = scim.imread(line, flatten=True)
-					spk[:,:,b,kiter] = imagen - meanimagearray
-
-			N = len(stimei)
-			STA = ( np.add.reduce(spk,axis=3) / (1.0 * N) ) 
-			#sta = sum(spk, axis=1 (over column) ) / (1*Number_Spikes)
-			MEANSTA = ( np.add.reduce(STA,axis=2) / (1.0 * numberframes) )
-
+			sta_1()	
 
 		#------------------- ALGORITHM TYPE 2----------------------
 		if(tipoalgoritmo == 2): # sequentially algorithm
-			# LOAD EACH FRAME AND CALCULATES THE STA SEQUENTIALLY
-			timeAlgorithm2Ini = time.time()
-			kframe = 0
-			
-			cadena_texto = "mean_image"
-			#print "\t Loading mean frame from mat file: ",cadena_texto
-			contenedor = scipy.io.loadmat(stafolder+'/'+cadena_texto+'.mat')
-			meanimagearray = contenedor['meanimagearray']
-			del contenedor
-
-			sizex = 380
-			sizey = 380
-			acumula = np.zeros((sizex,sizey,numberframes+numberframespost))
-
-			#timeProcessIni = time.time()
-
-			print 'Get the spike triggered stimuli: \n '
-			for kiter in range(limite3):
-				timeProcessIni = time.time()
-				
-				kframe = stimei[kiter]
-				
-				for b in range(numberframes+numberframespost):
-					#print 'b ',b
-					line = ifn2[kframe-(numberframes-1)+ b]
-					imagen = scim.imread( line, flatten=True )
-					#spk[:,:,b,kiter] = imagen
-					acumula[:,:,b] = acumula[:,:,b] + (imagen - meanimagearray)
-					
-				if kiter > len(stimei):
-					break
-					
-				timeProcessFin = time.time() 
-				tiempoDiferencia = timeProcessFin - timeProcessIni
-				#print '\r kiter: ',kiter, ' kframe: ',kframe, '  ',"%.2f" % ((kiter+1)*100.0/limite3, ), ' % ' , (limite3 -(kiter+0)) * tiempoDiferencia/60, 'min'
-
-				#sys.stdout.write("\r%d%%" %contator2)   
-				#sys.stdout.write("\r%d%% %d%%" %((kiter+1)*100.0/limite3) %(limite3 -(kiter+0)) * tiempoDiferencia/60)    
-				sys.stdout.write("\r%d%%" %((kiter+1)*100.0/limite3, ) ) 
-				#sys.stdout.write("\r%d%%" %((limite3 -(kiter+0)) * tiempoDiferencia/60 ) ) 
-				sys.stdout.flush()
-				
-				
-			N = limite3 # len(stimei)
-
-			STA = acumula // N
-			
-			print ' \n '
-
-			minimosta = np.min(np.min(np.min(STA)))	
-			maximosta = np.max(np.max(np.max(STA)))
-			print '\nmin sta ', minimosta, ' max sta ', maximosta
-			
-			if minimosta < 0:
-				STA_desp = STA + np.abs(minimosta) # lineal shift
-			if minimosta >= 0:
-				STA_desp = STA - np.abs(minimosta) # lineal shift
-			minimosta_desp = np.min(np.min(np.min(STA_desp)))
-			maximosta_desp = np.max(np.max(np.max(STA_desp)))
-			print 'min sta with bias', minimosta_desp
-			print 'max sta with bias', maximosta_desp
-						
-			stavisual_lin = STA_desp*255 # it is visualized with lineal scale
-			stavisual_lin = stavisual_lin // (maximosta_desp *1.0) # it is normalized with lineal scale
-			print 'min sta visual lineal', np.min(np.min(np.min(stavisual_lin)))
-			print 'max sta visual lineal', np.min(np.max(np.max(stavisual_lin)))
-
-
-			# FINAL NORMALIZATION FOR THE MEAN STA
-			#MEANSTA_lin =  np.add.reduce(stavisual_lin,axis=2) / (1.0 * (numberframes+numberframespost) ) 
-			MEANSTA_lin =  np.add.reduce(stavisual_lin,axis=2) 
-
-			timeAlgorithm2End = time.time()
-			timeAlgorithm2Total = timeAlgorithm2End - timeAlgorithm2Ini
-			print " Time process ", timeAlgorithm2Total, ' seg (', timeAlgorithm2Total/60, ' min)'
-
-
+			sta_2()
 		dosmall = 0
+
 		#------------------- ALGORITHM TYPE 3----------------------
 		if(tipoalgoritmo == 3): # LOAD CHUNKS OF FRAMES AND CALCULATES THE STA SEQUENTIALLY
-			timeAlgorithm3Ini = time.time()
+			sta_3()
 			
-			#kframe = 0
-			print 'Get the spike triggered stimuli: \n '
-			
-			sizechunk = 40
-			
-			# dosmall = 0
-			
-			sizesmall = 20
-			
-			acumula = np.zeros((sizex,sizey,numberframes+numberframespost))
-			if dosmall:
-				acumulaSmall = np.zeros((sizesmall,sizesmall,numberframes+numberframespost))
-			
-			for kblock in range(np.round(limite3/sizechunk)):
-				#timeProcessIni = time.time()
-				
-				#kframe = stimei[kiter]
-				
-				#---------------------------------------
-				spk = np.zeros((sizex,sizey,numberframes+numberframespost,sizechunk))
-				if dosmall:
-					spkSmall = np.zeros((sizesmall,sizesmall,numberframes+numberframespost,sizechunk))
-				#spktuple = []
-				for kiter in range(sizechunk):
-					kframe = stimei[kiter+kblock*sizechunk]
-					for b in range(numberframes+numberframespost):
-						line = ifn2[kframe-(numberframes-1)+ b ]
-						imagen = scim.imread(line, flatten = True )
-						if dosmall:
-							imagenSmall = scipy.misc.imresize(imagen, [sizesmall,sizesmall] , interp = 'bilinear' , mode = None )
-						#spk[:,:,b,kiter] = imagen - meanimagearray
-						spk[:,:,b,kiter] = imagen
-						if dosmall:
-							spkSmall[:,:,b,kiter] = imagenSmall
-						#spktuple.append(imagen - meanimagearray)
-						#spktuple.append( imagen )
-				
-				del imagen
-				del line
-				if dosmall:
-					del imagenSmall
-				#print 'kblock ',kblock,' len(spktuple)',len(spktuple),'', len(spktuple[0]),'', len(spktuple[0][0])
-				
-				acuchunk = ( np.add.reduce(spk,axis=3) ) 
-				acumula[:,:,:] = acumula[:,:,:] + acuchunk
-				
-				if dosmall:
-					acuchunkSmall = ( np.add.reduce(spkSmall,axis=3) ) 
-					acumulaSmall[:,:,:] = acumulaSmall[:,:,:] + acuchunkSmall
-				
-				# spkarray = np.array(spktuple)
-				# print 'len(spkarray)',len(spkarray),'', len(spkarray[0]),'', len(spkarray[0][0])
-				# for b in range(numberframes+numberframespost):
-					# A = spkarray[range(b,numberframes+numberframespost,len(spkarray)),:,:]
-					# acumula[:,:,b] = np.sum(A, axis=None, dtype=None, out=None)
-				# del spktuple
-				# del spkarray
-				#---------------------------------------
-				
-
-				# for b in range(numberframes+numberframespost):
-					# line = ifn2[kframe-(numberframes-1)+ b]
-					# imagen = scim.imread( line, flatten=True )
-					# acumula[:,:,b] = acumula[:,:,b] + (imagen - meanimagearray)
-				
-				if kblock > np.round(limite3/sizechunk):
-					break
-				
-				#timeProcessFin = time.time()
-				#tiempoDiferencia = timeProcessFin - timeProcessIni
-				
-				sys.stdout.write("\r%d%%" % ((kblock+1)*100.0 /(np.round(limite3/sizechunk)), ) )
-				#sys.stdout.write("\r%d%%" %((kiter+1)*100.0/limite3, ) ) 
-				
-				sys.stdout.flush()
-			
-			N = limite3 
-			
-			STA = acumula // N
-			for b in range(numberframes+numberframespost):
-				STA[:,:,b] = STA[:,:,b] - meanimagearray
-			
-			if dosmall:
-				meansmall = scipy.misc.imresize(meanimagearray,[sizesmall,sizesmall], interp='bilinear', mode=None)
-				STASmall = acumulaSmall // N
-				for b in range(numberframes+numberframespost):
-					STASmall[:,:,b] = STASmall[:,:,b] - meansmall
-			
-			print ' \n '
-			
-			minimosta = np.min(np.min(np.min(STA)))
-			
-			maximosta = np.max(np.max(np.max(STA)))
-			
-			if minimosta < 0:
-				STA_desp = STA + np.abs(minimosta) # lineal shift
-			
-			if minimosta >= 0:
-				STA_desp = STA - np.abs(minimosta) # lineal shift
-			
-			minimosta_desp = np.min(np.min(np.min(STA_desp)))
-			
-			maximosta_desp = np.max(np.max(np.max(STA_desp)))
-			
-			stavisual_lin = STA_desp*255 # it is visualized with lineal scale
-			
-			stavisual_lin = stavisual_lin // (maximosta_desp *1.0) # it is normalized with lineal scale
-			
-			# FINAL NORMALIZATION FOR THE MEAN STA
-			MEANSTA_lin = ( np.add.reduce(stavisual_lin,axis=2) / (1.0 * (numberframes+numberframespost) ) )
-			
-			#---------------------------------------------------
-			if dosmall:
-				minstasmall = np.min(np.min(np.min(STASmall)))
-				maxstasmall = np.max(np.max(np.max(STASmall)))
-				if minstasmall < 0:
-					STA_Small_desp = STASmall + np.abs(minstasmall) # lineal shift
-				if minstasmall >= 0:
-					STA_Small_desp = STASmall - np.abs(minstasmall) # lineal shift
-				minstasmall_desp = np.min(np.min(np.min(STA_Small_desp)))
-				maxstasmall_desp = np.max(np.max(np.max(STA_Small_desp)))
-				sta_small_visual_lin = STA_Small_desp * 255 # it is visualized with lineal scale
-				sta_small_visual_lin = sta_small_visual_lin // (maxstasmall_desp *1.0) # it is normalized with lineal scale
-				# FINAL NORMALIZATION FOR THE MEAN STA
-				MEAN_STA_small_lin = ( np.add.reduce(sta_small_visual_lin,axis=2) / (1.0 * (numberframes+numberframespost) ) )
-				
-			#---------------------------------------------------
-			
-			timeAlgorithm3End = time.time()
-			timeAlgorithm3Total = timeAlgorithm3End - timeAlgorithm3Ini
-			print " Time process ", timeAlgorithm3Total, ' seg (', timeAlgorithm3Total/60, ' min)'
-
-
 		#===============================================================================
 		#------------------- ALGORITHM TYPE 4----------------------
 		if(tipoalgoritmo == 4): # LOAD entire matrix stimuli AND CALCULATES THE STA SEQUENTIALLY 
@@ -630,37 +529,6 @@ for kunit in range(inicio,final):
 			#-------------------------------------------------------------
 			
 			acumula = np.zeros((sizex,sizey,numberframes+numberframespost))
-			
-			# print 'Get the spike triggered stimuli: \n '
-			# for kiter in range(len(stimei)):
-				# #timeProcessIni = time.time()
-				
-				# kframe = stimei[kiter]
-				# #print "kframe ", kframe
-				
-				# for b in range(numberframes+numberframespost):
-					# #print 'b ',b
-					# #line = ifn2[kframe-(numberframes-1)+ b]
-					# #imagen = scim.imread( line, flatten=True )
-					# imagen = estim[:,:,kframe-(numberframes-1)+ b]
-					# #print 'imagen ', imagen[0:5]
-					# acumula[:,:,b] = acumula[:,:,b] + (imagen)
-					
-				# if kiter > len(stimei):
-					# break
-					
-				# #timeProcessFin = time.time() 
-				# #tiempoDiferencia = timeProcessFin - timeProcessIni
-				# #print '\r kiter: ',kiter, ' kframe: ',kframe, '  ',"%.2f" % ((kiter+1)*100.0/limite3, ), ' % ' , (limite3 -(kiter+0)) * tiempoDiferencia/60, 'min'
-
-				# #sys.stdout.write("\r%d%%" %contator2)   
-				# #sys.stdout.write("\r%d%% %d%%" %((kiter+1)*100.0/limite3) %(limite3 -(kiter+0)) * tiempoDiferencia/60)    
-				# sys.stdout.write("\r%d%%" %((kiter+1)*100.0/limite3, ) ) 
-				# #sys.stdout.write("\r%d%%" %((limite3 -(kiter+0)) * tiempoDiferencia/60 ) ) 
-				# sys.stdout.flush()
-				
-				
-
 			
 			STA = stac
 			
