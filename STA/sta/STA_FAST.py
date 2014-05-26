@@ -119,7 +119,7 @@ parser.add_argument('--stim_mini',
  type=str, default='stim_mini.mat', required=True)
 parser.add_argument('--characterisation',
  help='Characterisation',
- type=str, default='characterization_0003.txt', required=True)
+ type=str, required=False)
 parser.add_argument('--unit_files',
  help='File with Units to process',
  type=str, default='units_0003.txt', required=True)
@@ -209,16 +209,6 @@ if inicio > final:
 	
 #vectores units y caracterizacion provienen de la tabla excel 
 #pero como no la tenemos...la primera vez se deben ignorar
-characterisationFile = args.characterisation
-if not os.path.isfile(characterisationFile):
-	print ''
-	print 'File [' + characterisationFile + '] not found'
-	sys.exit()
-characterization = np.loadtxt(characterisationFile)
-
-#Para que no pase de largo
-if final > len(characterization):
-	final=len(characterization)-inicio
 
 unit_files = args.unit_files
 if not os.path.isfile(unit_files):
@@ -230,6 +220,24 @@ per_row = []
 for line in f:
     per_row.append(line.split('\t'))
 f.close()
+
+
+#If the characterisationFile is not provided an array of length of the 
+# units must be provided. 
+characterisationFile = args.characterisation
+if not characterisationFile:
+	characterization = np.ones((len(per_row[0]),), dtype=np.int)
+else:
+	if not os.path.isfile(characterisationFile):
+		print ''
+		print 'File [' + characterisationFile + '] not found'
+		sys.exit()
+	else:
+		characterization = np.loadtxt(characterisationFile)
+
+#Final lesser than Start
+if final > len(characterization):
+	final=len(characterization)-inicio
 
 # SET THE NAME OF THE STIMULUS SYNCHRONY ANALYSIS FILE
 # IT CONTAINS THE INITIAL AND FINAL TIME STAMPS OF EACH FRAME
