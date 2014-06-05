@@ -410,12 +410,12 @@ def sta_3():
 def sta_4():
 	timeAlgorithm4Ini = time.time()
 	stac = np.zeros( ( sizex,sizey, numberframes+numberframespost ) ) # complete sta matrix 
-	for numeroframe in range(18): #for 18 frames
+	for numeroframe in range(numberframes): #for 18 frames
 		bigsta18 = np.zeros( ( sizex,sizey ) )
 		for kiter in range(len(stimei)):
 			bigsta18[:,:] = bigsta18[:,:] + estim[ :,:,stimei[kiter]-numeroframe ] - meanimagearray
 		sta18 = bigsta18 / (1.0 * len(stimei) ) # one part of the sta matrix
-		stac[:,:,18-1 - numeroframe] = sta18
+		stac[:,:,numberframes-1 - numeroframe] = sta18
 	acumula = np.zeros((sizex,sizey,numberframes+numberframespost))
 	STA = stac
 	print ' \n '
