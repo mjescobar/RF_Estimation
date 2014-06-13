@@ -15,13 +15,15 @@
 % filename = '../datos0001.mcd';
 
 pathname = '';%'C:\Users\ALIEN3\Desktop\resultados_26-12\';
-filename = 'datos0005.mcd';
-filename2 = 'datos0005';
+
+filename2 = 'datos_22_25_merg';
+
+filename = [filename2,'.mcd'];
 
 [nsresult, hfile] = ns_OpenFile([pathname filename])
 [nsresult,info_file] = ns_GetFileInfo(hfile)
 
-EntityNumber = 1; % entity number to choose and analyze
+EntityNumber =253; % entity number to choose and analyze
 
 EntityCount = info_file.EntityCount; % total number of entities in the file
 TimeStampRes = info_file.TimeStampResolution; % time between samples in seconds
@@ -29,7 +31,7 @@ TimeSpan = info_file.TimeSpan; % total time in seconds
 
 %% open one entity from mcd data file
 
-EntityNumber = 252; % entity number to choose and analyze
+% EntityNumber = 253; % entity number to choose and analyze
 
 [nsresult,entity] = ns_GetEntityInfo(hfile,EntityNumber)
 %[nsresult,event] = ns_GetEventInfo(hfile,EntityNumber) % Trigger
@@ -43,11 +45,11 @@ for k = 1:info_file.EntityCount;
 end
 
 %% get raw data from entity and plot (example)
-EntityNumber = 253; %
+% EntityNumber = 253; %
 entidad1 = EntityLabels{EntityNumber}
 
 %%
-bloque = 300;
+bloque = 600;
 inicio = bloque*10000+1;
 %fin = round(entity.ItemCount/2);
 fin = bloque*10000+10000;
@@ -62,7 +64,7 @@ time_resolution = info_file.TimeStampResolution;
 
 ItemCount = entity.ItemCount;
 
-%% figures
+% figures
 xfigura = (inicio:fin)/fs;
 yfigura = 1000000*data; %scale amplitude
 %yfigura2 = 1000000*y; %scale amplitude
@@ -77,7 +79,7 @@ title('Sync Block Data'); xlabel('Time s'); ylabel('Amplitude uV'); grid;
 % subplot(3,2,6); plot(xfreq,afy);
 % title('DFT Filtered Block Data'); xlabel('Frequency Hz'); ylabel('Magnitude'); grid;
 
-print(h1,'-dpdf',['Sync_h1_',filename2,'.pdf']);
+print(h1,'-dpdf',['Sync_h253_',filename2,'.pdf']);
 
 %% save sync signal
 [nsresult,entity] = ns_GetEntityInfo(hfile,EntityNumber)
