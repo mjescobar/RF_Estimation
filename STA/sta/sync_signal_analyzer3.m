@@ -2,27 +2,28 @@
 
 % AASTUDILLO 17 OCTOBER 2013
 % Modificado por Ricardo Villarroel 2 Diciembre 2013
-
+% Modificado por Monica y Carlos 13 Junio 2014 para no tener q usarlo justo
+% despues del get_synchrony_signal
 % % %% for mcd file case
 % % 
 % % % open mcd lib files 
 % % 
-% % [nsresult] = ns_SetLibrary( 'nsMCDlibrary64.dll' )
+[nsresult] = ns_SetLibrary( 'nsMCDlibrary64.dll' )
 % % % ns_SetDLL   Opens a Neuroshare Shared Library (.DLL or .so) in prepearation for other work
 % % % for linux you must change this line to
 % % % [nsresult] = ns_SetLibrary( 'nsMCDlibrary64.so' )
 % % 
-% % [nsresult,info] = ns_GetLibraryInfo()
+ [nsresult,info] = ns_GetLibraryInfo()
 % % 
 % % %% open mcd data container file
-% % pathname = '';
+ pathname = '';
 % % %filename1 = 'datos0001.mcd';
-% % %filename = '../datos0001.mcd';
+ filename = 'datos0001.mcd';
 % % filename1 = 'datos0003.mcd';
 % % filename = '../datos0003.mcd';
 % % 
-% % [nsresult, hfile] = ns_OpenFile([pathname filename])
-% % [nsresult,info_file] = ns_GetFileInfo(hfile)
+[nsresult, hfile] = ns_OpenFile([pathname filename])
+[nsresult,info_file] = ns_GetFileInfo(hfile)
 % % 
 % % EntityCount = info_file.EntityCount; % total number of entities in the file
 % % TimeStampRes = info_file.TimeStampResolution; % time between samples in seconds
@@ -31,17 +32,17 @@
 % % %% open label of entities from mcd data file
 % % 
 % % % get all entities labels:
-% % for k = 1:info_file.EntityCount;
-% %     [nsresult,entity] = ns_GetEntityInfo(hfile,k);
-% %     EntityLabels{k} = entity.EntityLabel;
-% % end
+%  for k = 1:info_file.EntityCount;
+%     [nsresult,entity] = ns_GetEntityInfo(hfile,k);
+%     EntityLabels{k} = entity.EntityLabel;
+%  end
 % % 
-% % EntityNumber = 253; % analog data A1
+EntityNumber = 253; % analog data A1
 % % 
-% % [nsresult,entity] = ns_GetEntityInfo(hfile,EntityNumber)
+[nsresult,entity] = ns_GetEntityInfo(hfile,EntityNumber)
 % % 
-% % % [ns_RESULT, ContCount, Data] = ns_GetAnalogData(hFile, EntityID, StartIndex, IndexCount);
-% % [nsresult,count,data] = ns_GetAnalogData(hfile,EntityNumber,1,entity.ItemCount); % Digital data
+% [ns_RESULT, ContCount, Data] = ns_GetAnalogData(hFile, EntityID, StartIndex, IndexCount);
+[nsresult,count,data] = ns_GetAnalogData(hfile,EntityNumber,1,entity.ItemCount); % Digital data
 
 %% complete synchrony signal analysis : 
 % OPTIONAL SIMPLE ANALYSIS
@@ -60,13 +61,13 @@
 % 7) el punto de inicio de cada frame debe ser estimado a partir de la
 % distancia entre frames (en puntos) y el final de cada pulso
 
-datosname = 'datos0005';
+datosname = 'datos0001';
 
 load(['syn_signal1_',datosname]);
 
 %%
 
-data= datos; %(1:24000000);
+% data= datos; %(1:24000000);
 
 x = data;
 umbral_volts = 0.151111112; %0.1511 ; % umbral en volts, determina criticamente el performance de la deteccion de frames
