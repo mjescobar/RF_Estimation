@@ -1,0 +1,1 @@
+To use the recoverCheckBoardImages function you must have installed the PsychToolbox
