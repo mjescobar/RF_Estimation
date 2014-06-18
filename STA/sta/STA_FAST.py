@@ -177,7 +177,9 @@ stimMini = args.stim_mini
 if not os.path.isfile(stimMini):
 	print 'File [' + stimMini + '] not found'
 	sys.exit()
-ensemble = scipy.io.loadmat(stimMini)
+#ensemble = scipy.io.loadmat(stimMini)
+import h5py
+ensemble = h5py.File(stimMini)
 
 estimulos = ensemble['stim']
 canal = 2 # same as choose channel 3 of RGB images
