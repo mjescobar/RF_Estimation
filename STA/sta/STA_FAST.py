@@ -180,11 +180,12 @@ if not os.path.isfile(stimMini):
 ensemble = scipy.io.loadmat(stimMini)
 
 estimulos = ensemble['stim']
+lenEstimulos = len(estimulos)
 canal = 2 # same as choose channel 3 of RGB images
-estim = np.zeros(( sizex , sizey , 100000 ))
+estim = np.zeros(( sizex , sizey , 108000 ))
 
 # transform each image from rgb to grayscale
-for ke in range(100000):
+for ke in range(lenEstimulos):
 	rgb = estimulos[:,:,:,ke]
 	gray = np.dot(rgb[...,:3], [0.299, 0.587, 0.144])
 	estim[:,:,ke] = gray
@@ -410,9 +411,18 @@ def sta_3():
 def sta_4():
 	timeAlgorithm4Ini = time.time()
 	stac = np.zeros( ( sizex,sizey, numberframes+numberframespost ) ) # complete sta matrix 
+	print 'numberframes '+str(numberframes)
+	print 'sizex '+str(sizex)
+	print 'sizey '+str(sizey)
+	print 'len stimei '+str(len(stimei))
+	print 'len meanimagearray '+str(len(meanimagearray))
+
 	for numeroframe in range(numberframes): #for 18 frames
 		bigsta18 = np.zeros( ( sizex,sizey ) )
 		for kiter in range(len(stimei)):
+#			print 'kiter '+str(kiter)
+#			print 'stimei[kiter] '+str(stimei[kiter])
+#			print 'indice '+str(stimei[kiter]-numeroframe)
 			bigsta18[:,:] = bigsta18[:,:] + estim[ :,:,stimei[kiter]-numeroframe ] - meanimagearray
 		sta18 = bigsta18 / (1.0 * len(stimei) ) # one part of the sta matrix
 		stac[:,:,numberframes-1 - numeroframe] = sta18
