@@ -107,10 +107,10 @@ parser.add_argument('--numberframespost',
  type=int, default=2, required=False)
 parser.add_argument('--sizex',
  help='SIZE OF EACH FRAME IN PIXELS X',
- type=int, default=19, required=False)
+ type=int, default=31, required=False)
 parser.add_argument('--sizey',
  help='SIZE OF EACH FRAME IN PIXELS Y',
- type=int, default=19, required=False)
+ type=int, default=31, required=False)
 parser.add_argument('--dolog',
  help='0,1 logarithm analysis for plot',
  type=int, default=0, choices=[0, 1], required=False)
@@ -172,6 +172,18 @@ sizey = args.sizey #19
 # set if do logarithm analysis for plot:
 dolog = args.dolog
 
+# SET THE NAME OF THE STIMULUS SYNCHRONY ANALYSIS FILE
+# IT CONTAINS THE INITIAL AND FINAL TIME STAMPS OF EACH FRAME
+if not os.path.isfile(synchronyfile):
+	print ''
+	print 'File [' + synchronyfile + '] not found'
+	sys.exit()
+inicio_fin_frame = np.loadtxt(synchronyfile)
+
+vector_fin_frame = inicio_fin_frame[:,1]
+
+vector_inicio_frame = inicio_fin_frame[:,0]
+
 # load image mat file stim_mini
 stimMini = args.stim_mini
 if not os.path.isfile(stimMini):
@@ -180,11 +192,21 @@ if not os.path.isfile(stimMini):
 ensemble = scipy.io.loadmat(stimMini)
 
 estimulos = ensemble['stim']
-canal = 2 # same as choose channel 3 of RGB images
-estim = np.zeros(( sizex , sizey , 100000 ))
+lenEstimulos = estimulos.shape[3]
+lenSyncFile = len(vector_fin_frame)
 
+canal = 2 # same as choose channel 3 of RGB images
+estim = np.zeros(( sizex , sizey , lenSyncFile))
+
+#print 'lenSyncFile '+str(lenSyncFile)
+#print 'lenEstimulos '+str(lenEstimulos)
+
+#What if there're less records than stimuli 
+if lenSyncFile < lenEstimulos:
+	lenEstimulos = lenSyncFile
+	
 # transform each image from rgb to grayscale
-for ke in range(100000):
+for ke in range(lenEstimulos):
 	rgb = estimulos[:,:,:,ke]
 	gray = np.dot(rgb[...,:3], [0.299, 0.587, 0.144])
 	estim[:,:,ke] = gray
@@ -238,18 +260,6 @@ else:
 #Final lesser than Start
 if final > len(characterization):
 	final=len(characterization)-inicio
-
-# SET THE NAME OF THE STIMULUS SYNCHRONY ANALYSIS FILE
-# IT CONTAINS THE INITIAL AND FINAL TIME STAMPS OF EACH FRAME
-if not os.path.isfile(synchronyfile):
-	print ''
-	print 'File [' + synchronyfile + '] not found'
-	sys.exit()
-inicio_fin_frame = np.loadtxt(synchronyfile)
-
-vector_fin_frame = inicio_fin_frame[:,1]
-
-vector_inicio_frame = inicio_fin_frame[:,0]
 
 #--------------------------------------------------------
 # load image file names list: (the file should exist before)
