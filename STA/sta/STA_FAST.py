@@ -107,10 +107,10 @@ parser.add_argument('--numberframespost',
  type=int, default=2, required=False)
 parser.add_argument('--sizex',
  help='SIZE OF EACH FRAME IN PIXELS X',
- type=int, default=31, required=False)
+ type=int, default=19, required=False)
 parser.add_argument('--sizey',
  help='SIZE OF EACH FRAME IN PIXELS Y',
- type=int, default=31, required=False)
+ type=int, default=19, required=False)
 parser.add_argument('--dolog',
  help='0,1 logarithm analysis for plot',
  type=int, default=0, choices=[0, 1], required=False)
@@ -192,19 +192,10 @@ if not os.path.isfile(stimMini):
 ensemble = scipy.io.loadmat(stimMini)
 
 estimulos = ensemble['stim']
-lenEstimulos = estimulos.shape[3]
-lenSyncFile = len(vector_fin_frame)
-
+lenEstimulos = len(estimulos)
 canal = 2 # same as choose channel 3 of RGB images
-estim = np.zeros(( sizex , sizey , lenSyncFile))
+estim = np.zeros(( sizex , sizey , len(vector_inicio_frame) ))
 
-#print 'lenSyncFile '+str(lenSyncFile)
-#print 'lenEstimulos '+str(lenEstimulos)
-
-#What if there're less records than stimuli 
-if lenSyncFile < lenEstimulos:
-	lenEstimulos = lenSyncFile
-	
 # transform each image from rgb to grayscale
 for ke in range(lenEstimulos):
 	rgb = estimulos[:,:,:,ke]
@@ -420,6 +411,7 @@ def sta_3():
 def sta_4():
 	timeAlgorithm4Ini = time.time()
 	stac = np.zeros( ( sizex,sizey, numberframes+numberframespost ) ) # complete sta matrix 
+
 	for numeroframe in range(numberframes): #for 18 frames
 		bigsta18 = np.zeros( ( sizex,sizey ) )
 		for kiter in range(len(stimei)):
