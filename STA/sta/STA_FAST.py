@@ -23,6 +23,7 @@ import pylab as pl
 import matplotlib.cm as cm      	  # plot lib
 import matplotlib.pyplot as plt 	  # plot lib (for figures)
 import mpl_toolkits.mplot3d.axes3d as p3d # 3D Plot lib
+import h5py
 
 from matplotlib.pyplot import *  	    # plot lib python
 from matplotlib.ticker import NullFormatter # ticker formatter
@@ -189,26 +190,23 @@ stimMini = args.stim_mini
 if not os.path.isfile(stimMini):
 	print 'File [' + stimMini + '] not found'
 	sys.exit()
-ensemble = scipy.io.loadmat(stimMini)
+ensemble = h5py.File(stimMini)
 estimulos = ensemble['stim']
 
-lenEstimulos = estimulos.shape[3]
+print estimulos.shape
+lenEstimulos = estimulos.shape[0]
 lenSyncFile = len(vector_fin_frame)
 
 print 'lenSyncFile '+str(lenSyncFile)
 print 'lenEstimulos '+str(lenEstimulos)
-
-#What if there're less records than stimuli 
-if lenSyncFile < lenEstimulos:
-	lenEstimulos = lenSyncFile
 	
 canal = 2 # same as choose channel 3 of RGB images
-estim = np.zeros(( sizex , sizey , lenSyncFile ))
+estim = np.zeros(( sizex , sizey , lenEstimulos ))
 	
 # transform each image from rgb to grayscale
 for ke in range(lenEstimulos):
-	rgb = estimulos[:,:,:,ke]
-	gray = np.dot(rgb[...,:3], [0.299, 0.587, 0.144])
+	rgb = estimulos[ke,:,:,:]
+	gray = np.dot(rgb, [0.299, 0.587, 0.144])
 	estim[:,:,ke] = gray
 
 estim = np.array(estim)
