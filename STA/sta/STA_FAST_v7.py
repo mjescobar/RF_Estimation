@@ -203,7 +203,9 @@ canal = 2 # same as choose channel 3 of RGB images
 estim = np.zeros(( sizex , sizey , lenEstimulos ))
 	
 # transform each image from rgb to grayscale
-for ke in range(2):
+rgb = estimulos[:,:,:,0]
+print rgb[0,0,0] 
+for ke in range(lenEstimulos):
 	rgb = estimulos[:,:,:,ke]
 	gray = np.dot(rgb[...,:3], [0.299, 0.587, 0.144])
 	estim[:,:,ke] = gray

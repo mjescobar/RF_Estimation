@@ -190,10 +190,10 @@ stimMini = args.stim_mini
 if not os.path.isfile(stimMini):
 	print 'File [' + stimMini + '] not found'
 	sys.exit()
-ensemble = h5py.File(stimMini)
+ensemble = h5py.File(stimMini,'r')
 estimulos = ensemble['stim']
 
-print estimulos.shape
+print 'estimulos.shape '+str(estimulos.shape)
 lenEstimulos = estimulos.shape[0]
 lenSyncFile = len(vector_fin_frame)
 
@@ -206,7 +206,7 @@ estim = np.zeros(( sizex , sizey , lenEstimulos ))
 # transform each image from rgb to grayscale
 for ke in range(lenEstimulos):
 	rgb = estimulos[ke,:,:,:]
-	gray = np.dot(rgb, [0.299, 0.587, 0.144])
+	gray = np.dot(rgb.reshape((31,31,3)), [0.299, 0.587, 0.144])
 	estim[:,:,ke] = gray
 
 estim = np.array(estim)
