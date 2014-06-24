@@ -192,27 +192,37 @@ if not os.path.isfile(stimMini):
 ensemble = scipy.io.loadmat(stimMini)
 estimulos = ensemble['stim']
 
-print estimulos.shape
 lenEstimulos = estimulos.shape[3]
 lenSyncFile = len(vector_fin_frame)
 
-print 'lenSyncFile '+str(lenSyncFile)
-print 'lenEstimulos '+str(lenEstimulos)
+#print 'lenSyncFile '+str(lenSyncFile)
+#print 'lenEstimulos '+str(lenEstimulos)
 	
 canal = 2 # same as choose channel 3 of RGB images
 estim = np.zeros(( sizex , sizey , lenEstimulos ))
 	
 # transform each image from rgb to grayscale
-rgb = estimulos[:,:,:,0]
-print rgb[0,0,0] 
+rgb = estimulos[:,:,:,53100]
+
+#myCount=0
+#for rIter in range(31):
+#	for gIter in range(31):
+#		print ""
+#		print str(myCount)
+#		myCount+=1
+#		for bIter in range(3):
+#			print rgb[rIter,gIter,bIter]
+
 for ke in range(lenEstimulos):
 	rgb = estimulos[:,:,:,ke]
 	gray = np.dot(rgb[...,:3], [0.299, 0.587, 0.144])
 	estim[:,:,ke] = gray
-
-estim = np.array(estim)
+	
+print estim[:,:,53100]
 
 sys.exit()
+
+estim = np.array(estim)
 
 meanimagearray = np.add.reduce(estim,axis=2) // (1.0* 100000)
 

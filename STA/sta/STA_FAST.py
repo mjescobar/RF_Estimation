@@ -193,20 +193,47 @@ if not os.path.isfile(stimMini):
 ensemble = h5py.File(stimMini,'r')
 estimulos = ensemble['stim']
 
-print 'estimulos.shape '+str(estimulos.shape)
 lenEstimulos = estimulos.shape[0]
 lenSyncFile = len(vector_fin_frame)
 
-print 'lenSyncFile '+str(lenSyncFile)
-print 'lenEstimulos '+str(lenEstimulos)
+#print 'lenSyncFile '+str(lenSyncFile)
+#print 'lenEstimulos '+str(lenEstimulos)
 	
 canal = 2 # same as choose channel 3 of RGB images
 estim = np.zeros(( sizex , sizey , lenEstimulos ))
-	
+
+rgb = estimulos[53100,:,:,:]	
+
+#myCount=0
+#for rIter in range(31):
+#	for gIter in range(31):
+# 		print ""
+#		print str(myCount)
+#		myCount+=1
+# 		for bIter in range(3):
+#			print int(rgb[bIter,gIter,rIter])
+
+myArray=[]
+myOtherArray=[]
+myYetAnotherArray=[]
+for rIter in range(31):
+	myOtherArray=[]
+	for gIter in range(31):
+		myArray=[]
+		for bIter in range(3):
+			myArray.append(rgb[bIter,gIter,rIter])
+		myOtherArray.append(myArray)
+	myYetAnotherArray.append(myOtherArray)
+
+estim[:,:,53100]=np.dot(myYetAnotherArray, [0.299, 0.587, 0.144])			
+print estim[:,:,53100]
+
+sys.exit()
+
 # transform each image from rgb to grayscale
 for ke in range(lenEstimulos):
 	rgb = estimulos[ke,:,:,:]
-	gray = np.dot(rgb.reshape((31,31,3)), [0.299, 0.587, 0.144])
+	gray = np.dot(rgb, [0.299, 0.587, 0.144])
 	estim[:,:,ke] = gray
 
 estim = np.array(estim)
