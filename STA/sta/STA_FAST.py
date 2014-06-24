@@ -213,28 +213,39 @@ rgb = estimulos[53100,:,:,:]
 # 		for bIter in range(3):
 #			print int(rgb[bIter,gIter,rIter])
 
-myArray=[]
-myOtherArray=[]
-myYetAnotherArray=[]
-for rIter in range(31):
-	myOtherArray=[]
-	for gIter in range(31):
-		myArray=[]
-		for bIter in range(3):
-			myArray.append(rgb[bIter,gIter,rIter])
-		myOtherArray.append(myArray)
-	myYetAnotherArray.append(myOtherArray)
 
-estim[:,:,53100]=np.dot(myYetAnotherArray, [0.299, 0.587, 0.144])			
-print estim[:,:,53100]
+#myArray=[]
+#myOtherArray=[]
+#myYetAnotherArray=[]
+#for rIter in range(31):
+	#myOtherArray=[]
+	#for gIter in range(31):
+		#myArray=[]
+		#for bIter in range(3):
+			#myArray.append(rgb[bIter,gIter,rIter])
+		#myOtherArray.append(myArray)
+	#myYetAnotherArray.append(myOtherArray)
 
-sys.exit()
+#estim[:,:,53100]=np.dot(myYetAnotherArray, [0.299, 0.587, 0.144])			
+#print estim[:,:,53100]
+
+#sys.exit()
 
 # transform each image from rgb to grayscale
 for ke in range(lenEstimulos):
 	rgb = estimulos[ke,:,:,:]
-	gray = np.dot(rgb, [0.299, 0.587, 0.144])
-	estim[:,:,ke] = gray
+	myArray=[]
+	myOtherArray=[]
+	myYetAnotherArray=[]
+	for rIter in range(31):
+		myOtherArray=[]
+		for gIter in range(31):
+			myArray=[]
+			for bIter in range(3):
+				myArray.append(rgb[bIter,gIter,rIter])
+			myOtherArray.append(myArray)
+		myYetAnotherArray.append(myOtherArray)
+	estim[:,:,ke]=np.dot(myYetAnotherArray, [0.299, 0.587, 0.144])
 
 estim = np.array(estim)
 
