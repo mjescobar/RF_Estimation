@@ -23,7 +23,6 @@ import pylab as pl
 import matplotlib.cm as cm      	  # plot lib
 import matplotlib.pyplot as plt 	  # plot lib (for figures)
 import mpl_toolkits.mplot3d.axes3d as p3d # 3D Plot lib
-import h5py
 
 from matplotlib.pyplot import *  	    # plot lib python
 from matplotlib.ticker import NullFormatter # ticker formatter
@@ -116,7 +115,7 @@ parser.add_argument('--dolog',
  help='0,1 logarithm analysis for plot',
  type=int, default=0, choices=[0, 1], required=False)
 parser.add_argument('--stim_mini',
- help='Stimuli matrix',
+ help='Stimuli matrix, check convertStim.py',
  type=str, default='stim_mini.mat', required=True)
 parser.add_argument('--characterisation',
  help='Characterisation',
@@ -167,8 +166,8 @@ numberframes = args.numberframes
 numberframespost = args.numberframespost
 
 # SET THE SIZE OF EACH FRAME IN PIXELS
-sizex = args.sizex #19
-sizey = args.sizey #19
+sizex = args.sizex #31
+sizey = args.sizey #31
 
 # set if do logarithm analysis for plot:
 dolog = args.dolog
@@ -180,9 +179,7 @@ if not os.path.isfile(synchronyfile):
 	print 'File [' + synchronyfile + '] not found'
 	sys.exit()
 inicio_fin_frame = np.loadtxt(synchronyfile)
-
 vector_fin_frame = inicio_fin_frame[:,1]
-
 vector_inicio_frame = inicio_fin_frame[:,0]
 
 # load image mat file stim_mini
@@ -190,64 +187,12 @@ stimMini = args.stim_mini
 if not os.path.isfile(stimMini):
 	print 'File [' + stimMini + '] not found'
 	sys.exit()
-ensemble = h5py.File(stimMini,'r')
-estimulos = ensemble['stim']
+# stimMini must be prepared using convertStim.py
+estim = np.load(stimMini)
 
-lenEstimulos = estimulos.shape[0]
-lenSyncFile = len(vector_fin_frame)
-
-#print 'lenSyncFile '+str(lenSyncFile)
-#print 'lenEstimulos '+str(lenEstimulos)
-	
 canal = 2 # same as choose channel 3 of RGB images
-estim = np.zeros(( sizex , sizey , lenEstimulos ))
 
-rgb = estimulos[53100,:,:,:]	
-
-#myCount=0
-#for rIter in range(31):
-#	for gIter in range(31):
-# 		print ""
-#		print str(myCount)
-#		myCount+=1
-# 		for bIter in range(3):
-#			print int(rgb[bIter,gIter,rIter])
-
-
-#myArray=[]
-#myOtherArray=[]
-#myYetAnotherArray=[]
-#for rIter in range(31):
-	#myOtherArray=[]
-	#for gIter in range(31):
-		#myArray=[]
-		#for bIter in range(3):
-			#myArray.append(rgb[bIter,gIter,rIter])
-		#myOtherArray.append(myArray)
-	#myYetAnotherArray.append(myOtherArray)
-
-#estim[:,:,53100]=np.dot(myYetAnotherArray, [0.299, 0.587, 0.144])			
-#print estim[:,:,53100]
-
-#sys.exit()
-
-# transform each image from rgb to grayscale
-for ke in range(lenEstimulos):
-	rgb = estimulos[ke,:,:,:]
-	myArray=[]
-	myOtherArray=[]
-	myYetAnotherArray=[]
-	for rIter in range(31):
-		myOtherArray=[]
-		for gIter in range(31):
-			myArray=[]
-			for bIter in range(3):
-				myArray.append(rgb[bIter,gIter,rIter])
-			myOtherArray.append(myArray)
-		myYetAnotherArray.append(myOtherArray)
-	estim[:,:,ke]=np.dot(myYetAnotherArray, [0.299, 0.587, 0.144])
-
-estim = np.array(estim)
+lenSyncFile = len(vector_fin_frame)
 
 meanimagearray = np.add.reduce(estim,axis=2) // (1.0* 100000)
 
@@ -632,5 +577,5 @@ for kunit in range(inicio,final):
 		del stavisual_lin 
 		del spikeframe_matrix
 		del acumula
-	c = c +1
+	c+=1
 
