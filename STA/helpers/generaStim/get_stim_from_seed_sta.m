@@ -48,7 +48,7 @@ pxs = 1;
 if do_v7
 save(['stim_mini_',outputname,'.mat'],'stim','-v7');
 else 
-save(['stim_mini_',outputname,'.mat'],'stim');
+save(['stim_mini_',outputname,'.mat'],'stim','-v7.3');
 end
 %% validates
 
