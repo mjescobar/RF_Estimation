@@ -195,14 +195,19 @@ estimulos = ensemble['stim']
 lenEstimulos = estimulos.shape[3]
 lenSyncFile = len(vector_fin_frame)
 
-#print 'lenSyncFile '+str(lenSyncFile)
-#print 'lenEstimulos '+str(lenEstimulos)
+print 'lenSyncFile '+str(lenSyncFile)
+print 'lenEstimulos '+str(lenEstimulos)
+
+if lenEstimulos < lenSyncFile:
+	lenSyncFile = lenEstimulos
+	
+print 'lenSyncFile '+str(lenSyncFile)
+print 'lenEstimulos '+str(lenEstimulos)
 	
 canal = 2 # same as choose channel 3 of RGB images
 estim = np.zeros(( sizex , sizey , lenEstimulos ))
 	
 # transform each image from rgb to grayscale
-rgb = estimulos[:,:,:,53100]
 
 #myCount=0
 #for rIter in range(31):
@@ -493,7 +498,7 @@ for kunit in range(inicio,final):
 		totalcont = len(vector_spikes) * len(range(primer_frame, len(vector_fin_frame)))
 		for punto_spike in vector_spikes:
 			condicion = 1			
-			for i in range(primer_frame, len(vector_fin_frame)):
+			for i in range(primer_frame, lenSyncFile):
 				if (vector_inicio_frame[i] < punto_spike) & (punto_spike <= vector_fin_frame[i]):
 					# if the spike time is into a frame time points (start and ends)
 					spikeframe_matrix[contator,0] = punto_spike
