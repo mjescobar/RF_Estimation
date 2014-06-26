@@ -218,10 +218,6 @@ for ke in range(lenEstimulos):
 	gray = np.dot(rgb[...,:3], [0.299, 0.587, 0.144])
 	estim[:,:,ke] = gray
 	
-print estim[:,:,53100]
-
-sys.exit()
-
 estim = np.array(estim)
 
 meanimagearray = np.add.reduce(estim,axis=2) // (1.0* 100000)
