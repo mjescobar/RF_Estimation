@@ -126,6 +126,9 @@ parser.add_argument('--stimMiniv73',
 parser.add_argument('--characterisation',
  help='Characterisation',
  type=str, required=False)
+parser.add_argument('--numberProcesses',
+ help='Number of processes to spawn',
+ type=int, default=1, choices=[1,2,3,4,5,6], required=False)
 args = parser.parse_args()
 
 
@@ -193,9 +196,11 @@ stimMiniv73 = args.stimMiniv73
 
 # stimMiniv7 or stimMiniv73 must be provided
 if not stimMiniv7 and not stimMiniv73:
+	print ''
 	print 'Either argument --stimMiniv7 or --stimMiniv73 is required'
 	sys.exit()
 if stimMiniv7 and stimMiniv73:
+	print ''
 	print 'Only one argument (--stimMiniv7 or --stimMiniv73) must be provided'
 	sys.exit()
 
@@ -204,6 +209,7 @@ if stimMiniv7:
 	stimMatrix = stimMiniv7
 
 if not os.path.isfile(stimMatrix):
+	print ''
 	print 'File [' + stimMatrix + '] not found'
 	sys.exit()
 
@@ -254,6 +260,10 @@ for unitFile in os.listdir(sourceFolder):
 	if unitFile.rsplit('.', 1)[1] == fileTypeFilter:
 		per_row.append(unitFile.rsplit('.', 1)[0])
 
+recoveredUnits = len(per_row)
+if endUnit > recoveredUnits:
+	endUnit = recoveredUnits
+	
 #If the characterisationFile is not provided an array of length of the 
 # units must be provided. 
 characterisationFile = args.characterisation
@@ -450,10 +460,11 @@ def sta_4(args):
 
 def calculaSTA(args):
 	start, finish = args
+	if finish > endUnit:
+		finish = endUnit
+
 	for kunit in range(start,finish):
 		timestampName = per_row[kunit]
-		
-		print timestampName,' ',characterization[kunit]
 		if characterization[kunit] > 0:
 			print 'Analysing Unit ',timestampName #, ' loop :', c ,' unit n ', c + startUnit
 			#--------------------------------------------------------
@@ -581,6 +592,7 @@ def calculaSTA(args):
 			plt.savefig(outputFolder+"STA-"+str(neurontag)+"_.png",format='png', bbox_inches='tight')
 			plt.show()        
 			plt.clf()
+			plt.close()
 			#------------------------------------------------------
 	
 			#print 'Saving mean image in lineal scale...'
@@ -592,6 +604,7 @@ def calculaSTA(args):
 			ax.set_yticklabels([])
 			ax.set_xticklabels([])
 			pl.savefig(finalfolder_lin+"/MEANSTA-g_"+str(neurontag)+".png",format='png', bbox_inches='tight')
+			pl.close()
 			print 'CELL ' + timestampName + ' FINISHED!!!'
 
 			del STA_desp 
@@ -601,6 +614,6 @@ def calculaSTA(args):
 			del acumula
 	
 length = endUnit-startUnit
-np=4
+np = args.numberProcesses
 p = Pool(processes=np)
 p.map(calculaSTA, [(startPosition,startPosition+length//np) for startPosition in  range(startUnit, length, length//np)])
