@@ -580,7 +580,6 @@ def calculaSTA(args):
 			ax.set_aspect(1)
 			
 			kcontador = 2
-			#ToDo, what's 17 ?
 			for ksubplot in range(17):
 				ax = fig.add_subplot(3,6,kcontador)
 				component = stavisual_lin[:,:,kcontador-1]
