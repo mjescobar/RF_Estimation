@@ -230,6 +230,7 @@ if stimMiniv7:
 else:
 	# stimMini must be prepared using convertStim.py
 	estim = npy.load(stimMatrix)
+	estim = npy.load(stimMatrix)
 	
 
 # same as choose channel 3 of RGB images
@@ -579,6 +580,7 @@ def calculaSTA(args):
 			ax.set_aspect(1)
 			
 			kcontador = 2
+			#ToDo, what's 17 ?
 			for ksubplot in range(17):
 				ax = fig.add_subplot(3,6,kcontador)
 				component = stavisual_lin[:,:,kcontador-1]
@@ -586,7 +588,7 @@ def calculaSTA(args):
 				ax.set_aspect(1)
 				ax.set_yticklabels([])
 				ax.set_xticklabels([])
-				kcontador = kcontador + 1
+				kcontador+=1
 			
 			plt.savefig(finalfolder_lin+"/STA-"+str(neurontag)+"_.png",format='png', bbox_inches='tight')
 			plt.savefig(outputFolder+"STA-"+str(neurontag)+"_.png",format='png', bbox_inches='tight')
