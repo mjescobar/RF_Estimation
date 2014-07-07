@@ -47,10 +47,7 @@ from scipy import misc
 from PIL import Image, ImageChops
 
 import argparse #argument parsing
-from multiprocessing import Pool  #Parallel powa!
-
-
-# import gc # garbage collector
+from multiprocessing import Pool, freeze_support #Parallel powa!
 
 #=============================================
 # Inputs
@@ -614,7 +611,14 @@ def calculaSTA(args):
 			del spikeframe_matrix
 			del acumula
 	
-length = endUnit-startUnit
-np = args.numberProcesses
-p = Pool(processes=np)
-p.map(calculaSTA, [(startPosition,startPosition+length//np) for startPosition in  range(startUnit, length, length//np)])
+
+
+def main():
+	length = endUnit-startUnit
+	np = args.numberProcesses
+	p = Pool(processes=np)
+	p.map(calculaSTA, [(startPosition,startPosition+length//np) for startPosition in  range(startUnit, length, length//np)])
+
+if __name__=="__main__":
+    freeze_support()
+    main()
