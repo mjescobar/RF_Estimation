@@ -52,8 +52,8 @@ outputFolder = args.outputFolder
 # Check for trailing / on the folder
 if outputFolder[-1] != '/':
 	outputFolder+='/'
-
-def loadVarMatrix(sourceFolder,unitFile):
+	
+def loadMeanMatrix(sourceFolder,unitFile):
 	unit=unitFile.rsplit('_', 1)[0]
 	# The STA matrix is named as M8a_lineal/sta_array_M8a.mat
 	staMatrixFile = scipy.io.loadmat(sourceFolder+unitFile+'/sta_array_'+unit+'.mat')
@@ -76,18 +76,15 @@ def loadVarMatrix(sourceFolder,unitFile):
 	plt.close()
 	
 	return 0
-	
+		
 
 def main():
-	try:
-		os.mkdir( outputFolder )
-	except OSError:
-		pass
-
 	for unitFile in os.listdir(sourceFolder):
 		if os.path.isdir(sourceFolder+unitFile):
-			print loadVarMatrix(sourceFolder,unitFile)
-			
+			print unitFile
+			meanMatrix = loadMeanMatrix(sourceFolder,unitFile)
+			xLength = meanMatrix.shape[0]
+			print numpy.where(meanMatrix==numpy.amax(meanMatrix))			
 	return 0
 
 if __name__ == '__main__':
