@@ -27,6 +27,7 @@ import os     # operative system lib
 import matplotlib.pyplot as plt
 import argparse #argument parsing
 import scipy.io 	      # input output lib (for save matlab matrix)
+import numpy
 
 parser = argparse.ArgumentParser(prog='pca.py',
  description='Performs PCA',
@@ -51,15 +52,32 @@ outputFolder = args.outputFolder
 if sourceFolder[-1] != '/':
 	sourceFolder+='/'
 	
-def loadMatrix(sourceFolder,unitFile):
+def loadMeanMatrix(sourceFolder,unitFile):
 	unit=unitFile.rsplit('_', 1)[0]
-	print sourceFolder+unitFile+'/sta_array_'+unit+'.mat'
+	# The STA matrix is named as M8a_lineal/sta_array_M8a.mat
 	staMatrixFile = scipy.io.loadmat(sourceFolder+unitFile+'/sta_array_'+unit+'.mat')
 	staMatrix = staMatrixFile['STA_array']
+	# STA matrix shaped (31, 31, 20) 
+	# x,y,z; x=pixel width, y=pixel heigth, z=number of images
+	xLength = staMatrix.shape[0]
+	yLength = staMatrix.shape[1]
+	result = numpy.zeros((xLength,yLength))
+	for xAxis in range(xLength):
+		for yAxis in range(yLength):
+			result[xAxis][yAxis] = numpy.var(staMatrix[xAxis,yAxis,:])
 	
-	print staMatrix.shape
+	return result
 	
-	
-for unitFile in os.listdir(sourceFolder):
-	if os.path.isdir(sourceFolder+unitFile):
-		loadMatrix(sourceFolder,unitFile)
+
+def main():
+	for unitFile in os.listdir(sourceFolder):
+		if os.path.isdir(sourceFolder+unitFile):
+			print unitFile
+			meanMatrix = loadMeanMatrix(sourceFolder,unitFile)
+			xLength = meanMatrix.shape[0]
+			print numpy.where(meanMatrix==numpy.amax(meanMatrix))
+			
+	return 0
+
+if __name__ == '__main__':
+	main()

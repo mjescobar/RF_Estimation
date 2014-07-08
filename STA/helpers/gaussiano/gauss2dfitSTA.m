@@ -5,15 +5,15 @@
 % ------------------------------------------------------------
 
 % FOLDER NAME OF THE CELL
-nombre_cell_grupo = 'G8a';
+nombre_cell_grupo = 'H5a';
 
-carpeta = ['STA_datos0003_mat/',nombre_cell_grupo,'/'];
+carpeta = ['/tmp/sta_20140704_2104/',nombre_cell_grupo,'_lineal/'];
 
 load([carpeta,'stavisual_lin_array_',nombre_cell_grupo,'.mat']);
 
 %% normalize STA matrix for plot purposes
 % correct the color scale for plot
-STAarray_lin(1:19,1:19,1:18) = stavisual_lin(:,:,3,:);
+% STAarray_lin(1:19,1:19,1:18) = stavisual_lin(:,:,3,:);
 
 STA_VISUAL = STAarray_lin + abs( min(STAarray_lin(:)) );
 STA_VISUAL2 = STA_VISUAL*255/abs(max(STA_VISUAL(:)));
