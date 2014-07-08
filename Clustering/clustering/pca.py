@@ -27,6 +27,8 @@ import os     # operative system lib
 import matplotlib.pyplot as plt
 import argparse #argument parsing
 import scipy.io 	      # input output lib (for save matlab matrix)
+import numpy
+import matplotlib.pyplot as plt 	  # plot lib (for figures)
 
 parser = argparse.ArgumentParser(prog='pca.py',
  description='Performs PCA',
@@ -36,7 +38,7 @@ parser.add_argument('--sourceFolder',
  type=str, required=True)
 parser.add_argument('--outputFolder',
  help='Output folder',
- type=str, required=False)
+ type=str, required=True)
 args = parser.parse_args()
 
 #Source folder of the files with the timestamps
@@ -48,18 +50,45 @@ if sourceFolder[-1] != '/':
 #Source folder of the files with the timestamps
 outputFolder = args.outputFolder
 # Check for trailing / on the folder
-if sourceFolder[-1] != '/':
-	sourceFolder+='/'
-	
-def loadMatrix(sourceFolder,unitFile):
+if outputFolder[-1] != '/':
+	outputFolder+='/'
+
+def loadVarMatrix(sourceFolder,unitFile):
 	unit=unitFile.rsplit('_', 1)[0]
-	print sourceFolder+unitFile+'/sta_array_'+unit+'.mat'
+	# The STA matrix is named as M8a_lineal/sta_array_M8a.mat
 	staMatrixFile = scipy.io.loadmat(sourceFolder+unitFile+'/sta_array_'+unit+'.mat')
 	staMatrix = staMatrixFile['STA_array']
+	# STA matrix shaped (31, 31, 20) 
+	# x,y,z; x=pixel width, y=pixel heigth, z=number of images
+	xLength = staMatrix.shape[0]
+	yLength = staMatrix.shape[1]
+	result = numpy.zeros((xLength,yLength))
+	for xAxis in range(xLength):
+		for yAxis in range(yLength):
+			result[xAxis][yAxis] = numpy.var(staMatrix[xAxis,yAxis,:])
+	coordinates = numpy.where(result==numpy.amax(result))
+	data = staMatrix[coordinates[0][0],[coordinates[1][0]],:]
 	
-	print staMatrix.shape
+	lenData = len(data[0])	
+	plt.figure()
+	plt.plot(numpy.linspace(1,lenData,lenData),data[0],linestyle="dashed", marker="o", color="green")
+	plt.savefig(outputFolder+unit+".png",format='png', bbox_inches='tight')
+	plt.close()
 	
+	return 0
 	
-for unitFile in os.listdir(sourceFolder):
-	if os.path.isdir(sourceFolder+unitFile):
-		loadMatrix(sourceFolder,unitFile)
+
+def main():
+	try:
+		os.mkdir( outputFolder )
+	except OSError:
+		pass
+
+	for unitFile in os.listdir(sourceFolder):
+		if os.path.isdir(sourceFolder+unitFile):
+			print loadVarMatrix(sourceFolder,unitFile)
+			
+	return 0
+
+if __name__ == '__main__':
+	main()

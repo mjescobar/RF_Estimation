@@ -5,9 +5,9 @@
 % ------------------------------------------------------------
 
 % FOLDER NAME OF THE CELL
-nombre_cell_grupo = 'G8a';
+nombre_cell_grupo = 'I6a';
 
-carpeta = ['STA_datos0003_mat/',nombre_cell_grupo,'/'];
+carpeta = ['/tmp/sta_n4_20140705_1412/',nombre_cell_grupo,'_lineal/'];
 
 load([carpeta,'stavisual_lin_array_',nombre_cell_grupo,'.mat']);
 
