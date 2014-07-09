@@ -47,16 +47,28 @@ sourceFolder = args.sourceFolder
 if sourceFolder[-1] != '/':
 	sourceFolder+='/'
 
+if not os.path.exists(sourceFolder):
+	print ''
+	print 'Source folder does not exists ' + sourceFolder
+	sys.exit()
+
 #Source folder of the files with the timestamps
 outputFolder = args.outputFolder
 # Check for trailing / on the folder
 if outputFolder[-1] != '/':
 	outputFolder+='/'
-	
-def loadMeanMatrix(sourceFolder,unitFile):
-	unit=unitFile.rsplit('_', 1)[0]
+
+if not os.path.exists(outputFolder):
+	try:
+		os.makedirs(outputFolder)
+	except:
+		print ''
+		print 'Unable to create folder ' + outputFolder
+		sys.exit()
+		
+def loadVarMatrix(sourceFolder,unitFile,unitName):
 	# The STA matrix is named as M8a_lineal/sta_array_M8a.mat
-	staMatrixFile = scipy.io.loadmat(sourceFolder+unitFile+'/sta_array_'+unit+'.mat')
+	staMatrixFile = scipy.io.loadmat(sourceFolder+unitFile+'/sta_array_'+unitName+'.mat')
 	staMatrix = staMatrixFile['STA_array']
 	# STA matrix shaped (31, 31, 20) 
 	# x,y,z; x=pixel width, y=pixel heigth, z=number of images
@@ -67,24 +79,29 @@ def loadMeanMatrix(sourceFolder,unitFile):
 		for yAxis in range(yLength):
 			result[xAxis][yAxis] = numpy.var(staMatrix[xAxis,yAxis,:])
 	coordinates = numpy.where(result==numpy.amax(result))
-	data = staMatrix[coordinates[0][0],[coordinates[1][0]],:]
+#	print numpy.amax(result)
+#	print numpy.std(result)
+	print numpy.var(numpy.histogram(result)[0])
 	
+	return staMatrix[coordinates[0][0],[coordinates[1][0]],:]
+
+def plotImages(data, unitName):
 	lenData = len(data[0])	
 	plt.figure()
 	plt.plot(numpy.linspace(1,lenData,lenData),data[0],linestyle="dashed", marker="o", color="green")
-	plt.savefig(outputFolder+unit+".png",format='png', bbox_inches='tight')
+	plt.savefig(outputFolder+unitName+".png",format='png', bbox_inches='tight')
 	plt.close()
-	
+
 	return 0
-		
 
 def main():
 	for unitFile in os.listdir(sourceFolder):
-		if os.path.isdir(sourceFolder+unitFile):
-			print unitFile
-			meanMatrix = loadMeanMatrix(sourceFolder,unitFile)
-			xLength = meanMatrix.shape[0]
-			print numpy.where(meanMatrix==numpy.amax(meanMatrix))			
+		if os.path.isdir(sourceFolder+unitFile):			
+			unitName = unitFile.rsplit('_', 1)[0]
+			print unitName
+			loadVarMatrix(sourceFolder,unitFile,unitName)
+			#plotImages(loadVarMatrix(sourceFolder,unitFile,unitName), unitName)
+			
 	return 0
 
 if __name__ == '__main__':
