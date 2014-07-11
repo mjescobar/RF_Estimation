@@ -226,9 +226,7 @@ if stimMiniv7:
 	estim = npy.array(estim)
 else:
 	# stimMini must be prepared using convertStim.py
-	estim = npy.load(stimMatrix)
-	estim = npy.load(stimMatrix)
-	
+	estim = npy.load(stimMatrix)	
 
 # same as choose channel 3 of RGB images
 # ToDo, No idea why it's 2

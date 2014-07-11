@@ -29,6 +29,9 @@ import argparse #argument parsing
 import scipy.io 	      # input output lib (for save matlab matrix)
 import numpy
 import matplotlib.pyplot as plt 	  # plot lib (for figures)
+import scipy.ndimage
+from scipy.cluster.vq import kmeans,vq
+from pylab import plot,show
 
 parser = argparse.ArgumentParser(prog='pca.py',
  description='Performs PCA',
@@ -57,14 +60,6 @@ outputFolder = args.outputFolder
 # Check for trailing / on the folder
 if outputFolder[-1] != '/':
 	outputFolder+='/'
-
-if not os.path.exists(outputFolder):
-	try:
-		os.makedirs(outputFolder)
-	except:
-		print ''
-		print 'Unable to create folder ' + outputFolder
-		sys.exit()
 		
 def loadVarMatrix(sourceFolder,unitFile,unitName):
 	# The STA matrix is named as M8a_lineal/sta_array_M8a.mat
@@ -79,13 +74,21 @@ def loadVarMatrix(sourceFolder,unitFile,unitName):
 		for yAxis in range(yLength):
 			result[xAxis][yAxis] = numpy.var(staMatrix[xAxis,yAxis,:])
 	coordinates = numpy.where(result==numpy.amax(result))
-#	print numpy.amax(result)
-#	print numpy.std(result)
-	print numpy.var(numpy.histogram(result)[0])
+
+	# Experimentallly, anything under 10,000 is noise
+	# numpy.var(numpy.histogram(result)[0])
 	
-	return staMatrix[coordinates[0][0],[coordinates[1][0]],:]
+	return scipy.ndimage.gaussian_filter(staMatrix[coordinates[0][0],[coordinates[1][0]],:],2)
 
 def plotImages(data, unitName):
+	if not os.path.exists(outputFolder):
+		try:
+			os.makedirs(outputFolder)
+		except:
+			print ''
+			print 'Unable to create folder ' + outputFolder
+			sys.exit()
+			
 	lenData = len(data[0])	
 	plt.figure()
 	plt.plot(numpy.linspace(1,lenData,lenData),data[0],linestyle="dashed", marker="o", color="green")
@@ -95,13 +98,36 @@ def plotImages(data, unitName):
 	return 0
 
 def main():
+	data = numpy.zeros((1,20))
 	for unitFile in os.listdir(sourceFolder):
 		if os.path.isdir(sourceFolder+unitFile):			
 			unitName = unitFile.rsplit('_', 1)[0]
-			print unitName
-			loadVarMatrix(sourceFolder,unitFile,unitName)
-			#plotImages(loadVarMatrix(sourceFolder,unitFile,unitName), unitName)
+			#print unitName
+			dataUnit = loadVarMatrix(sourceFolder,unitFile,unitName)
+			#plotImages(dataUnit,unitName)
+			data = numpy.append(data,dataUnit, axis=0)
+	
+	data = data[1:,:]
+	centroids,_ = kmeans(data,5)
+	idx,_ = vq(data,centroids)
+		
+	plt.figure()
+	for curve in range(data.shape[0]):
+		if idx[curve] == 0:
+			plt.plot(data[curve,:],'r')
+		if idx[curve] == 1:
+			plt.plot(data[curve,:],'g')
+		if idx[curve] == 2:
+			plt.plot(data[curve,:],'b')
+		if idx[curve] == 3:
+			plt.plot(data[curve,:],'c')
+		if idx[curve] == 4:
+			plt.plot(data[curve,:],'m')
+	plt.show()
+	plt.close()
 			
+	
+	
 	return 0
 
 if __name__ == '__main__':
