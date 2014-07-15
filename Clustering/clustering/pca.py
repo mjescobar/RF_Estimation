@@ -60,6 +60,14 @@ outputFolder = args.outputFolder
 # Check for trailing / on the folder
 if outputFolder[-1] != '/':
 	outputFolder+='/'
+
+if not os.path.exists(outputFolder):
+	try:
+		os.makedirs(outputFolder)
+	except:
+		print ''
+		print 'Unable to create folder ' + outputFolder
+		sys.exit()
 		
 def loadVarMatrix(sourceFolder,unitFile,unitName):
 	# The STA matrix is named as M8a_lineal/sta_array_M8a.mat
@@ -70,9 +78,16 @@ def loadVarMatrix(sourceFolder,unitFile,unitName):
 	xLength = staMatrix.shape[0]
 	yLength = staMatrix.shape[1]
 	result = numpy.zeros((xLength,yLength))
+	maxDataSTAValue = 0
 	for xAxis in range(xLength):
 		for yAxis in range(yLength):
-			result[xAxis][yAxis] = numpy.var(staMatrix[xAxis,yAxis,:])
+			dataSTA = staMatrix[xAxis,yAxis,:]
+			maxDataSTAtmp = numpy.abs(numpy.amax(staMatrix[xAxis,yAxis,:]))
+			if maxDataSTAtmp > maxDataSTAValue:
+				maxDataSTAValue = maxDataSTAtmp
+				maxDataSTAId = numpy.where(maxDataSTAValue==dataSTA)
+			result[xAxis][yAxis] = numpy.var(dataSTA)
+	plotRF(numpy.matrix(scipy.ndimage.gaussian_filter(staMatrix[:,:,maxDataSTAId[0]],2)),unitName,maxDataSTAId[0])
 	coordinates = numpy.where(result==numpy.amax(result))
 
 	# Experimentallly, anything under 10,000 is noise
@@ -80,15 +95,18 @@ def loadVarMatrix(sourceFolder,unitFile,unitName):
 	
 	return scipy.ndimage.gaussian_filter(staMatrix[coordinates[0][0],[coordinates[1][0]],:],2)
 
-def plotImages(data, unitName):
-	if not os.path.exists(outputFolder):
-		try:
-			os.makedirs(outputFolder)
-		except:
-			print ''
-			print 'Unable to create folder ' + outputFolder
-			sys.exit()
-			
+def plotRF(data, unitName, frameId):	
+	fig = plt.figure()
+	ax = fig.add_subplot(1,1,1)
+	ax.set_aspect('equal')
+	plt.imshow(data, interpolation='nearest', cmap=plt.cm.ocean)
+	plt.savefig(outputFolder+unitName+'_'+str(frameId[0])+'.png',format='png', bbox_inches='tight')
+	plt.close()
+
+	return 0
+
+
+def plotImages(data, unitName):	
 	lenData = len(data[0])	
 	plt.figure()
 	plt.plot(numpy.linspace(1,lenData,lenData),data[0],linestyle="dashed", marker="o", color="green")
