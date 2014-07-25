@@ -73,23 +73,24 @@ if not os.path.exists(outputFolder):
 		print 'Unable to create folder ' + outputFolder
 		sys.exit()
 
-def loadVarMatrix(sourceFolder,unitFile,unitName):
+def loadFitMatrix(sourceFolder,unitFile):
 	# The STA matrix is named as M8a_lineal/sta_array_M8a.mat
-	staMatrixFile = scipy.io.loadmat(sourceFolder+unitFile+'/sta_array_'+unitName+'.mat')
-	staMatrix = staMatrixFile['STA_array']
-	# STA matrix shaped (31, 31, 20) 
-	# x,y,z; x=pixel width, y=pixel heigth, z=number of images
-	xLength = staMatrix.shape[0]
-	yLength = staMatrix.shape[1]
+	firResultFile = scipy.io.loadmat(sourceFolder+unitFile+'/fit_var.mat')
+	firResult = firResultFile['fitresult']
+	
+	return firResult
 
 def main():
 	
+	file = open(outputFolder+'myfile.csv', "w")
+	header = "Unidad,"+"Radio A,"+"Radio B,"+"Area,"+"Angulo,"+"X,"+"Y"+'\n'
+	file.write(header)
 	for unitFile in os.listdir(sourceFolder):
 		if os.path.isdir(sourceFolder+unitFile):			
-			unitName = unitFile.rsplit('_', 1)[0]
-			print unitName
-			#dataUnit = loadVarMatrix(sourceFolder,unitFile,unitName)
-			
+			fitResult = loadFitMatrix(sourceFolder,unitFile)
+			salidaValor=unitFile.rsplit('_', 1)[0]+","+str(fitResult[0][2])+","+str(fitResult[0][3])+","+str(3.14*fitResult[0][2]*fitResult[0][3])+","+str(fitResult[0][1])+","+str(fitResult[0][4])+","+str(fitResult[0][5])+'\n'
+			file.write(salidaValor)
+	file.close
 	return 0
 
 if __name__ == '__main__':
