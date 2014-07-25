@@ -1,11 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-#  procesaSTA.py
+#  recuperaSNR.py
 #  
-#  Copyright 2014 
-#  Monica Otero <monicaot2001@gmail.com>
-#  Carlos "casep" Sepulveda <casep@fedoraproject.org>
+#  Copyright 2014 Carlos "casep" Sepulveda <casep@fedoraproject.org>
 #  
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -24,18 +22,9 @@
 #  
 #  
 
-# Procesa resultado de Ajuste Gaussiano y genera salida resumen 
-
-import sys    # system lib
-import os     # operative system lib
-import matplotlib.pyplot as plt
 import argparse #argument parsing
 import scipy.io 	      # input output lib (for save matlab matrix)
-import numpy
-import matplotlib.pyplot as plt 	  # plot lib (for figures)
-import scipy.ndimage
-from scipy.cluster.vq import kmeans,vq
-from pylab import plot,show
+import os     # operative system lib
 
 parser = argparse.ArgumentParser(prog='pca.py',
  description='Performs PCA',
@@ -72,27 +61,27 @@ if not os.path.exists(outputFolder):
 		print ''
 		print 'Unable to create folder ' + outputFolder
 		sys.exit()
-
-def loadFitMatrix(sourceFolder,unitFile):
-	firResultFile = scipy.io.loadmat(sourceFolder+unitFile+'/fit_var.mat')
-	firResult = firResultFile['fitresult']
+		
+def loadSNRMatrix(sourceFolder):
+	SNRFile = scipy.io.loadmat(sourceFolder+'/snr_inspector.mat')
+	SNRResult = SNRFile['snr_inspector']
 	
-	return firResult
-
+	return SNRResult
+	
+def loadUnitsMatrix(sourceFolder):
+	unitsFile = scipy.io.loadmat(sourceFolder+'/unit_name_inspector.mat')
+	unitsResult = unitsFile['unit_name_inspector']
+	
+	return unitsResult
 def main():
-	
-	file = open(outputFolder+'gf.csv', "w")
-	header = "Unidad,"+"Radio A,"+"Radio B,"+"Area,"+"Angulo,"+"X,"+"Y"+'\n'
-	file.write(header)
-	for unitFile in os.listdir(sourceFolder):
-		if os.path.isdir(sourceFolder+unitFile):			
-			fitResult = loadFitMatrix(sourceFolder,unitFile)
-			salidaValor='"'+unitFile.rsplit('_', 1)[0]+'"\t"' \
-			+str(fitResult[0][2])+'"\t"'+str(fitResult[0][3])+'"\t"' \
-			+str(3.14*fitResult[0][2]*fitResult[0][3])+'"\t"' \
-			+str(fitResult[0][1])+'"\t"'+str(fitResult[0][4])+'"\t"' \
-			+str(fitResult[0][5])+'"\n'
-			file.write(salidaValor)
+
+	file = open(outputFolder+'snr.csv', "w")
+	header = 'Unidad,'+'SNR'+'\n'
+	snr = loadSNRMatrix(sourceFolder)
+	units = loadUnitsMatrix(sourceFolder)
+	for unit in range(len(snr)):
+		linea = '"'+units[unit][0][0]+'"\t"'+str(snr[unit][0])+'"\n'
+		file.write(linea)
 	file.close
 	return 0
 
