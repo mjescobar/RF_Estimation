@@ -73,14 +73,22 @@ if not os.path.exists(outputFolder):
 		print 'Unable to create folder ' + outputFolder
 		sys.exit()
 
+def loadVarMatrix(sourceFolder,unitFile,unitName):
+	# The STA matrix is named as M8a_lineal/sta_array_M8a.mat
+	staMatrixFile = scipy.io.loadmat(sourceFolder+unitFile+'/sta_array_'+unitName+'.mat')
+	staMatrix = staMatrixFile['STA_array']
+	# STA matrix shaped (31, 31, 20) 
+	# x,y,z; x=pixel width, y=pixel heigth, z=number of images
+	xLength = staMatrix.shape[0]
+	yLength = staMatrix.shape[1]
 
 def main():
 	
 	for unitFile in os.listdir(sourceFolder):
 		if os.path.isdir(sourceFolder+unitFile):			
 			unitName = unitFile.rsplit('_', 1)[0]
-			#print unitName
-			dataUnit = loadVarMatrix(sourceFolder,unitFile,unitName)
+			print unitName
+			#dataUnit = loadVarMatrix(sourceFolder,unitFile,unitName)
 			
 	return 0
 

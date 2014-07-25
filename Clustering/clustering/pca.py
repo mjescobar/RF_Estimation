@@ -82,7 +82,7 @@ def loadVarMatrix(sourceFolder,unitFile,unitName):
 	for xAxis in range(xLength):
 		for yAxis in range(yLength):
 			dataSTA = staMatrix[xAxis,yAxis,:]
-			maxDataSTAtmp = numpy.abs(numpy.amax(staMatrix[xAxis,yAxis,:]))
+			maxDataSTAtmp = numpy.amax(numpy.abs(staMatrix[xAxis,yAxis,:]))
 			if maxDataSTAtmp > maxDataSTAValue:
 				maxDataSTAValue = maxDataSTAtmp
 				maxDataSTAId = numpy.where(maxDataSTAValue==dataSTA)
@@ -99,7 +99,7 @@ def plotRF(data, unitName, frameId):
 	fig = plt.figure()
 	ax = fig.add_subplot(1,1,1)
 	ax.set_aspect('equal')
-	plt.imshow(data, interpolation='nearest', cmap=plt.cm.ocean)
+	plt.imshow(data, interpolation='nearest', cmap=plt.cm.jet)
 	plt.savefig(outputFolder+unitName+'_'+str(frameId[0])+'.png',format='png', bbox_inches='tight')
 	plt.close()
 
