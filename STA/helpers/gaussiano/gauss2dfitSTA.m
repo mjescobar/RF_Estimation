@@ -1,3 +1,5 @@
+function gauss2dfitSTA(folder,cell)
+
 % ------------------------------------------------------------
 % 2D GAUSS FIT TO ESTIMATED RECEPTIVE FIELDS STA
 % ------------------------------------------------------------
@@ -5,9 +7,9 @@
 % ------------------------------------------------------------
 
 % FOLDER NAME OF THE CELL
-nombre_cell_grupo = 'I6a';
+nombre_cell_grupo = cell;
 
-carpeta = ['/tmp/sta_20140704_2104/',nombre_cell_grupo,'_lineal/'];
+carpeta = [folder,nombre_cell_grupo,'_lineal/'];
 
 load([carpeta,'stavisual_lin_array_',nombre_cell_grupo,'.mat']);
 
