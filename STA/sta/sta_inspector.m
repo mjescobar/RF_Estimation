@@ -1,31 +1,27 @@
 %% sta inspector
-% AASTUDILLO2014
-% 20 mayo 2014
+%% This function gives back the SNR value for every unit 
+function sta_inspector (unit_file, sta_folder, inicio, limite)
+% datos = '001';
 
-% path = '10umDRUG_BGA'; % list_dir = dir(fullfile(path)); % list_dir = {list_dir.name}';
-% UNITS ={'C10b','C12a','D3a','D3b','D12b','D15b','D15c','E14a','F15c','G11a'};
-
-datos = '0001';
-
-units = textread(['units_',datos,'.txt'],'%s','delimiter','\t');
+units = textread(unit_file,'%s','delimiter','\t');
 
 %charac = load(['characterization_',datos,'.txt']);
 charac = ones(length(units),1);
 
 snr_inspector = zeros(length(units),1);
+unit_name_inspector= cell(length(units),1);
 
-stafolder = ['STA_datos',datos,'_fast2'];
 
 classfolder = 'sta_inspector';
-mkdir([stafolder,'/',classfolder]);
+mkdir([sta_folder,'/',classfolder]);
 
 dimensiones = 5;
 nclusters = 6;
 
-inicio = 1;
-limite = 429; %23+5; %length(charac); 
+% inicio = 1;
+% limite = 95; %23+5; %length(charac); 
 
-doplot = 0;
+doplot = 1;
 numframes = 20;
 spikeframe = 18;
 contadorunit = 1;
@@ -39,7 +35,8 @@ if (charac(kunit)>0)
 % FOLDER NAME OF THE CELL
 
 charunit = char(units(kunit));
-carpeta = [stafolder,'/',charunit,'_lineal/'];
+display(charunit);
+carpeta = [sta_folder,'/',charunit,'_lineal/'];
 
 nombre_cell_grupo = char(charunit);
 
@@ -58,6 +55,7 @@ imi_total=min(img_total(:));
 ims_total=std(img_total(:));
 snr_total=20*log10((ima_total-imi_total)./ims_total);
 
+unit_name_inspector{kunit}=nombre_cell_grupo; 
 snr_inspector(kunit) = snr_total;
 % snr = 10.147 % which fulfills the rose criterion...
 
@@ -65,7 +63,7 @@ snr_inspector(kunit) = snr_total;
 %--------------------------------------------------------------------------
 if doplot
     fig1=figure('Visible','off');
-    for k=1:18; 
+    for k=1:spikeframe; 
         subplot(3,6,k); 
         imshow(uint8(STAarray_lin(:,:,k))); 
         
@@ -79,7 +77,7 @@ if doplot
     title(['SNR total ',num2str(snr_total)]);
     colormap('jet');
     %save([carpeta,'time_curves_',nombre_cell_grupo,'.mat'],'temporalcurve1','tvector','spline_curve','frame_ajuste','fc');
-    print(fig1,'-dpng',[stafolder,'/',classfolder,'/',charunit,'.png']);
+    print(fig1,'-dpng',[sta_folder,'/',classfolder,'/',charunit,'.png']);
 end
 %--------------------------------------------------------------------------
 
@@ -424,28 +422,28 @@ ylim([-0.35 0.35]);
 %% save images
 
 
-print(h1,'-dpdf',[stafolder,'/',classfolder,'/h1_temp_prof.pdf']);
-print(h2,'-dpdf',[stafolder,'/',classfolder,'/h2_pca.pdf']);
-print(h3,'-dpdf',[stafolder,'/',classfolder,'/h3_pca_kmeans.pdf']);
-print(h3_3,'-dpdf',[stafolder,'/',classfolder,'/h3_3_pca_kmeans.pdf']);
-print(h4,'-dpdf',[stafolder,'/',classfolder,'/h4_temp_clustered.pdf']);
-print(h5,'-dpdf',[stafolder,'/',classfolder,'/h5_tp_clusters.pdf']);
+print(h1,'-dpdf',[sta_folder,'/',classfolder,'/h1_temp_prof.pdf']);
+print(h2,'-dpdf',[sta_folder,'/',classfolder,'/h2_pca.pdf']);
+print(h3,'-dpdf',[sta_folder,'/',classfolder,'/h3_pca_kmeans.pdf']);
+print(h3_3,'-dpdf',[sta_folder,'/',classfolder,'/h3_3_pca_kmeans.pdf']);
+print(h4,'-dpdf',[sta_folder,'/',classfolder,'/h4_temp_clustered.pdf']);
+print(h5,'-dpdf',[sta_folder,'/',classfolder,'/h5_tp_clusters.pdf']);
 
-print(h1_1,'-dpdf',[stafolder,'/',classfolder,'/h1_spline_temp_prof.pdf']);
-print(h4_1,'-dpdf',[stafolder,'/',classfolder,'/h4_spline_temp_clustered.pdf']);
-print(h5_1,'-dpdf',[stafolder,'/',classfolder,'/h5_spline_tp_clusters.pdf']);
+print(h1_1,'-dpdf',[sta_folder,'/',classfolder,'/h1_spline_temp_prof.pdf']);
+print(h4_1,'-dpdf',[sta_folder,'/',classfolder,'/h4_spline_temp_clustered.pdf']);
+print(h5_1,'-dpdf',[sta_folder,'/',classfolder,'/h5_spline_tp_clusters.pdf']);
 
 % PNGS
-print(h1,'-dpng',[stafolder,'/',classfolder,'/h1_temp_prof.png']);
-print(h2,'-dpng',[stafolder,'/',classfolder,'/h2_pca.png']);
-print(h3,'-dpng',[stafolder,'/',classfolder,'/h3_pca_kmeans.png']);
-print(h3_3,'-dpng',[stafolder,'/',classfolder,'/h3_3_pca_kmeans.png']);
-print(h4,'-dpng',[stafolder,'/',classfolder,'/h4_temp_clustered.png']);
-print(h5,'-dpng',[stafolder,'/',classfolder,'/h5_tp_clusters.png']);
+print(h1,'-dpng',[sta_folder,'/',classfolder,'/h1_temp_prof.png']);
+print(h2,'-dpng',[sta_folder,'/',classfolder,'/h2_pca.png']);
+print(h3,'-dpng',[sta_folder,'/',classfolder,'/h3_pca_kmeans.png']);
+print(h3_3,'-dpng',[sta_folder,'/',classfolder,'/h3_3_pca_kmeans.png']);
+print(h4,'-dpng',[sta_folder,'/',classfolder,'/h4_temp_clustered.png']);
+print(h5,'-dpng',[sta_folder,'/',classfolder,'/h5_tp_clusters.png']);
 
-print(h1_1,'-dpng',[stafolder,'/',classfolder,'/h1_spline_temp_prof.png']);
-print(h4_1,'-dpng',[stafolder,'/',classfolder,'/h4_spline_temp_clustered.png']);
-print(h5_1,'-dpng',[stafolder,'/',classfolder,'/h5_spline_tp_clusters.png']);
+print(h1_1,'-dpng',[sta_folder,'/',classfolder,'/h1_spline_temp_prof.png']);
+print(h4_1,'-dpng',[sta_folder,'/',classfolder,'/h4_spline_temp_clustered.png']);
+print(h5_1,'-dpng',[sta_folder,'/',classfolder,'/h5_spline_tp_clusters.png']);
 
 %% get the labels of each unit
 % units_line = list_dir(3:end);
@@ -473,12 +471,13 @@ for k=indexvector;
     table_id_mini{3,cont}=idx(cont);
     cont=cont+1;
 end
-save([stafolder,'/',classfolder,'/classification.mat'],'table_id','table_id_mini');
+save([sta_folder,'/',classfolder,'/classification.mat'],'table_id','table_id_mini');
 %% IMPROVE THE TEMPORAL PROFILE PLOTS:
 
-save([stafolder,'/',classfolder,'/all_temp_curves.mat'],'units','charac','idx','tvector','alltempcurves','alltempcurvesinterpolated','SCORE','COEFF','xcurve','ycurve');
+save([sta_folder,'/',classfolder,'/all_temp_curves.mat'],'units','charac','idx','tvector','alltempcurves','alltempcurvesinterpolated','SCORE','COEFF','xcurve','ycurve');
 
 end
 
 % snr_inspector
-save([stafolder,'/',classfolder,'/snr_inspector.mat'],'snr_inspector');
+save([sta_folder,'/',classfolder,'/snr_inspector.mat'],'snr_inspector');
+save([sta_folder,'/',classfolder,'/unit_name_inspector.mat'],'unit_name_inspector');
