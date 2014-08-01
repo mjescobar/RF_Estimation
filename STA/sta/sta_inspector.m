@@ -49,11 +49,35 @@ load([carpeta,'sta_array_',nombre_cell_grupo,'.mat']);
 % clear stavisual_lin
 % clear STA
 
-img_total=STAarray_lin(:);
+% img_total=STAarray_lin(:);
+img_total= STA_array(:);
+
 ima_total=max(img_total(:));
+
+disp ('ima_total');
+disp (ima_total);
+disp ('size_ima_total');
+disp (size(ima_total));
+
 imi_total=min(img_total(:));
-ims_total=std(img_total(:));
+disp ('imi_total');
+disp(imi_total);
+
+% disp(size(STAarray_lin(:,:,1)));
+
+
+% % disp(img_total(:,:,1));
+% aux=STAarray_lin(:,:,1);
+ims_total=std(img_total(:,:,1));
+
+% disp(size(aux));
+% disp(size(aux(:)));
+disp ('std_deviation');
+disp(ims_total);
+
 snr_total=20*log10((ima_total-imi_total)./ims_total);
+disp('SNR');
+disp(snr_total);
 
 unit_name_inspector{kunit}=nombre_cell_grupo; 
 snr_inspector(kunit) = snr_total;
