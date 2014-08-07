@@ -76,7 +76,7 @@ def loadUnitsMatrix(sourceFolder):
 def main():
 
 	file = open(outputFolder+'snr.csv', "w")
-	header = 'Unidad,'+'SNR'+'\n'
+	header = 'Unidad\t'+'SNR'+'\n'
 	snr = loadSNRMatrix(sourceFolder)
 	units = loadUnitsMatrix(sourceFolder)
 	for unit in range(len(snr)):
