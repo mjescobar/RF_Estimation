@@ -23,7 +23,6 @@
 #  Crea archivo de inicio fin 
 
 import argparse #argument parsing
-import scipy.io 	      # input output lib (for save matlab matrix)
 import os     # operative system lib
 
 parser = argparse.ArgumentParser(prog='creaInicioFin.py',
@@ -35,26 +34,23 @@ parser.add_argument('--sourceFile',
 parser.add_argument('--outputFile',
  help='Output file',
  type=str, required=True)
-parser.add_argument('--adjust',
+parser.add_argument('--adjustment',
  help='Adjustment',
  type=float, required=True)
 args = parser.parse_args()
 
 sourceFile = args.sourceFile
 outputFile = args.outputFile
-adjust = args.adjust
+adjustment = args.adjustment
 
 def main():
 
 	fileI = open(sourceFile, 'r')
 	fileO = open(outputFile, 'w')
 	for line in fileI:
-		fileO.write(str('%e' % float(line))+'\t'+str('%e' % (float(line)+adjust))+'\n')
+		fileO.write(str('%e' % float(line))+'\t'+str('%e' % (float(line)+adjustment))+'\n')
+	fileI.close()
 	fileO.close()
-		
-#	file = open(outputFile, "w")
-#	file.write('')
-#	file.close
 	return 0
 
 if __name__ == '__main__':
