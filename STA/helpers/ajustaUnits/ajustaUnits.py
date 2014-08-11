@@ -26,8 +26,8 @@ import argparse #argument parsing
 import os     # operative system lib
 
 def main():
-	parser = argparse.ArgumentParser(prog='creaInicioFin.py',
-	 description='Crea archivo de inicio fin desde uno que solo tiene inicio',
+	parser = argparse.ArgumentParser(prog='ajustaUnits.py',
+	 description='Ajusta los timestamps de los spikes',
 	 formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 	parser.add_argument('--sourceFolder',
 	 help='Source file',
