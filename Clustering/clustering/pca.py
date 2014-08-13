@@ -87,7 +87,7 @@ def loadVarMatrix(sourceFolder,unitFile,unitName):
 				maxDataSTAValue = maxDataSTAtmp
 				maxDataSTAId = numpy.where(maxDataSTAValue==dataSTA)
 			result[xAxis][yAxis] = numpy.var(dataSTA)
-	plotRF(numpy.matrix(scipy.ndimage.gaussian_filter(staMatrix[:,:,maxDataSTAId[0]],2)),unitName,maxDataSTAId[0])
+	# plotRF(numpy.matrix(scipy.ndimage.gaussian_filter(staMatrix[:,:,maxDataSTAId[0]],2)),unitName,maxDataSTAId[0])
 	coordinates = numpy.where(result==numpy.amax(result))
 
 	# Experimentallly, anything under 10,000 is noise
@@ -117,6 +117,7 @@ def plotImages(data, unitName):
 
 def main():
 	data = numpy.zeros((1,20))
+	units=[]
 	for unitFile in os.listdir(sourceFolder):
 		if os.path.isdir(sourceFolder+unitFile):			
 			unitName = unitFile.rsplit('_', 1)[0]
@@ -124,11 +125,22 @@ def main():
 			dataUnit = loadVarMatrix(sourceFolder,unitFile,unitName)
 			#plotImages(dataUnit,unitName)
 			data = numpy.append(data,dataUnit, axis=0)
+			units.append(unitName)
 	
 	data = data[1:,:]
-	centroids,_ = kmeans(data,5)
+	centroids,_ = kmeans(data,4)
 	idx,_ = vq(data,centroids)
-		
+	units_txt= open(outputFolder+'/clustering_units.txt','w')
+	
+	for curve in range(idx.shape[0]):
+		units_txt.write(units[curve])
+		units_txt.write(' ')
+		units_txt.write(str(idx[curve]))
+		units_txt.write('\n')
+	
+	units_txt.close()
+	
+	
 	plt.figure()
 	for curve in range(data.shape[0]):
 		if idx[curve] == 0:
