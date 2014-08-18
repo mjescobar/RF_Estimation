@@ -42,6 +42,12 @@ parser.add_argument('--sourceFolder',
 parser.add_argument('--outputFolder',
  help='Output folder',
  type=str, required=True)
+parser.add_argument('--clustersNumber',
+ help='Number of clusters',
+ type=int, default='5', required=False)
+parser.add_argument('--framesNumber',
+ help='Number of frames used in STA analysis',
+ type=int, default='20', required=False)
 args = parser.parse_args()
 
 #Source folder of the files with the timestamps
@@ -55,7 +61,7 @@ if not os.path.exists(sourceFolder):
 	print 'Source folder does not exists ' + sourceFolder
 	sys.exit()
 
-#Source folder of the files with the timestamps
+#Output folder of the files with the timestamps
 outputFolder = args.outputFolder
 # Check for trailing / on the folder
 if outputFolder[-1] != '/':
@@ -68,11 +74,19 @@ if not os.path.exists(outputFolder):
 		print ''
 		print 'Unable to create folder ' + outputFolder
 		sys.exit()
-		
+	
+#Clusters number for the kmeans algorithm
+clustersNumber = args.clustersNumber
+
+#Frames used in STA analysis
+framesNumber = args.framesNumber
+	
 def loadVarMatrix(sourceFolder,unitFile,unitName):
 	# The STA matrix is named as M8a_lineal/sta_array_M8a.mat
 	staMatrixFile = scipy.io.loadmat(sourceFolder+unitFile+'/sta_array_'+unitName+'.mat')
 	staMatrix = staMatrixFile['STA_array']
+	#staMatrix = staMatrixFile['STAarray_lin']
+
 	# STA matrix shaped (31, 31, 20) 
 	# x,y,z; x=pixel width, y=pixel heigth, z=number of images
 	xLength = staMatrix.shape[0]
@@ -116,19 +130,22 @@ def plotImages(data, unitName):
 	return 0
 
 def main():
-	data = numpy.zeros((1,20))
+	
+	
+	data = numpy.zeros((1,framesNumber))
 	units=[]
 	for unitFile in os.listdir(sourceFolder):
 		if os.path.isdir(sourceFolder+unitFile):			
 			unitName = unitFile.rsplit('_', 1)[0]
 			#print unitName
 			dataUnit = loadVarMatrix(sourceFolder,unitFile,unitName)
+			#print dataUnit
 			#plotImages(dataUnit,unitName)
 			data = numpy.append(data,dataUnit, axis=0)
 			units.append(unitName)
 	
 	data = data[1:,:]
-	centroids,_ = kmeans(data,4)
+	centroids,_ = kmeans(data,clustersNumber)
 	idx,_ = vq(data,centroids)
 	units_txt= open(outputFolder+'/clustering_units.txt','w')
 	
