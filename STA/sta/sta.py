@@ -259,7 +259,7 @@ for unitFile in os.listdir(sourceFolder):
 recoveredUnits = len(per_row)
 if endUnit > recoveredUnits:
 	endUnit = recoveredUnits
-	
+
 #If the characterisationFile is not provided an array of length of the 
 # units must be provided. 
 characterisationFile = args.characterisation
@@ -432,8 +432,9 @@ def sta_4(args):
 
 	for numeroframe in range(framesNumber): #for 18 frames
 		bigsta18 = npy.zeros( ( xSize,ySize ) )
-		for kiter in range(len(stimei)):
+		for kiter in range(len(stimei)):			
 			bigsta18[:,:] = bigsta18[:,:] + estim[ :,:,stimei[kiter]-numeroframe ] - meanimagearray
+			
 		sta18 = bigsta18 / (1.0 * len(stimei) ) # one part of the sta matrix
 		stac[:,:,framesNumber-1 - numeroframe] = sta18
 	acumula = npy.zeros((xSize,ySize,framesNumber+numberframespost))
@@ -495,6 +496,7 @@ def calculaSTA(args):
 			contator2 = 0
 			totalcont = len(vector_spikes) * len(range(primer_frame, lenSyncFile))
 			for punto_spike in vector_spikes:
+				# WTF is this?
 				condicion = 1			
 				for i in range(primer_frame, lenSyncFile):
 					if (vector_inicio_frame[i] < punto_spike) & (punto_spike <= vector_fin_frame[i]):
@@ -506,12 +508,14 @@ def calculaSTA(args):
 						stimei.append(i)
 						frame_ant = i
 						break
+				contator += 1
+				# WTF is this?
 				sys.stdout.write("\r%d%%" %contator2)
 				sys.stdout.flush()			
-				contator = contator + 1 #
 				contator2 = contator * 100 // ( 1.0 * len(vector_spikes) )		
 				primer_frame = frame_ant
 			#print '\n'	
+			# WTF?
 			limite3 = len(stimei)
 			#print 'length frames times vector', lenSyncFile
 			#print "length time stamps vector: ", len(timestamps)
@@ -575,7 +579,8 @@ def calculaSTA(args):
 			ax.set_aspect(1)
 			
 			kcontador = 2
-			for ksubplot in range(17):
+			#casep, cambio de 17 a framesNumber-1 para prevenir "out of bounds" al procesar menos de 18+2 frames
+			for ksubplot in range(framesNumber-1):
 				ax = fig.add_subplot(3,6,kcontador)
 				component = stavisual_lin[:,:,kcontador-1]
 				ax.pcolormesh( component,vmin = 0,vmax = 255, cmap=cm.jet )
