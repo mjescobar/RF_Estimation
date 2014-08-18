@@ -484,6 +484,7 @@ def calculaSTA(args):
 			# Conversion of spike times from seconds to POINTS:
 			#--------------------------------------------------------
 			vector_spikes = timestamps[:]*samplingRate # without first id zero column (1 COLUMMN)
+			#vector_spikes = timestamps[:] # without first id zero column (1 COLUMMN)
 			stimei = []  # initialize time spike index depending of image time
 			spikeframe_matrix = npy.zeros( (len(vector_spikes), 4) ) # [spike time, frame id, ini time frame, end time frame]
 			#--------------------------------------------------------
@@ -517,6 +518,7 @@ def calculaSTA(args):
 			#print '\n'	
 			# WTF?
 			limite3 = len(stimei)
+			print "Nro de frames: ", limite3
 			#print 'length frames times vector', lenSyncFile
 			#print "length time stamps vector: ", len(timestamps)
 			#print "length spike triggered stimuli time i vector: ", len(stimei)

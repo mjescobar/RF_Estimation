@@ -26,7 +26,7 @@ numframes = 20;
 spikeframe = 18;
 contadorunit = 1;
 
-dotemp = 0;
+dotemp = 1;
 
 for kunit = inicio:limite
 if (charac(kunit)>0)
@@ -36,7 +36,7 @@ if (charac(kunit)>0)
 
 charunit = char(units(kunit));
 display(charunit);
-carpeta = [sta_folder,'/',charunit,'_lineal/'];
+carpeta = [sta_folder,'\',charunit,'_lineal\'];
 
 nombre_cell_grupo = char(charunit);
 
@@ -54,28 +54,25 @@ img_total= STA_array(:);
 
 ima_total=max(img_total(:));
 
-disp ('ima_total');
+disp ('max');
 disp (ima_total);
-disp ('size_ima_total');
-disp (size(ima_total));
 
 imi_total=min(img_total(:));
-disp ('imi_total');
+
+disp ('min');
 disp(imi_total);
 
-% disp(size(STAarray_lin(:,:,1)));
+primer_frame=STA_array(:,:,1);
+disp(size(primer_frame(:)));
+ims_total=std(primer_frame(:));
+disp('size imgtotal');
+disp(size(ims_total));
 
-
-% % disp(img_total(:,:,1));
-% aux=STAarray_lin(:,:,1);
-ims_total=std(img_total(:,:,1));
-
-% disp(size(aux));
-% disp(size(aux(:)));
 disp ('std_deviation');
 disp(ims_total);
 
-snr_total=20*log10((ima_total-imi_total)./ims_total);
+snr_total=20*log10(abs(ima_total-imi_total)./ims_total);
+
 disp('SNR');
 disp(snr_total);
 
