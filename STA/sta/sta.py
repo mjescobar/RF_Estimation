@@ -509,7 +509,7 @@ def calculaSTA(args):
 						frame_ant = i
 						break
 				contator += 1
-				# WTF is this?
+				# WTF is this?  Comentario idiota
 				sys.stdout.write("\r%d%%" %contator2)
 				sys.stdout.flush()			
 				contator2 = contator * 100 // ( 1.0 * len(vector_spikes) )		
