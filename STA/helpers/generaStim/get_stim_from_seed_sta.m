@@ -39,7 +39,7 @@ first_images = load(first_file);
 
 oi = first_images.fi;
 oi1 = oi(:,:,:,1);
-figure, imshow(oi1); title('original image');
+% figure, imshow(oi1); title('original image');
 %% generates
 
 pxs = 1;
@@ -53,10 +53,10 @@ end
 %% validates
 
 im1 = stim(:,:,:,1);
-figure, imshow(im1); axis image; title('result image');
+% figure, imshow(im1); axis image; title('result image');
 
 oi1_resized = imresize(oi1,1/size(oi1,1)*blocks,'box');
-figure, imshow(oi1_resized); axis image; title('resized original image');
+% figure, imshow(oi1_resized); axis image; title('resized original image');
 
 end
 
