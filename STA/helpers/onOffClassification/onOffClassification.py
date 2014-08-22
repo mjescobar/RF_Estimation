@@ -25,7 +25,7 @@
 #  
 
 # Genera clasificacion unidades on-off u off-on dependiendo de ocurrencia
-# minimo y maximo 
+# minimo y maximo y además el frame dde se alcanzó este min/max
 
 import sys    # system lib
 import os     # operative system lib
@@ -84,7 +84,7 @@ def main():
 	
 	file = open(outputFolder+'onOff.csv', "w")
 	
-	header = 'Unidad\t'+'OnOff'+'\n'
+	header = 'Unidad\t'+'OnOff\t'+'PeekFrame''\n'
 	file.write(header)
 	maxDataSTAValue = 0
 	minDataSTAValue = 0
@@ -111,9 +111,9 @@ def main():
 						minDataSTAValue = minDataSTAtmp
 						minDataSTAId = numpy.where(minDataSTAValue==dataSTA)
 			if maxDataSTAId[0] > minDataSTAId[0]:
-				linea = '"'+unitName+'"\t"On"\n'
+				linea = '"'+unitName+'"\t"On"\t"'+ str(maxDataSTAId[0]+1) + '\n'
 			else:
-				linea = '"'+unitName+'"\t"Off"\n'
+				linea = '"'+unitName+'"\t"Off"\t"'+ str(minDataSTAId[0]+1) + '\n'
 			file.write(linea)
 	file.close
 	return 0
