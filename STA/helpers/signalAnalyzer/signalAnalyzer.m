@@ -1,3 +1,4 @@
+function signalAnalyzer(mcdFile,experimentName,sampleRating);
 % Synchrony signal ANALIZER 3
 
 % AASTUDILLO 17 OCTOBER 2013
@@ -24,13 +25,14 @@ end
  [nsresult,info] = ns_GetLibraryInfo()
 % % 
 % % %% open mcd data container file
- pathname = '';
+% pathname = '';
 % % %filename1 = 'datos0001.mcd';
- filename = 'datos0001.mcd';
+% filename = 'datos0001.mcd';
+filename = mcdFile;
 % % filename1 = 'datos0003.mcd';
 % % filename = '../datos0003.mcd';
 % % 
-[nsresult, hfile] = ns_OpenFile([pathname filename])
+[nsresult, hfile] = ns_OpenFile([filename])
 [nsresult,info_file] = ns_GetFileInfo(hfile)
 % % 
 % % EntityCount = info_file.EntityCount; % total number of entities in the file
@@ -69,7 +71,7 @@ EntityNumber = 253; % analog data A1
 % 7) el punto de inicio de cada frame debe ser estimado a partir de la
 % distancia entre frames (en puntos) y el final de cada pulso
 
-datosname = 'datos0001';
+datosname = experimentName;
 
 load(['syn_signal1_',datosname]);
 
@@ -81,7 +83,8 @@ x = data;
 umbral_volts = 0.151111112; %0.1511 ; % umbral en volts, determina criticamente el performance de la deteccion de frames
 puntos_pulso = 50; %24*2; 24; % puntos maximos requeridos para considerar como un pulso de frame
 
-duracion_min = length(data)/20000/60; % duracion en minutos de la senal
+%duracion_min = length(data)/20000/60; % duracion en minutos de la senal
+duracion_min = length(data)/sampleRating/60; % duracion en minutos de la senal
 k_keep = 1;
 contador_bajadas = 0;
 posicion_bajada = [ ];
@@ -98,7 +101,7 @@ end
 
 distancias = posicion_bajada(2:end)-posicion_bajada(1:end-1);
 
-duracion_min2 = length(posicion_bajada)*334/20000/60; % duracion de frames encontrados
+duracion_min2 = length(posicion_bajada)*334/sampleRating/60; % duracion de frames encontrados
 
 brecha = duracion_min - duracion_min2;
 
@@ -110,7 +113,7 @@ if isempty(lost_frames)
 
     distancias2 = pos_bajada_val(2:end)-pos_bajada_val(1:end-1);
 
-    duracion_min3 = length(pos_bajada_val)*334/20000/60; % duracion de frames encontrados y validos
+    duracion_min3 = length(pos_bajada_val)*334/sampleRating/60; % duracion de frames encontrados y validos
 
     promedio_std_distancias = [ mean(distancias2), std(distancias2)] % debe ser cercano a 334
     %std_distancias = std(distancias2) % std debe ser no mayor que 2
@@ -120,6 +123,7 @@ end
 %inicio = 2212416-10000;
 %20636000 - 20000+1; %final de la presentacion
 %inicio =150000-20000; % inicio de presentacion datos_0003
+
 inicio = 200000-20000;
 %2545471-10000; %546000; %100000; %30000; %354000;
 
