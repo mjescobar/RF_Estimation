@@ -11,10 +11,10 @@
 % Casep, Cambio para cargar la biblioteca correspondiente de acuerdo al OS
 if isunix
     % Debiera ser parametro?
-    addpath('~/proyectos/RF_Estimation/STA/helpers/signalAnalyzer/NeuroShare/');
-    [nsresult] = ns_SetLibrary( 'NeuroShare/nsMCDLibrary.so' )
+    % addpath('~/proyectos/RF_Estimation/STA/helpers/signalAnalyzer/NeuroShare/');
+    [nsresult] = ns_SetLibrary( '../../lib/NeuroShare/nsMCDLibrary.so' )
 else
- [nsresult] = ns_SetLibrary( 'NeuroShare/nsMCDlibrary64.dll' )
+	[nsresult] = ns_SetLibrary( '../../lib/NeuroShare/nsMCDlibrary64.dll' )
 end
  
 % % % ns_SetDLL   Opens a Neuroshare Shared Library (.DLL or .so) in prepearation for other work
