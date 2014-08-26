@@ -8,6 +8,7 @@ function getSynchronySignal(mcdFile,outPut);
 % Casep, Cambio para cargar la biblioteca correspondiente de acuerdo al OS
 if isunix
     % Debiera ser parametro?
+    addpath('../../lib/NeuroShare/');
     [nsresult] = ns_SetLibrary( '../../lib/NeuroShare/nsMCDLibrary.so' )
 else
     [nsresult] = ns_SetLibrary( '../../lib/NeuroShare/nsMCDlibrary64.dll' )
@@ -29,9 +30,7 @@ filename2 = outPut;
 %filename = [filename2,'.mcd'];
 
 % Casep, ahora desde parametro
-filename = mcdFile
-
-[nsresult, hfile] = ns_OpenFile([filename])
+[nsresult, hfile] = ns_OpenFile([mcdFile])
 [nsresult,info_file] = ns_GetFileInfo(hfile)
 
 EntityNumber =253; % entity number to choose and analyze

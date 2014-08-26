@@ -1,5 +1,13 @@
-function signalAnalyzer(mcdFile,experimentName,sampleRating,EntityNumber,inicio,distanciaFrames);
+function signalAnalyzer(mcdFile,signalFile,experimentName,sampleRating,EntityNumber,inicio,distanciaFrames);
 % Synchrony signal ANALIZER 3
+
+% mcdFile, full path al archivo
+% signalFile, full path al archivo syn_signal1_merged.mat
+% experimentName, string syn_signal1_',experimentName,'.mat'
+% sampleRating, 20000
+% EntityNumber, 253
+% inicio, 200000-20000, aun entendiendo que significa
+% distanciaFrames, 334 = 1/60*20000
 
 % AASTUDILLO 17 OCTOBER 2013
 % Modificado por Ricardo Villarroel 2 Diciembre 2013
@@ -12,27 +20,16 @@ function signalAnalyzer(mcdFile,experimentName,sampleRating,EntityNumber,inicio,
 % Casep, Cambio para cargar la biblioteca correspondiente de acuerdo al OS
 if isunix
     % Debiera ser parametro?
-    % addpath('~/proyectos/RF_Estimation/STA/helpers/signalAnalyzer/NeuroShare/');
+    addpath('../../lib/NeuroShare/');
     [nsresult] = ns_SetLibrary( '../../lib/NeuroShare/nsMCDLibrary.so' )
 else
 	[nsresult] = ns_SetLibrary( '../../lib/NeuroShare/nsMCDlibrary64.dll' )
 end
- 
-% % % ns_SetDLL   Opens a Neuroshare Shared Library (.DLL or .so) in prepearation for other work
-% % % for linux you must change this line to
-% % % [nsresult] = ns_SetLibrary( 'nsMCDlibrary64.so' )
+
 % % 
  [nsresult,info] = ns_GetLibraryInfo()
 % % 
-% % %% open mcd data container file
-% pathname = '';
-% % %filename1 = 'datos0001.mcd';
-% filename = 'datos0001.mcd';
-filename = mcdFile;
-% % filename1 = 'datos0003.mcd';
-% % filename = '../datos0003.mcd';
-% % 
-[nsresult, hfile] = ns_OpenFile([filename])
+[nsresult, hfile] = ns_OpenFile([mcdFile])
 [nsresult,info_file] = ns_GetFileInfo(hfile)
 % % 
 % % EntityCount = info_file.EntityCount; % total number of entities in the file
@@ -73,11 +70,8 @@ filename = mcdFile;
 
 datosname = experimentName;
 
-load(['syn_signal1_',datosname]);
-
-%%
-
-% data= datos; %(1:24000000);
+%load(['syn_signal1_',datosname]);
+load([signalFile]);
 
 x = data;
 umbral_volts = 0.151111112; %0.1511 ; % umbral en volts, determina criticamente el performance de la deteccion de frames
