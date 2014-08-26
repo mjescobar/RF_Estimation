@@ -1,4 +1,4 @@
-function signalAnalyzer(mcdFile,experimentName,sampleRating);
+function signalAnalyzer(mcdFile,experimentName,sampleRating,EntityNumber,inicio,distanciaFrames);
 % Synchrony signal ANALIZER 3
 
 % AASTUDILLO 17 OCTOBER 2013
@@ -47,7 +47,7 @@ filename = mcdFile;
 %     EntityLabels{k} = entity.EntityLabel;
 %  end
 % % 
-EntityNumber = 253; % analog data A1
+% EntityNumber = 253; % analog data A1
 % % 
 [nsresult,entity] = ns_GetEntityInfo(hfile,EntityNumber)
 % % 
@@ -101,11 +101,11 @@ end
 
 distancias = posicion_bajada(2:end)-posicion_bajada(1:end-1);
 
-duracion_min2 = length(posicion_bajada)*334/sampleRating/60; % duracion de frames encontrados
+duracion_min2 = length(posicion_bajada)*distanciaFrames/sampleRating/60; % duracion de frames encontrados
 
 brecha = duracion_min - duracion_min2;
 
-lost_frames = find(distancias>334*2)
+lost_frames = find(distancias>distanciaFrames*2)
 
 if isempty(lost_frames)
     %pos_bajada_val = posicion_bajada(1:(lost_frames(1)-1));
@@ -113,7 +113,7 @@ if isempty(lost_frames)
 
     distancias2 = pos_bajada_val(2:end)-pos_bajada_val(1:end-1);
 
-    duracion_min3 = length(pos_bajada_val)*334/sampleRating/60; % duracion de frames encontrados y validos
+    duracion_min3 = length(pos_bajada_val)*distanciaFrames/sampleRating/60; % duracion de frames encontrados y validos
 
     promedio_std_distancias = [ mean(distancias2), std(distancias2)] % debe ser cercano a 334
     %std_distancias = std(distancias2) % std debe ser no mayor que 2
@@ -124,7 +124,7 @@ end
 %20636000 - 20000+1; %final de la presentacion
 %inicio =150000-20000; % inicio de presentacion datos_0003
 
-inicio = 200000-20000;
+% inicio = 200000-20000;
 %2545471-10000; %546000; %100000; %30000; %354000;
 
 bloque = 10000*2;
@@ -142,12 +142,12 @@ plot( m , xplot(m),'r*');
 for j=1:length(posiciones)
     %c = char(colorcitos(findex2(posiciones(j))));
     c = 'r';
-    line( [m(j)-334 m(j)], [xplot(m(j))  xplot(m(j))],'Color',c,'LineWidth',2);
+    line( [m(j)-distanciaFrames m(j)], [xplot(m(j))  xplot(m(j))],'Color',c,'LineWidth',2);
 end
 for j=1:length(posiciones)
     %c = char(colorcitos(findex2(posiciones(j))));
     c = 'g';
-    line( [m(j)-334 m(j)], [0.2  0.2],'Color',c,'LineWidth',8);
+    line( [m(j)-distanciaFrames m(j)], [0.2  0.2],'Color',c,'LineWidth',8);
 end
 hold off;
 grid;
