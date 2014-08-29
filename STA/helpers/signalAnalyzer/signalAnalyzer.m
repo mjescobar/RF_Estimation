@@ -23,7 +23,8 @@ if isunix
     addpath('../../lib/NeuroShare/');
     [nsresult] = ns_SetLibrary( '../../lib/NeuroShare/nsMCDLibrary.so' )
 else
-	[nsresult] = ns_SetLibrary( '../../lib/NeuroShare/nsMCDlibrary64.dll' )
+    addpath(fullfile(pwd,'../../lib','NeuroShare'))
+	[nsresult] = ns_SetLibrary(fullfile(pwd,'../../lib/NeuroShare','nsMCDlibrary64.dll'))
 end
 
 % % 
@@ -46,6 +47,7 @@ end
 % % 
 % EntityNumber = 253; % analog data A1
 % % 
+
 [nsresult,entity] = ns_GetEntityInfo(hfile,EntityNumber)
 % % 
 % [ns_RESULT, ContCount, Data] = ns_GetAnalogData(hFile, EntityID, StartIndex, IndexCount);
