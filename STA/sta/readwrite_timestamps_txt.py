@@ -39,7 +39,7 @@ print '---------------------BEGIN---------------------------'
 parser = argparse.ArgumentParser(prog='readwrite_timestamps_txt.py',
  description='Splits the units file generated on NeuroExplorer',
  formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-parser.add_argument('--filetimestamps',
+parser.add_argument('--sourceFile',
  help='File containing the time stamps',
  type=str, default='datos0001_timestamps2_02_03.txt', required=True)
 parser.add_argument('--outputFolder',
@@ -58,13 +58,13 @@ try:
 except OSError:
   pass
 
-filetimestamps = args.filetimestamps 
+sourceFile = args.sourceFile 
 
-if not os.path.isfile(filetimestamps):
-	print 'File [' + filetimestamps + '] not found'
+if not os.path.isfile(sourceFile):
+	print 'File [' + sourceFile + '] not found'
 	sys.exit()
 
-f = open( filetimestamps ,'r')
+f = open( sourceFile ,'r')
 per_row = []
 for line in f:
     per_row.append(line.split('\t'))
