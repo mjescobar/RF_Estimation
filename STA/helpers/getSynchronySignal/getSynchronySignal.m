@@ -11,6 +11,7 @@ if isunix
     addpath('../../lib/NeuroShare/');
     [nsresult] = ns_SetLibrary( '../../lib/NeuroShare/nsMCDLibrary.so' )
 else
+	addpath(fullfile(pwd,'../../lib','NeuroShare'))
     [nsresult] = ns_SetLibrary( '../../lib/NeuroShare/nsMCDlibrary64.dll' )
 end
 % open mcd lib files 
