@@ -64,8 +64,10 @@ def main():
 	unit = args.unit
 	
 	staVisual = loadSTAVisual(sourceFolder,unit)
-	Xpixels, Ypixels, valores, Xpixel2D, Ypixel2D = gaussFit.prepareSurfaceData(staVisual[:,:,14])
-	print valores
+#	Xpixels, Ypixels, valores, Xpixel2D, Ypixel2D = gaussFit.prepareSurfaceData(staVisual[:,:,14])
+	fitresult, zfit, xData2D, yData2D, fiterr, zerr, resnorm, rr = gaussFit.gaussFit(staVisual[:,:,14])
+	print fitresult
+	print xData2D
 	
 	return 0
 

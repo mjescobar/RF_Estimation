@@ -37,6 +37,11 @@
 
 import numpy as np			#python utilities
 
+def gaussFit():
+	xData, yData, zData, xData2D, yData2D = prepareSurfaceData(matrizSTA)
+	
+	return fitresult, zfit, xData2D, yData2D, fiterr, zerr, resnorm, rr
+
 def prepareSurfaceData(matrizSTA):
 	# prepare surface data using meshgrid
 	# matrizSTA = double(matrizSTA)
