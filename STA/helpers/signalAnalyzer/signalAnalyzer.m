@@ -1,4 +1,4 @@
-function signalAnalyzer(mcdFile,signalFile,experimentName,sampleRating,EntityNumber,inicio,distanciaFrames);
+function signalAnalyzer(mcdFile,signalFile,experimentName,sampleRating,EntityNumber,inicio,distanciaFrames,outputFolder);
 % Synchrony signal ANALIZER 3
 
 % mcdFile, full path al archivo
@@ -8,6 +8,7 @@ function signalAnalyzer(mcdFile,signalFile,experimentName,sampleRating,EntityNum
 % EntityNumber, 253
 % inicio, 200000-20000, aun entendiendo que significa
 % distanciaFrames, 334 = 1/60*20000
+% outputFolder , 'D:\Experimentos_CINV\2014-08-21\'
 
 % AASTUDILLO 17 OCTOBER 2013
 % Modificado por Ricardo Villarroel 2 Diciembre 2013
@@ -32,21 +33,6 @@ end
 % % 
 [nsresult, hfile] = ns_OpenFile([mcdFile])
 [nsresult,info_file] = ns_GetFileInfo(hfile)
-% % 
-% % EntityCount = info_file.EntityCount; % total number of entities in the file
-% % TimeStampRes = info_file.TimeStampResolution; % time between samples in seconds
-% % TimeSpan = info_file.TimeSpan; % total time in seconds
-% % 
-% % %% open label of entities from mcd data file
-% % 
-% % % get all entities labels:
-%  for k = 1:info_file.EntityCount;
-%     [nsresult,entity] = ns_GetEntityInfo(hfile,k);
-%     EntityLabels{k} = entity.EntityLabel;
-%  end
-% % 
-% EntityNumber = 253; % analog data A1
-% % 
 
 [nsresult,entity] = ns_GetEntityInfo(hfile,EntityNumber)
 % % 
@@ -79,7 +65,6 @@ x = data;
 umbral_volts = 0.151111112; %0.1511 ; % umbral en volts, determina criticamente el performance de la deteccion de frames
 puntos_pulso = 50; %24*2; 24; % puntos maximos requeridos para considerar como un pulso de frame
 
-%duracion_min = length(data)/20000/60; % duracion en minutos de la senal
 duracion_min = length(data)/sampleRating/60; % duracion en minutos de la senal
 k_keep = 1;
 contador_bajadas = 0;
@@ -149,7 +134,7 @@ hold off;
 grid;
 title('Syncronization signal analysis example'); xlabel('Time points'); ylabel('Amplitude V');
 
-print(FIGURA,'-dpdf',['Figure_Sync_',datosname,'.pdf']);
+print(FIGURA,'-dpdf',[outputFolder,'Figure_Sync_',datosname,'.pdf']);
 
 %% output and save:
 posicion_bajada_frame = pos_bajada_val(2:1:end);
@@ -159,7 +144,7 @@ fin_frame = posicion_bajada_frame; %valores medidos
 inicio_frame = fin_frame - distancias2(1: length(fin_frame)); %valores estimados
 inicio_fin_frame = [inicio_frame', fin_frame'];
 %save('sync_analysis_output.mat','s','s2','cantobajada2','frameduracion');
-save(['inicio_fin_frame_',datosname,'.txt' ],'inicio_fin_frame', '-ASCII' ,'-DOUBLE');
+save([outputFolder,'inicio_fin_frame_',datosname,'.txt' ],'inicio_fin_frame', '-ASCII' ,'-DOUBLE');
 
 % inicio de frames corresponde a : cantobajada2(1)-frameduracion
 % posici�n inicial de cada frame (i) corresponde al vector : s2(:,1)-frameduracion
@@ -173,16 +158,3 @@ save(['inicio_fin_frame_',datosname,'.txt' ],'inicio_fin_frame', '-ASCII' ,'-DOU
 
 %framepoints = 334*2; % proviene de framepoints
 
-
-
-% ------------------------------------------------
-% % estaS lineaS estaN incorrectaS:
-% traslatedindex = spkstamp - (posicion_bajada_frame(1) - framepoints) % marca inicio de frames : LINEA INCORRECTA
-% 
-% newindex = floor(traslatedindex/framepoints)+1
-% 
-% sincmatrix(newindex,:) %%all the data of the frame
-% 
-% % another option is 
-% p = find(sincmatrix(:,1)>spkstamp & sincmatrix(:,1)<spkstamp+2*framepoints )
-% % where the first p is the position of the frame in sincmatrix
