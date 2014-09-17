@@ -23,8 +23,25 @@
 #  Perform PCA using the sklearn library
 #  http://scikit-learn.org/stable/modules/generated/sklearn.decomposition.PCA.html
 
+import numpy as np
+from sklearn.decomposition import PCA
+
 def main():	
 	
+	X = np.array([[-1, -1], [-2, -1], [-3, -2], [1, 1], [2, 1], [3, 2]])
+	
+	print X
+	
+	pca = PCA(n_components=4, copy=False)
+	newX = pca.fit(X)
+	
+	print newX
+	
+	print X
+	
+	print pca.components_
+	
+	print pca.explained_variance_
 	return 0
 
 if __name__ == '__main__':

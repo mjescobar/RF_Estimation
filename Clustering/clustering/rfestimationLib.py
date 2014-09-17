@@ -25,7 +25,6 @@
 # Set of functions used on different codes of the project
 # 
 
-import scipy.ndimage
 import numpy
 import scipy.io 	      # input output lib (for save matlab matrix)
 
@@ -54,4 +53,5 @@ def loadSTACurve(sourceFolder,unitFile,unitName):
 			result[xAxis][yAxis] = numpy.var(dataSTA)
 	coordinates = numpy.where(result==numpy.amax(result))
 
-	return scipy.ndimage.gaussian_filter(staMatrix[coordinates[0][0],[coordinates[1][0]],:],2)
+	return staMatrix, coordinates
+	

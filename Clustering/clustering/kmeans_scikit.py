@@ -30,6 +30,10 @@ import os     # operative system lib
 from sklearn.cluster import KMeans
 import argparse #argument parsing
 import numpy as np
+import scipy.ndimage
+from sklearn.decomposition import PCA
+import matplotlib.pyplot as plt 	  # plot lib (for figures)
+
 
 def main():
 	
@@ -86,16 +90,62 @@ def main():
 	for unitFile in os.listdir(sourceFolder):
 		if os.path.isdir(sourceFolder+unitFile):			
 			unitName = unitFile.rsplit('_', 1)[0]
-			dataUnit = rfe.loadSTACurve(sourceFolder,unitFile,unitName)
-			data = np.append(data,dataUnit, axis=0)
+			dataUnit, coordinates = rfe.loadSTACurve(sourceFolder,unitFile,unitName)
+			dataUnitGauss = scipy.ndimage.gaussian_filter(dataUnit[coordinates[0][0],[coordinates[1][0]],:],2)
+			data = np.append(data,dataUnitGauss, axis=0)
 			units.append(unitName)
 	# data es normalizado
 	data = data[1:,:]
+	
 	km = KMeans(init='k-means++', n_clusters=clustersNumber, n_init=10,n_jobs=-1)
 	km.fit(data)
 	
-	print units
-	print km.labels_
+	plt.figure()
+	for curve in range(data.shape[0]):
+		if km.labels_[curve] == 0:
+			plt.plot(data[curve,:],'r')
+		if km.labels_[curve] == 1:
+			plt.plot(data[curve,:],'g')
+		if km.labels_[curve] == 2:
+			plt.plot(data[curve,:],'b')
+		if km.labels_[curve] == 3:
+			plt.plot(data[curve,:],'c')
+		if km.labels_[curve] == 4:
+			plt.plot(data[curve,:],'m')
+		if km.labels_[curve] == 5:
+			plt.plot(data[curve,:],'k')
+		if km.labels_[curve] == 6:
+			plt.plot(data[curve,:],'y')
+	plt.savefig(outputFolder+'no_pca.png')
+	plt.close()
+	
+	
+	print 'Labels No PCA ',km.labels_
+	pca = PCA(n_components=4)
+	newData = pca.fit_transform(data)
+	
+	km.fit(newData)
+	print 'Labels PCA    ',km.labels_
+	
+	plt.figure()
+	for curve in range(data.shape[0]):
+		if km.labels_[curve] == 0:
+			plt.plot(data[curve,:],'r')
+		if km.labels_[curve] == 1:
+			plt.plot(data[curve,:],'g')
+		if km.labels_[curve] == 2:
+			plt.plot(data[curve,:],'b')
+		if km.labels_[curve] == 3:
+			plt.plot(data[curve,:],'c')
+		if km.labels_[curve] == 4:
+			plt.plot(data[curve,:],'m')
+		if km.labels_[curve] == 5:
+			plt.plot(data[curve,:],'k')
+		if km.labels_[curve] == 6:
+			plt.plot(data[curve,:],'y')			
+	plt.savefig(outputFolder+'pca.png')
+	plt.close()
+	
 	
 	return 0
 

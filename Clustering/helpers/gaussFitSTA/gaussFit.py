@@ -36,9 +36,29 @@
 # Traduccion a Python del codigo de Nathan Orloff.
 
 import numpy as np			#python utilities
+import scipy.optimize as so
 
-def gaussFit():
+def rsquared(z,zf,ze):
+	# reduced chi-squared
+	dz = z-zf;
+	rr = 1/(numel(z)-8)*sum(dz^2/ze^2); # minus 8 because there are 7 fit parameters +1 (DOF)
+
+	return rr
+
+def gaussFit(matrizSTA):
+	# Return the properties of the gaussian fit
 	xData, yData, zData, xData2D, yData2D = prepareSurfaceData(matrizSTA)
+	fitresult = 0
+	zfit = 0
+	fiterr = 0
+	zerr = 0
+	resnorm = 0
+	rr = 0
+	popt, pcov = so.curve_fit(matrizSTA, xData, yData) 
+	
+	print popt
+	
+	print pcov
 	
 	return fitresult, zfit, xData2D, yData2D, fiterr, zerr, resnorm, rr
 

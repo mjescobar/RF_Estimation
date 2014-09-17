@@ -30,9 +30,12 @@ import scipy				# numerical methods lib (like Matlab functions)
 import scipy.io				# input output lib (for save matlab matrix)
 
 def loadSTAVisual(sourceFolder,unit):
-	staVisualFileName = sourceFolder+unit+'_lineal/stavisual_lin_array_'+unit+'.mat'
+	#staVisualFileName = sourceFolder+unit+'_lineal/stavisual_lin_array_'+unit+'.mat'
+	staVisualFileName = sourceFolder+unit+'_lineal/STA_ajuste.mat'
+	print staVisualFileName
 	staVisualFile = scipy.io.loadmat(staVisualFileName)
-	staVisual = staVisualFile['STAarray_lin']
+	#staVisual = staVisualFile['STAarray_lin']
+	staVisual = staVisualFile['STA_ajuste']
 	
 	return staVisual
 
@@ -65,9 +68,9 @@ def main():
 	
 	staVisual = loadSTAVisual(sourceFolder,unit)
 #	Xpixels, Ypixels, valores, Xpixel2D, Ypixel2D = gaussFit.prepareSurfaceData(staVisual[:,:,14])
-	fitresult, zfit, xData2D, yData2D, fiterr, zerr, resnorm, rr = gaussFit.gaussFit(staVisual[:,:,14])
-	print fitresult
-	print xData2D
+	fitresult, zfit, xData2D, yData2D, fiterr, zerr, resnorm, rr = gaussFit.gaussFit(staVisual)
+	#print fitresult
+	#print xData2D
 	
 	return 0
 
