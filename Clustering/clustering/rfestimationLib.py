@@ -27,7 +27,15 @@
 
 import numpy
 import scipy.io 	      # input output lib (for save matlab matrix)
+import platform				# Windows or Linux?
 
+def fixPath(folderName):
+	pathCharacter = returnPathCharacter()
+	# Check for trailing / on the folder
+	if folderName[-1] != pathCharacter:
+		folderName+=pathCharacter
+	
+	return folderName
 #
 # loadSTACurve will load the curve, adjusted with a Gaussian filter.
 # for the a unit previously processed with the STA code
@@ -54,4 +62,14 @@ def loadSTACurve(sourceFolder,unitFile,unitName):
 	coordinates = numpy.where(result==numpy.amax(result))
 
 	return staMatrix, coordinates
+
+#
+# Determine which character use to path contatenation
+# 
+def returnPathCharacter():
+	pathCharacter = '/'
+	if platform.system() == 'Windows':
+		pathCharacter = '\\'
+	
+	return pathCharacter
 	

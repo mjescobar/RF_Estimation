@@ -34,6 +34,28 @@ import scipy.ndimage
 from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt 	  # plot lib (for figures)
 
+def graficaCluster(labels, data, name):
+	
+	plt.figure()
+	for curve in range(data.shape[0]):
+		if labels[curve] == 0:
+			plt.plot(data[curve,:],'r')
+		if labels[curve] == 1:
+			plt.plot(data[curve,:],'g')
+		if labels[curve] == 2:
+			plt.plot(data[curve,:],'b')
+		if labels[curve] == 3:
+			plt.plot(data[curve,:],'c')
+		if labels[curve] == 4:
+			plt.plot(data[curve,:],'m')
+		if labels[curve] == 5:
+			plt.plot(data[curve,:],'k')
+		if labels[curve] == 6:
+			plt.plot(data[curve,:],'y')
+	plt.savefig(name)
+	plt.close()
+	
+	return 0
 
 def main():
 	
@@ -52,25 +74,24 @@ def main():
 	parser.add_argument('--framesNumber',
 	 help='Number of frames used in STA analysis',
 	 type=int, default='20', required=False)
+	parser.add_argument('--pcaComponents',
+	 help='Number of components for PCA',
+	 type=int, default='4', required=False)
+	parser.add_argument('--doPCA',
+	 help='Performs clusterings with PCA or not',
+	 type=bool, default=False, required=False)
+
 	args = parser.parse_args()
 
 	#Source folder of the files with the timestamps
-	sourceFolder = args.sourceFolder
-	# Check for trailing / on the folder
-	if sourceFolder[-1] != '/':
-		sourceFolder+='/'
-
+	sourceFolder = rfe.fixPath(args.sourceFolder)
 	if not os.path.exists(sourceFolder):
 		print ''
 		print 'Source folder does not exists ' + sourceFolder
 		sys.exit()
 
-	#Output folder of the files with the timestamps
-	outputFolder = args.outputFolder
-	# Check for trailing / on the folder
-	if outputFolder[-1] != '/':
-		outputFolder+='/'
-
+	#Output folder for the graphics
+	outputFolder = rfe.fixPath(args.outputFolder)
 	if not os.path.exists(outputFolder):
 		try:
 			os.makedirs(outputFolder)
@@ -99,53 +120,14 @@ def main():
 	
 	km = KMeans(init='k-means++', n_clusters=clustersNumber, n_init=10,n_jobs=-1)
 	km.fit(data)
-	
-	plt.figure()
-	for curve in range(data.shape[0]):
-		if km.labels_[curve] == 0:
-			plt.plot(data[curve,:],'r')
-		if km.labels_[curve] == 1:
-			plt.plot(data[curve,:],'g')
-		if km.labels_[curve] == 2:
-			plt.plot(data[curve,:],'b')
-		if km.labels_[curve] == 3:
-			plt.plot(data[curve,:],'c')
-		if km.labels_[curve] == 4:
-			plt.plot(data[curve,:],'m')
-		if km.labels_[curve] == 5:
-			plt.plot(data[curve,:],'k')
-		if km.labels_[curve] == 6:
-			plt.plot(data[curve,:],'y')
-	plt.savefig(outputFolder+'no_pca.png')
-	plt.close()
-	
-	
-	print 'Labels No PCA ',km.labels_
-	pca = PCA(n_components=4)
-	newData = pca.fit_transform(data)
-	
-	km.fit(newData)
-	print 'Labels PCA    ',km.labels_
-	
-	plt.figure()
-	for curve in range(data.shape[0]):
-		if km.labels_[curve] == 0:
-			plt.plot(data[curve,:],'r')
-		if km.labels_[curve] == 1:
-			plt.plot(data[curve,:],'g')
-		if km.labels_[curve] == 2:
-			plt.plot(data[curve,:],'b')
-		if km.labels_[curve] == 3:
-			plt.plot(data[curve,:],'c')
-		if km.labels_[curve] == 4:
-			plt.plot(data[curve,:],'m')
-		if km.labels_[curve] == 5:
-			plt.plot(data[curve,:],'k')
-		if km.labels_[curve] == 6:
-			plt.plot(data[curve,:],'y')			
-	plt.savefig(outputFolder+'pca.png')
-	plt.close()
-	
+	print 'Labels No PCA ',km.labels_	
+	graficaCluster(km.labels_, data, outputFolder+'no_pca.png')
+	if args.doPCA:
+		pca = PCA(n_components=args.pcaComponents)
+		newData = pca.fit_transform(data)
+		km.fit(newData)
+		print 'Labels PCA    ',km.labels_
+		graficaCluster(km.labels_, data, outputFolder+'pca.png')	
 	
 	return 0
 
