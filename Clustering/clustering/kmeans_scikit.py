@@ -52,6 +52,9 @@ def graficaCluster(labels, data, name):
 			plt.plot(data[curve,:],'k')
 		if labels[curve] == 6:
 			plt.plot(data[curve,:],'y')
+		if labels[curve] == 7:
+			plt.plot(data[curve,:],'#d2691e')
+
 	plt.savefig(name)
 	plt.close()
 	
@@ -120,7 +123,14 @@ def main():
 	
 	km = KMeans(init='k-means++', n_clusters=clustersNumber, n_init=10,n_jobs=-1)
 	km.fit(data)
-	print 'Labels No PCA ',km.labels_	
+	
+	# Genero output 
+	print 'Labels No PCA '
+	indice = 0
+	for unit in units:
+		print unit,",",km.labels_[indice]
+		indice+=1
+	
 	graficaCluster(km.labels_, data, outputFolder+'no_pca.png')
 	if args.doPCA:
 		pca = PCA(n_components=args.pcaComponents)
