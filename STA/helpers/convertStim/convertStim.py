@@ -29,6 +29,7 @@ import h5py         # Matlab v7.3 handling
 import argparse     # argument parsing
 import os           # operating system lib
 import numpy as np 	# numerical methods lib
+import sys			# for gracefully exit
 
 parser = argparse.ArgumentParser(prog='converStim.py',
  description='Transforms stim_min v7.3 to gray ndarray',
