@@ -68,6 +68,9 @@ fprintf('Fitting...\n')
 warning('off','optim:lsqncommon:SwitchToLargeScale')
 [fitresult,resnorm,residual] = ...
     lsqcurvefit(@gaussian2D,StartPoint,xyData,zData,Lower,Upper,options);
+
+fprintf fitresult
+
 [fiterr, zfit, zerr] = gaussian2Duncert(fitresult,residual,xyData);
 rr = rsquared(zData, zfit, zerr);
 zfit = reshape(zfit,size(STA))';

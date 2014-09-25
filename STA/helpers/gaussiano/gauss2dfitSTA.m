@@ -68,6 +68,9 @@ else
 end
 
 tic;
+
+save([carpeta,'STA_ajuste.mat'],'STA_ajuste');
+
 [fitresult, zfit, xData2D, yData2D, fiterr, zerr, resnorm, rr] = fmgaussfit(STA_ajuste);
 tempofit = toc
 
