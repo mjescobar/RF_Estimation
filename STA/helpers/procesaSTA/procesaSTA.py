@@ -37,8 +37,8 @@ import scipy.ndimage
 from scipy.cluster.vq import kmeans,vq
 from pylab import plot,show
 
-parser = argparse.ArgumentParser(prog='pca.py',
- description='Performs PCA',
+parser = argparse.ArgumentParser(prog='procesaSTA.py',
+ description='Recovers the results from GaussFit',
  formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument('--sourceFolder',
  help='Source folder',

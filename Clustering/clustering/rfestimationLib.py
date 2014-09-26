@@ -36,16 +36,30 @@ def fixPath(folderName):
 		folderName+=pathCharacter
 	
 	return folderName
+	
+# 
+# loadFitMatrix will recover the result of the gauss2dfitSTA script
+# will return the matrix ready to use
+def loadFitMatrix(sourceFolder,unitFile):
+	pathCharacter = returnPathCharacter()
+	
+	firResultFileName = sourceFolder+unitFile+pathCharacter+'fit_var.mat'
+	firResultFile = scipy.io.loadmat(firResultFileName)
+	firResult = firResultFile['fitresult']
+	
+	return firResult
+	
 #
 # loadSTACurve will load the curve, adjusted with a Gaussian filter.
 # for the a unit previously processed with the STA code
 def loadSTACurve(sourceFolder,unitFile,unitName):
+	pathCharacter = returnPathCharacter()
 	
 	# The STA matrix is named as M8a_lineal/sta_array_M8a.mat
-	staMatrixFile = scipy.io.loadmat(sourceFolder+unitFile+'/sta_array_'+unitName+'.mat')
+	staMatrixFile = scipy.io.loadmat(sourceFolder+unitFile+pathCharacter+'sta_array_'+unitName+'.mat')
 	staMatrix = staMatrixFile['STA_array']
 
-	# STA matrix shaped (31, 31, 20) 
+	# STA matrix shaped (xPixels, yPixels, nFrames) 
 	# x,y,z; x=pixel width, y=pixel heigth, z=number of images
 	xLength = staMatrix.shape[0]
 	yLength = staMatrix.shape[1]

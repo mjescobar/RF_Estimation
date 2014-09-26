@@ -33,7 +33,28 @@ import numpy as np
 import scipy.ndimage
 from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt 	  # plot lib (for figures)
+import itertools
 
+#
+# Genera archivo .csv de unidades respecto clusters id
+#
+def guardaClustersIDs(outputFolder,units,labels):
+	
+	file = open(outputFolder+'clustering.csv', "w")
+	header = '\"Unit\" \t \"ClusterID\"'+'\n'
+	file.write(header)
+	indice = 0
+	for unit in units:
+		linea = '\"'+unit+'\" \t'+str(labels[indice])+'\n'
+		file.write(linea)
+		indice+=1
+	file.close
+	
+	return 0
+	
+# 
+# Genera la salida grafica para los clusters encontrados
+# 
 def graficaCluster(labels, data, name):
 	
 	plt.figure()
@@ -53,8 +74,22 @@ def graficaCluster(labels, data, name):
 		if labels[curve] == 6:
 			plt.plot(data[curve,:],'y')
 		if labels[curve] == 7:
-			plt.plot(data[curve,:],'#d2691e')
-
+			plt.plot(data[curve,:],'#6d19df')
+		if labels[curve] == 8:
+			plt.plot(data[curve,:],'#95e618')
+		if labels[curve] == 9:
+			plt.plot(data[curve,:],'#195ddf')
+		if labels[curve] == 10:
+			plt.plot(data[curve,:],'#e67f18')
+		if labels[curve] == 11:
+			plt.plot(data[curve,:],'#e64c18')
+		if labels[curve] == 12:
+			plt.plot(data[curve,:],'#e61864')
+		if labels[curve] == 13:
+			plt.plot(data[curve,:],'#e6189d')
+		if labels[curve] == 14:
+			plt.plot(data[curve,:],'#b718e6')
+	
 	plt.savefig(name)
 	plt.close()
 	
@@ -109,35 +144,35 @@ def main():
 	#Frames used in STA analysis
 	framesNumber = args.framesNumber
 	
-	data = np.zeros((1,framesNumber))
+	dataCluster = np.zeros((1,framesNumber+7))
+	dataUnits = np.zeros((1,framesNumber))
 	units=[]
 	for unitFile in os.listdir(sourceFolder):
 		if os.path.isdir(sourceFolder+unitFile):			
 			unitName = unitFile.rsplit('_', 1)[0]
 			dataUnit, coordinates = rfe.loadSTACurve(sourceFolder,unitFile,unitName)
+			fitResult = rfe.loadFitMatrix(sourceFolder,unitFile)
 			dataUnitGauss = scipy.ndimage.gaussian_filter(dataUnit[coordinates[0][0],[coordinates[1][0]],:],2)
-			data = np.append(data,dataUnitGauss, axis=0)
+			dataUnitCompleta = np.concatenate((dataUnitGauss,fitResult),1)
+			dataCluster = np.append(dataCluster,dataUnitCompleta, axis=0)
+			dataUnits = np.append(dataUnits,dataUnitGauss, axis=0)
 			units.append(unitName)
 	# data es normalizado
-	data = data[1:,:]
+	dataCluster = dataCluster[1:,:]
+	dataUnits = dataUnits[1:,:]
 	
 	km = KMeans(init='k-means++', n_clusters=clustersNumber, n_init=10,n_jobs=-1)
-	km.fit(data)
+	km.fit(dataCluster)
 	
-	# Genero output 
-	print 'Labels No PCA '
-	indice = 0
-	for unit in units:
-		print unit,",",km.labels_[indice]
-		indice+=1
+	graficaCluster(km.labels_, dataUnits, outputFolder+'no_pca.png')
+	guardaClustersIDs(outputFolder,units,km.labels_)
 	
-	graficaCluster(km.labels_, data, outputFolder+'no_pca.png')
 	if args.doPCA:
 		pca = PCA(n_components=args.pcaComponents)
-		newData = pca.fit_transform(data)
+		newData = pca.fit_transform(dataCluster)
 		km.fit(newData)
-		print 'Labels PCA    ',km.labels_
-		graficaCluster(km.labels_, data, outputFolder+'pca.png')	
+		graficaCluster(km.labels_, dataUnits, outputFolder+'pca.png')	
+		guardaClustersIDs(outputFolder,units,km.labels_)
 	
 	return 0
 
