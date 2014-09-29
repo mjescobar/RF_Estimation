@@ -30,7 +30,7 @@ numframes = 20;
 spikeframe = 18;
 contadorunit = 1;
 
-dotemp = 1;
+dotemp = 0;
 
 for kunit = inicio:limite
 if (charac(kunit)>0)
