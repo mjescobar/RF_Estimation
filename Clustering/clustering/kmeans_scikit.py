@@ -50,6 +50,11 @@ def guardaClustersIDs(outputFolder,units,labels):
 	
 	return 0
 
+def graficaGrilla():
+	
+	
+	return 0
+	
 def main():
 	
 	parser = argparse.ArgumentParser(prog='kmeans_scikit.py',
@@ -101,9 +106,9 @@ def main():
 	
 	#dataCluster stores the data to be used for the clustering process
 	#the size is equal to the number of frames, aka, the time component
-	#plus 2 as we are incorporating the 2 dimensions of the ellipse
-	dataCluster = np.zeros((1,framesNumber+2))
-	dataUnits = np.zeros((1,framesNumber))
+	#plus 5 as we are incorporating the 2 dimensions of the ellipse,
+	#x position, y position and angle
+	dataCluster = np.zeros((1,framesNumber+5))
 	units=[]
 	dato=np.zeros((1,1))
 	for unitFile in os.listdir(sourceFolder):
@@ -113,30 +118,51 @@ def main():
 			fitResult = rfe.loadFitMatrix(sourceFolder,unitFile)
 			#should we use the not-gaussian-fitted data for clustering?
 			dataUnitGauss = scipy.ndimage.gaussian_filter(dataUnit[coordinates[0][0],[coordinates[1][0]],:],2)
-			print fitResult[0][4]
-			print fitResult[0][5]
-			dato[0]=fitResult[0][4]
+			#A radius of the RF ellipse
+			dato[0]=fitResult[0][2]
 			dataUnitCompleta = np.concatenate((dataUnitGauss,dato),1)
+			#B radius of the RF ellipse
+			dato[0]=fitResult[0][3]
+			dataUnitCompleta = np.concatenate((dataUnitCompleta,dato),1)
+			#angle of the RF ellipse
+			dato[0]=fitResult[0][1]
+			dataUnitCompleta = np.concatenate((dataUnitCompleta,dato),1)
+			#X coordinate of the RF ellipse
+			dato[0]=fitResult[0][4]
+			dataUnitCompleta = np.concatenate((dataUnitCompleta,dato),1)
+			#Y coordinate of the RF ellipse
 			dato[0]=fitResult[0][5]
 			dataUnitCompleta = np.concatenate((dataUnitCompleta,dato),1)
 			dataCluster = np.append(dataCluster,dataUnitCompleta, axis=0)
-			dataUnits = np.append(dataUnits,dataUnitGauss, axis=0)
 			units.append(unitName)
-	# data es normalizado
-	dataCluster = dataCluster[1:,:]
-	dataUnits = dataUnits[1:,:]
+	# remove the first row of zeroes
+	dataCluster = dataCluster[1:,:]	
 	
 	km = KMeans(init='k-means++', n_clusters=clustersNumber, n_init=10,n_jobs=-1)
-	km.fit(dataCluster)
+	print dataCluster[:,0:framesNumber+2].shape
 	
-	rfe.graficaCluster(km.labels_, dataUnits, outputFolder+'no_pca.png')
+	km.fit(dataCluster[:,0:framesNumber+2])
+	
+	rfe.graficaCluster(km.labels_, dataCluster[:,0:framesNumber-1], outputFolder+'no_pca.png')
+
+	for clusterId in range(clustersNumber):
+		dataGrilla = np.zeros((1,framesNumber+5))
+		for unitId in range(dataCluster.shape[0]):
+			if km.labels_[unitId] == clusterId:
+				datos=np.zeros((1,25))
+				datos[0]=dataCluster[unitId,:]
+				dataGrilla = np.append(dataGrilla,datos, axis=0)
+		dataGrilla = dataGrilla[1:,:]	
+		print clusterId
+		print dataGrilla.shape
+	
 	guardaClustersIDs(outputFolder,units,km.labels_)
 	
 	if args.doPCA:
 		pca = PCA(n_components=args.pcaComponents)
 		newData = pca.fit_transform(dataCluster)
 		km.fit(newData)
-		rfe.graficaCluster(km.labels_, dataUnits, outputFolder+'pca.png')	
+		rfe.graficaCluster(km.labels_, dataCluster[:,0:framesNumber-1], outputFolder+'pca.png')	
 		guardaClustersIDs(outputFolder,units,km.labels_)
 	
 	return 0
