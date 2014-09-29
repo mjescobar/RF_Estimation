@@ -32,8 +32,6 @@ import argparse #argument parsing
 import numpy as np
 import scipy.ndimage
 from sklearn.decomposition import PCA
-import matplotlib.pyplot as plt 	  # plot lib (for figures)
-import itertools
 
 #
 # Genera archivo .csv de unidades respecto clusters id
@@ -49,49 +47,6 @@ def guardaClustersIDs(outputFolder,units,labels):
 		file.write(linea)
 		indice+=1
 	file.close
-	
-	return 0
-	
-# 
-# Genera la salida grafica para los clusters encontrados
-# 
-def graficaCluster(labels, data, name):
-	
-	plt.figure()
-	for curve in range(data.shape[0]):
-		if labels[curve] == 0:
-			plt.plot(data[curve,:],'r')
-		if labels[curve] == 1:
-			plt.plot(data[curve,:],'g')
-		if labels[curve] == 2:
-			plt.plot(data[curve,:],'b')
-		if labels[curve] == 3:
-			plt.plot(data[curve,:],'c')
-		if labels[curve] == 4:
-			plt.plot(data[curve,:],'m')
-		if labels[curve] == 5:
-			plt.plot(data[curve,:],'k')
-		if labels[curve] == 6:
-			plt.plot(data[curve,:],'y')
-		if labels[curve] == 7:
-			plt.plot(data[curve,:],'#6d19df')
-		if labels[curve] == 8:
-			plt.plot(data[curve,:],'#95e618')
-		if labels[curve] == 9:
-			plt.plot(data[curve,:],'#195ddf')
-		if labels[curve] == 10:
-			plt.plot(data[curve,:],'#e67f18')
-		if labels[curve] == 11:
-			plt.plot(data[curve,:],'#e64c18')
-		if labels[curve] == 12:
-			plt.plot(data[curve,:],'#e61864')
-		if labels[curve] == 13:
-			plt.plot(data[curve,:],'#e6189d')
-		if labels[curve] == 14:
-			plt.plot(data[curve,:],'#b718e6')
-	
-	plt.savefig(name)
-	plt.close()
 	
 	return 0
 
@@ -144,16 +99,26 @@ def main():
 	#Frames used in STA analysis
 	framesNumber = args.framesNumber
 	
-	dataCluster = np.zeros((1,framesNumber+7))
+	#dataCluster stores the data to be used for the clustering process
+	#the size is equal to the number of frames, aka, the time component
+	#plus 2 as we are incorporating the 2 dimensions of the ellipse
+	dataCluster = np.zeros((1,framesNumber+2))
 	dataUnits = np.zeros((1,framesNumber))
 	units=[]
+	dato=np.zeros((1,1))
 	for unitFile in os.listdir(sourceFolder):
 		if os.path.isdir(sourceFolder+unitFile):			
 			unitName = unitFile.rsplit('_', 1)[0]
 			dataUnit, coordinates = rfe.loadSTACurve(sourceFolder,unitFile,unitName)
 			fitResult = rfe.loadFitMatrix(sourceFolder,unitFile)
+			#should we use the not-gaussian-fitted data for clustering?
 			dataUnitGauss = scipy.ndimage.gaussian_filter(dataUnit[coordinates[0][0],[coordinates[1][0]],:],2)
-			dataUnitCompleta = np.concatenate((dataUnitGauss,fitResult),1)
+			print fitResult[0][4]
+			print fitResult[0][5]
+			dato[0]=fitResult[0][4]
+			dataUnitCompleta = np.concatenate((dataUnitGauss,dato),1)
+			dato[0]=fitResult[0][5]
+			dataUnitCompleta = np.concatenate((dataUnitCompleta,dato),1)
 			dataCluster = np.append(dataCluster,dataUnitCompleta, axis=0)
 			dataUnits = np.append(dataUnits,dataUnitGauss, axis=0)
 			units.append(unitName)
@@ -164,14 +129,14 @@ def main():
 	km = KMeans(init='k-means++', n_clusters=clustersNumber, n_init=10,n_jobs=-1)
 	km.fit(dataCluster)
 	
-	graficaCluster(km.labels_, dataUnits, outputFolder+'no_pca.png')
+	rfe.graficaCluster(km.labels_, dataUnits, outputFolder+'no_pca.png')
 	guardaClustersIDs(outputFolder,units,km.labels_)
 	
 	if args.doPCA:
 		pca = PCA(n_components=args.pcaComponents)
 		newData = pca.fit_transform(dataCluster)
 		km.fit(newData)
-		graficaCluster(km.labels_, dataUnits, outputFolder+'pca.png')	
+		rfe.graficaCluster(km.labels_, dataUnits, outputFolder+'pca.png')	
 		guardaClustersIDs(outputFolder,units,km.labels_)
 	
 	return 0
