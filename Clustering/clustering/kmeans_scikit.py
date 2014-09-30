@@ -94,7 +94,7 @@ def main():
 	 type=str, required=True)
 	parser.add_argument('--clustersNumber',
 	 help='Number of clusters',
-	 type=int, default='5', required=False)
+	 type=int, default='5', choices=[3,4,5,6,7,8,9,10,11,12,13,14,15], required=False)
 	parser.add_argument('--framesNumber',
 	 help='Number of frames used in STA analysis',
 	 type=int, default='20', required=False)
@@ -182,7 +182,7 @@ def main():
 		# remove the first row of zeroes
 		dataGrilla = dataGrilla[1:,:]
 		graficaGrilla(dataGrilla,outputFolder+'Grilla_'+str(clusterId)+'.png',clustersColours[clusterId],framesNumber,xSize,ySize)
-		
+		rfe.graficaCluster(km.labels_, dataGrilla[:,0:framesNumber-1], outputFolder+'cluster_'+str(clusterId)+'.png')
 	
 	guardaClustersIDs(outputFolder,units,km.labels_)
 	
