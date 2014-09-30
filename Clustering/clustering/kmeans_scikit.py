@@ -35,7 +35,7 @@ from sklearn.decomposition import PCA
 from matplotlib.patches import Ellipse
 from pylab import figure, show, savefig
 
-clustersColours = ['r', 'g', 'g', 'b', 'c','m','k','y','#6d19df','#95e618','#195ddf','#e67f18','#e64c18','#e61864','#e6189d','#b718e6']
+clustersColours = ['#fcfa00', '#ff0000', '#820c2c', '#ff006f', '#af00ff','#0200ff','#008dff','#00e8ff','#0c820e','#28ea04','#ea8404','#c8628f','#6283ff','#5b6756','#0c8248','k','#820cff','#932c11','#002c11','#829ca7']
 
 #
 # Genera archivo .csv de unidades respecto clusters id
