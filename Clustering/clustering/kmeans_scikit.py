@@ -32,6 +32,10 @@ import argparse #argument parsing
 import numpy as np
 import scipy.ndimage
 from sklearn.decomposition import PCA
+from matplotlib.patches import Ellipse
+from pylab import figure, show, savefig
+
+clustersColours = ['r', 'g', 'g', 'b', 'c','m','k','y','#6d19df','#95e618','#195ddf','#e67f18','#e64c18','#e61864','#e6189d','#b718e6']
 
 #
 # Genera archivo .csv de unidades respecto clusters id
@@ -50,9 +54,31 @@ def guardaClustersIDs(outputFolder,units,labels):
 	
 	return 0
 
-def graficaGrilla():
+def graficaGrilla(dataGrilla,name,colour,framesNumber,xPixels,yPixels):	
+	fig = figure()
+	ax = fig.add_subplot(111, aspect='equal')
+	#Each row of dataGrilla contains 
+	#N == "framesNumbers" , signal
+	#A radius of the RF ellipse
+	#B radius of the RF ellipse
+	#Angle of the RF ellipse
+	#X coordinate of the RF ellipse
+	#Y coordinate of the RF ellipse
+
+	ax = fig.add_subplot(111, aspect='equal')
+	for unit in range(dataGrilla.shape[0]):
+		eWidth = dataGrilla[unit][framesNumber-1+1]
+		eHeight = dataGrilla[unit][framesNumber-1+2]
+		eAngle = dataGrilla[unit][framesNumber-1+3]
+		eXY = [dataGrilla[unit][framesNumber-1+4],  dataGrilla[unit][framesNumber-1+5]]
+		e = Ellipse(xy=eXY, width=eWidth, height=eHeight, angle=eAngle)
+		ax.add_artist(e)
+		e.set_alpha(0.2)
+		e.set_facecolor(colour)
 	
-	
+	ax.set_xlim(0, xPixels)
+	ax.set_ylim(0, yPixels)
+	savefig(name, dpi=None)
 	return 0
 	
 def main():
@@ -115,6 +141,8 @@ def main():
 		if os.path.isdir(sourceFolder+unitFile):			
 			unitName = unitFile.rsplit('_', 1)[0]
 			dataUnit, coordinates = rfe.loadSTACurve(sourceFolder,unitFile,unitName)
+			xSize = dataUnit.shape[0]
+			ySize = dataUnit.shape[1]
 			fitResult = rfe.loadFitMatrix(sourceFolder,unitFile)
 			#should we use the not-gaussian-fitted data for clustering?
 			dataUnitGauss = scipy.ndimage.gaussian_filter(dataUnit[coordinates[0][0],[coordinates[1][0]],:],2)
@@ -139,22 +167,22 @@ def main():
 	dataCluster = dataCluster[1:,:]	
 	
 	km = KMeans(init='k-means++', n_clusters=clustersNumber, n_init=10,n_jobs=-1)
-	print dataCluster[:,0:framesNumber+2].shape
-	
 	km.fit(dataCluster[:,0:framesNumber+2])
 	
 	rfe.graficaCluster(km.labels_, dataCluster[:,0:framesNumber-1], outputFolder+'no_pca.png')
 
+	# generate graphics of all ellipses
 	for clusterId in range(clustersNumber):
 		dataGrilla = np.zeros((1,framesNumber+5))
 		for unitId in range(dataCluster.shape[0]):
 			if km.labels_[unitId] == clusterId:
-				datos=np.zeros((1,25))
+				datos=np.zeros((1,framesNumber+5))
 				datos[0]=dataCluster[unitId,:]
 				dataGrilla = np.append(dataGrilla,datos, axis=0)
-		dataGrilla = dataGrilla[1:,:]	
-		print clusterId
-		print dataGrilla.shape
+		# remove the first row of zeroes
+		dataGrilla = dataGrilla[1:,:]
+		graficaGrilla(dataGrilla,outputFolder+'Grilla_'+str(clusterId)+'.png',clustersColours[clusterId],framesNumber,xSize,ySize)
+		
 	
 	guardaClustersIDs(outputFolder,units,km.labels_)
 	
@@ -169,4 +197,3 @@ def main():
 
 if __name__ == '__main__':
 	main()
-
