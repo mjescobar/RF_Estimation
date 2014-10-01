@@ -182,6 +182,7 @@ def main():
 		# remove the first row of zeroes
 		dataGrilla = dataGrilla[1:,:]
 		graficaGrilla(dataGrilla,outputFolder+'Grilla_'+str(clusterId)+'.png',clustersColours[clusterId],framesNumber,xSize,ySize)
+		rfe.graficaCluster(km.labels_, dataGrilla[:,0:framesNumber-1], outputFolder+'Cluster_'+str(clusterId)+'.png')
 		
 	
 	guardaClustersIDs(outputFolder,units,km.labels_)
