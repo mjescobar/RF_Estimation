@@ -74,8 +74,6 @@ for k = puntos_pulso+1:length(x)-2
     if x(k) > umbral_volts
         if (x(k-1)>umbral_volts) && (x(k-puntos_pulso)< umbral_volts) && (x(k+1)<umbral_volts) && (x(k+1)<umbral_volts)
             posicion_bajada(k_keep) = k;
-            disp (k);
-            disp (x(k));
             contador_bajadas = contador_bajadas+1;
             k_keep = k_keep + 1;
         end
