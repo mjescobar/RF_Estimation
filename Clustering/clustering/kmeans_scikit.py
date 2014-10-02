@@ -37,23 +37,6 @@ from pylab import figure, show, savefig
 
 clustersColours = ['#fcfa00', '#ff0000', '#820c2c', '#ff006f', '#af00ff','#0200ff','#008dff','#00e8ff','#0c820e','#28ea04','#ea8404','#c8628f','#6283ff','#5b6756','#0c8248','k','#820cff','#932c11','#002c11','#829ca7']
 
-#
-# Genera archivo .csv de unidades respecto clusters id
-#
-def guardaClustersIDs(outputFolder,units,labels):
-	
-	file = open(outputFolder+'clustering.csv', "w")
-	header = '\"Unit\" \t \"ClusterID\"'+'\n'
-	file.write(header)
-	indice = 0
-	for unit in units:
-		linea = '\"'+unit+'\" \t'+str(labels[indice])+'\n'
-		file.write(linea)
-		indice+=1
-	file.close
-	
-	return 0
-
 def graficaGrilla(dataGrilla,name,colour,framesNumber,xPixels,yPixels):	
 	fig = figure()
 	ax = fig.add_subplot(111, aspect='equal')
@@ -169,7 +152,7 @@ def main():
 	km = KMeans(init='k-means++', n_clusters=clustersNumber, n_init=10,n_jobs=-1)
 	km.fit(dataCluster[:,0:framesNumber+2])
 	
-	rfe.graficaCluster(km.labels_, dataCluster[:,0:framesNumber-1], outputFolder+'no_pca.png')
+	rfe.graficaCluster(km.labels_, dataCluster[:,0:framesNumber-1], outputFolder+'no_pca.png',clustersColours)
 
 	# generate graphics of all ellipses
 	for clusterId in range(clustersNumber):
@@ -182,16 +165,16 @@ def main():
 		# remove the first row of zeroes
 		dataGrilla = dataGrilla[1:,:]
 		graficaGrilla(dataGrilla,outputFolder+'Grilla_'+str(clusterId)+'.png',clustersColours[clusterId],framesNumber,xSize,ySize)
-		rfe.graficaCluster(km.labels_, dataGrilla[:,0:framesNumber-1], outputFolder+'cluster_'+str(clusterId)+'.png')
+		rfe.graficaCluster(km.labels_, dataGrilla[:,0:framesNumber-1], outputFolder+'cluster_'+str(clusterId)+'.png',clustersColours[clusterId])
 	
-	guardaClustersIDs(outputFolder,units,km.labels_)
+	rfe.guardaClustersIDs(outputFolder,units,km.labels_,outputFolder+'clustering_no_pca.csv')
 	
 	if args.doPCA:
 		pca = PCA(n_components=args.pcaComponents)
 		newData = pca.fit_transform(dataCluster)
 		km.fit(newData)
-		rfe.graficaCluster(km.labels_, dataCluster[:,0:framesNumber-1], outputFolder+'pca.png')	
-		guardaClustersIDs(outputFolder,units,km.labels_)
+		rfe.graficaCluster(km.labels_, dataCluster[:,0:framesNumber-1], outputFolder+'pca.png',clustersColours)	
+		rfe.guardaClustersIDs(outputFolder,units,km.labels_,outputFolder+'clustering_pca.csv')
 	
 	return 0
 

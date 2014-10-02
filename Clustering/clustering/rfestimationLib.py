@@ -91,42 +91,37 @@ def returnPathCharacter():
 # 
 # Genera la salida grafica para los clusters encontrados
 # 
-def graficaCluster(labels, data, name):
+def graficaCluster(labels, data, name, colours):
 	
 	plt.figure()
-	for curve in range(data.shape[0]):
-		if labels[curve] == 0:
-			plt.plot(data[curve,:],'r')
-		if labels[curve] == 1:
-			plt.plot(data[curve,:],'g')
-		if labels[curve] == 2:
-			plt.plot(data[curve,:],'b')
-		if labels[curve] == 3:
-			plt.plot(data[curve,:],'c')
-		if labels[curve] == 4:
-			plt.plot(data[curve,:],'m')
-		if labels[curve] == 5:
-			plt.plot(data[curve,:],'k')
-		if labels[curve] == 6:
-			plt.plot(data[curve,:],'y')
-		if labels[curve] == 7:
-			plt.plot(data[curve,:],'#6d19df')
-		if labels[curve] == 8:
-			plt.plot(data[curve,:],'#95e618')
-		if labels[curve] == 9:
-			plt.plot(data[curve,:],'#195ddf')
-		if labels[curve] == 10:
-			plt.plot(data[curve,:],'#e67f18')
-		if labels[curve] == 11:
-			plt.plot(data[curve,:],'#e64c18')
-		if labels[curve] == 12:
-			plt.plot(data[curve,:],'#e61864')
-		if labels[curve] == 13:
-			plt.plot(data[curve,:],'#e6189d')
-		if labels[curve] == 14:
-			plt.plot(data[curve,:],'#b718e6')
+	
+	
+	if isinstance(colours, str):
+		for curve in range(data.shape[0]):
+			plt.plot(data[curve,:],colours)
+	else:
+		for curve in range(data.shape[0]):
+			plt.plot(data[curve,:],colours[labels[curve]])
+
 	
 	plt.savefig(name)
 	plt.close()
+	
+	return 0
+
+#
+# Genera archivo .csv de unidades respecto clusters id
+#
+def guardaClustersIDs(outputFolder,units,labels, name):
+	
+	file = open(name, "w")
+	header = '\"Unit\" \t \"ClusterID\"'+'\n'
+	file.write(header)
+	indice = 0
+	for unit in units:
+		linea = '\"'+unit+'\" \t'+str(labels[indice])+'\n'
+		file.write(linea)
+		indice+=1
+	file.close
 	
 	return 0
