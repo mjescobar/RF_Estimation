@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-#  kmeans_scikit.py
+#  SpectralClustering.py
 #  
 #  Copyright 2014 Carlos "casep" Sepulveda <casep@alumnos.inf.utfsm.cl>
 #  
@@ -22,18 +22,16 @@
 #  
 #  
 
-# Performs K-means using scikit-learn
+# Performs SpectralClustering using scikit-learn
 
 import rfestimationLib	as rfe
 import sys    # system lib
 import os     # operative system lib
-from sklearn.cluster import KMeans
+from sklearn.cluster import SpectralClustering
 import argparse #argument parsing
 import numpy as np
 import scipy.ndimage
 from sklearn.decomposition import PCA
-from matplotlib.patches import Ellipse
-from pylab import figure, show, savefig
 
 clustersColours = ['#fcfa00', '#ff0000', '#820c2c', '#ff006f', '#af00ff','#0200ff','#008dff','#00e8ff','#0c820e','#28ea04','#ea8404','#c8628f','#6283ff','#5b6756','#0c8248','k','#820cff','#932c11','#002c11','#829ca7']
 
@@ -122,32 +120,34 @@ def main():
 	# remove the first row of zeroes
 	dataCluster = dataCluster[1:,:]	
 	
-	km = KMeans(init='k-means++', n_clusters=clustersNumber, n_init=10,n_jobs=-1)
-	km.fit(dataCluster[:,0:framesNumber+2])
+	#SpectralClustering(n_clusters=8, eigen_solver=None, random_state=None, n_init=10, gamma=1.0, affinity='rbf', n_neighbors=10, eigen_tol=0.0, assign_labels='kmeans', degree=3, coef0=1, kernel_params=None)
 	
-	rfe.graficaCluster(km.labels_, dataCluster[:,0:framesNumber-1], outputFolder+'no_pca.png',clustersColours)
+	sc = SpectralClustering(n_clusters=clustersNumber, eigen_solver=None, random_state=None,  n_init=10, gamma=1.0, affinity='nearest_neighbors', n_neighbors=10, eigen_tol=0.0, assign_labels='kmeans', degree=3, coef0=1, kernel_params=None)
+	sc.fit(dataCluster[:,0:framesNumber+2])
+	
+	rfe.graficaCluster(sc.labels_, dataCluster[:,0:framesNumber-1], outputFolder+'no_pca.png',clustersColours)
 
 	# generate graphics of all ellipses
 	for clusterId in range(clustersNumber):
 		dataGrilla = np.zeros((1,framesNumber+5))
 		for unitId in range(dataCluster.shape[0]):
-			if km.labels_[unitId] == clusterId:
+			if sc.labels_[unitId] == clusterId:
 				datos=np.zeros((1,framesNumber+5))
 				datos[0]=dataCluster[unitId,:]
 				dataGrilla = np.append(dataGrilla,datos, axis=0)
 		# remove the first row of zeroes
 		dataGrilla = dataGrilla[1:,:]
 		rfe.graficaGrilla(dataGrilla,outputFolder+'Grilla_'+str(clusterId)+'.png',clustersColours[clusterId],framesNumber,xSize,ySize)
-		rfe.graficaCluster(km.labels_, dataGrilla[:,0:framesNumber-1], outputFolder+'cluster_'+str(clusterId)+'.png',clustersColours[clusterId])
+		rfe.graficaCluster(sc.labels_, dataGrilla[:,0:framesNumber-1], outputFolder+'cluster_'+str(clusterId)+'.png',clustersColours[clusterId])
 	
-	rfe.guardaClustersIDs(outputFolder,units,km.labels_,outputFolder+'clustering_no_pca.csv')
+	rfe.guardaClustersIDs(outputFolder,units,sc.labels_,outputFolder+'clustering_no_pca.csv')
 	
 	if args.doPCA:
 		pca = PCA(n_components=args.pcaComponents)
 		newData = pca.fit_transform(dataCluster)
-		km.fit(newData)
-		rfe.graficaCluster(km.labels_, dataCluster[:,0:framesNumber-1], outputFolder+'pca.png',clustersColours)	
-		rfe.guardaClustersIDs(outputFolder,units,km.labels_,outputFolder+'clustering_pca.csv')
+		sc.fit(newData)
+		rfe.graficaCluster(sc.labels_, dataCluster[:,0:framesNumber-1], outputFolder+'pca.png',clustersColours)	
+		rfe.guardaClustersIDs(outputFolder,units,sc.labels_,outputFolder+'clustering_pca.csv')
 	
 	return 0
 
