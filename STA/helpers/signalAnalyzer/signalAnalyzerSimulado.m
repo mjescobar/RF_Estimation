@@ -1,4 +1,4 @@
-function signalAnalyzerSimulado(mcdFile,experimentName,sampleRating,entityNumber,distanciaFrames,tiempoTotal,outputFolder);
+function signalAnalyzerSimulado(mcdFile,experimentName,sampleRating,entityNumber,distanciaFrames,tiempoTotal,largoEstimulo,outputFolder);
 
 if isunix
     % Debiera ser parametro?
@@ -35,26 +35,19 @@ for k = puntos_pulso+1:length(data)-2
     end
 end
 
-valorFinal= tiempoTotal*sampleRating*60;
-iterations= floor(valorFinal/334); 
+iterations= largoEstimulo; 
 inicioFrames= zeros(iterations,2);
 puntoActual=primerPunto;
 
-
 for j = 1:iterations
     inicioFrames(j,1)=puntoActual;
-    if (mod(j,2)==0)
-        puntoActual=puntoActual+334;
-        inicioFrames(j,2)=puntoActual;
-    else 
-        puntoActual=puntoActual+335;
-        inicioFrames(j,2)=puntoActual;
+    delta=334;
+    if (rand(1,1)<0.45005)
+        delta=335;
     end
+    puntoActual=puntoActual+delta;
+    inicioFrames(j,2)=puntoActual;
 end
 
 save([outputFolder,'Inicio_Frames',experimentName,'.txt' ],'inicioFrames', '-ASCII' ,'-DOUBLE');
     
-
-
-
-disp (primerPunto)
