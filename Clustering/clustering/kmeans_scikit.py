@@ -34,6 +34,7 @@ import scipy.ndimage
 from sklearn.decomposition import PCA
 from matplotlib.patches import Ellipse
 from pylab import figure, show, savefig
+from sklearn import metrics
 
 clustersColours = ['#fcfa00', '#ff0000', '#820c2c', '#ff006f', '#af00ff','#0200ff','#008dff','#00e8ff','#0c820e','#28ea04','#ea8404','#c8628f','#6283ff','#5b6756','#0c8248','k','#820cff','#932c11','#002c11','#829ca7']
 
@@ -121,33 +122,36 @@ def main():
 			units.append(unitName)
 	# remove the first row of zeroes
 	dataCluster = dataCluster[1:,:]	
-	
-	km = KMeans(init='k-means++', n_clusters=clustersNumber, n_init=10,n_jobs=-1)
-	km.fit(dataCluster[:,0:framesNumber+2])
-	
-	rfe.graficaCluster(km.labels_, dataCluster[:,0:framesNumber-1], outputFolder+'no_pca.png',clustersColours)
 
+	data = dataCluster[:,0:framesNumber+2]	
+	km = KMeans(init='k-means++', n_clusters=clustersNumber, n_init=10,n_jobs=-1)
+	km.fit(data)
+	labels = km.labels_
+	fit = metrics.silhouette_score(data, labels, metric='euclidean')
+	rfe.graficaCluster(labels, dataCluster[:,0:framesNumber-1], outputFolder+'no_pca.png',clustersColours, fit) 
+	
 	# generate graphics of all ellipses
 	for clusterId in range(clustersNumber):
 		dataGrilla = np.zeros((1,framesNumber+5))
 		for unitId in range(dataCluster.shape[0]):
-			if km.labels_[unitId] == clusterId:
+			if labels[unitId] == clusterId:
 				datos=np.zeros((1,framesNumber+5))
 				datos[0]=dataCluster[unitId,:]
 				dataGrilla = np.append(dataGrilla,datos, axis=0)
 		# remove the first row of zeroes
 		dataGrilla = dataGrilla[1:,:]
 		rfe.graficaGrilla(dataGrilla,outputFolder+'Grilla_'+str(clusterId)+'.png',clustersColours[clusterId],framesNumber,xSize,ySize)
-		rfe.graficaCluster(km.labels_, dataGrilla[:,0:framesNumber-1], outputFolder+'cluster_'+str(clusterId)+'.png',clustersColours[clusterId])
+		rfe.graficaCluster(labels, dataGrilla[:,0:framesNumber-1], outputFolder+'cluster_'+str(clusterId)+'.png',clustersColours[clusterId])
 	
-	rfe.guardaClustersIDs(outputFolder,units,km.labels_,outputFolder+'clustering_no_pca.csv')
+	rfe.guardaClustersIDs(outputFolder,units,labels,outputFolder+'clustering_no_pca.csv')
 	
 	if args.doPCA:
 		pca = PCA(n_components=args.pcaComponents)
-		newData = pca.fit_transform(dataCluster)
+		newData = pca.fit_transform(data)
 		km.fit(newData)
-		rfe.graficaCluster(km.labels_, dataCluster[:,0:framesNumber-1], outputFolder+'pca.png',clustersColours)	
-		rfe.guardaClustersIDs(outputFolder,units,km.labels_,outputFolder+'clustering_pca.csv')
+		fit = metrics.silhouette_score(newData, labels, metric='euclidean')
+		rfe.graficaCluster(labels, dataCluster[:,0:framesNumber-1], outputFolder+'pca.png',clustersColours,fit)	
+		rfe.guardaClustersIDs(outputFolder,units,labels,outputFolder+'clustering_pca.csv')
 	
 	return 0
 

@@ -28,7 +28,6 @@
 import numpy
 import scipy.io 	      # input output lib (for save matlab matrix)
 import platform				# Windows or Linux?
-import matplotlib.pyplot as plt 	  # plot lib (for figures)
 
 def fixPath(folderName):
 	pathCharacter = returnPathCharacter()
@@ -91,20 +90,25 @@ def returnPathCharacter():
 # 
 # Genera la salida grafica para los clusters encontrados
 # 
-def graficaCluster(labels, data, name, colours):
-	
-	plt.figure()
-	
-	
+def graficaCluster(labels, data, name, colours, fit=None):
+	import matplotlib.pyplot as plt 	  # plot lib (for figures)
+
+	fig = plt.figure()
+	ax = fig.add_subplot(111)
 	if isinstance(colours, str):
 		for curve in range(data.shape[0]):
-			plt.plot(data[curve,:],colours)
+			ax.plot(data[curve,:],colours)
 	else:
 		for curve in range(data.shape[0]):
-			plt.plot(data[curve,:],colours[labels[curve]])
+			ax.plot(data[curve,:],colours[labels[curve]])
 
+	if fit:
+		ax.text(0.01, 0.01, 'Silhouette score: '+str(round(fit,4)),
+			verticalalignment='bottom', horizontalalignment='left',
+			transform=ax.transAxes,
+			color='green', fontsize=15)
 	
-	plt.savefig(name)
+	fig.savefig(name)
 	plt.close()
 	
 	return 0
