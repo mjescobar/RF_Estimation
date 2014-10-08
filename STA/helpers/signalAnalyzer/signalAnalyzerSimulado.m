@@ -1,4 +1,4 @@
-function signalAnalyzerSimulado(mcdFile,experimentName,sampleRating,entityNumber,distanciaFrames,tiempoTotal,largoEstimulo,outputFolder);
+function signalAnalyzerSimulado(mcdFile,experimentName,sampleRating,entityNumber,largoEstimulo,outputFolder);
 
 if isunix
     % Debiera ser parametro?
