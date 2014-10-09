@@ -24,9 +24,9 @@
 
 # Performs SpectralClustering using scikit-learn
 
-import rfestimationLib	as rfe
-import sys    # system lib
-import os     # operative system lib
+import sys, os 
+sys.path.append(os.path.join(os.path.dirname(__file__), '../../..','LIB'))
+import rfestimationLib as rfe
 from sklearn.cluster import SpectralClustering
 import argparse #argument parsing
 import numpy as np
