@@ -59,9 +59,12 @@ end
 datosname = experimentName;
 
 %load(['syn_signal1_',datosname]);
-load([signalFile]);
+%load([signalFile]);
+
 
 x = data;
+
+%plot(x(1:100000))
 umbral_volts = 0.151111112; %0.1511 ; % umbral en volts, determina criticamente el performance de la deteccion de frames
 puntos_pulso = 50; %24*2; 24; % puntos maximos requeridos para considerar como un pulso de frame
 
