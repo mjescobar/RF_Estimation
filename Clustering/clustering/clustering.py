@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-#  kmeans_scikit.py
+#  SpectralClustering.py
 #  
 #  Copyright 2014 Carlos "casep" Sepulveda <casep@alumnos.inf.utfsm.cl>
 #  
@@ -22,21 +22,23 @@
 #  
 #  
 
-# Performs K-means using scikit-learn
+# Performs SpectralClustering using scikit-learn
 
 import sys, os 
 sys.path.append(os.path.join(os.path.dirname(__file__), '../..','LIB'))
 import rfestimationLib as rfe
-from sklearn.cluster import KMeans
 import argparse #argument parsing
 import numpy as np
 import scipy.ndimage
 from sklearn.decomposition import PCA
-from matplotlib.patches import Ellipse
-from pylab import figure, show, savefig
+import matplotlib.pyplot as plt
+import matplotlib.mlab as mlab
 from sklearn import metrics
+from sklearn import preprocessing
+import matplotlib.pyplot as plt 
 
 clustersColours = ['#fcfa00', '#ff0000', '#820c2c', '#ff006f', '#af00ff','#0200ff','#008dff','#00e8ff','#0c820e','#28ea04','#ea8404','#c8628f','#6283ff','#5b6756','#0c8248','k','#820cff','#932c11','#002c11','#829ca7']
+clustersColours = ['blue', 'red', 'green', 'orange', 'black','yellow']
 
 def main():
 	
@@ -55,13 +57,13 @@ def main():
 	parser.add_argument('--framesNumber',
 	 help='Number of frames used in STA analysis',
 	 type=int, default='20', required=False)
-	parser.add_argument('--pcaComponents',
-	 help='Number of components for PCA',
-	 type=int, default='4', required=False)
-	parser.add_argument('--doPCA',
-	 help='Performs clusterings with PCA or not',
-	 type=bool, default=False, required=False)
-
+	parser.add_argument('--blockSize',
+	 help='Size of each block in micrometres',
+	 type=int, default='50', required=False)
+	parser.add_argument('--clusteringAlgorithm',
+	 help='Clustering algorithm to use: K-Means, Spectral Clustering, GMM',
+	 type=str, default='kmeans', choices=['kmeans','spectral','gmm'], required=False)
+	 
 	args = parser.parse_args()
 
 	#Source folder of the files with the timestamps
@@ -87,11 +89,18 @@ def main():
 	#Frames used in STA analysis
 	framesNumber = args.framesNumber
 	
+	#Size of each block in micrometres
+	blockSize = args.blockSize
+	
+	#Clustering Algorithm
+	clusteringAlgorithm = args.clusteringAlgorithm
+	
 	#dataCluster stores the data to be used for the clustering process
 	#the size is equal to the number of frames, aka, the time component
-	#plus 5 as we are incorporating the 2 dimensions of the ellipse,
+	#plus 7 as we are incorporating the 2 dimensions of the ellipse, 
+	#2 dimensions of the ellipse on micrometres,
 	#x position, y position and angle
-	dataCluster = np.zeros((1,framesNumber+5))
+	dataCluster = np.zeros((1,framesNumber+7))
 	units=[]
 	dato=np.zeros((1,1))
 	for unitFile in os.listdir(sourceFolder):
@@ -103,56 +112,81 @@ def main():
 			fitResult = rfe.loadFitMatrix(sourceFolder,unitFile)
 			#should we use the not-gaussian-fitted data for clustering?
 			dataUnitGauss = scipy.ndimage.gaussian_filter(dataUnit[coordinates[0][0],[coordinates[1][0]],:],2)
-			#A radius of the RF ellipse
-			dato[0]=fitResult[0][2]
+			#A radius of the RF ellipse, adjusted to micrometres
+			dato[0] = blockSize * fitResult[0][2]
 			dataUnitCompleta = np.concatenate((dataUnitGauss,dato),1)
+			#B radius of the RF ellipse, adjusted to micrometres
+			dato[0] = blockSize * fitResult[0][3]
+			dataUnitCompleta = np.concatenate((dataUnitCompleta,dato),1)
+			#A radius of the RF ellipse
+			dato[0] = fitResult[0][2]
+			dataUnitCompleta = np.concatenate((dataUnitCompleta,dato),1)
 			#B radius of the RF ellipse
-			dato[0]=fitResult[0][3]
+			dato[0] = fitResult[0][3]
 			dataUnitCompleta = np.concatenate((dataUnitCompleta,dato),1)
 			#angle of the RF ellipse
-			dato[0]=fitResult[0][1]
+			dato[0] = fitResult[0][1]
 			dataUnitCompleta = np.concatenate((dataUnitCompleta,dato),1)
 			#X coordinate of the RF ellipse
-			dato[0]=fitResult[0][4]
+			dato[0] = fitResult[0][4]
 			dataUnitCompleta = np.concatenate((dataUnitCompleta,dato),1)
 			#Y coordinate of the RF ellipse
-			dato[0]=fitResult[0][5]
+			dato[0] = fitResult[0][5]
 			dataUnitCompleta = np.concatenate((dataUnitCompleta,dato),1)
 			dataCluster = np.append(dataCluster,dataUnitCompleta, axis=0)
 			units.append(unitName)
 	# remove the first row of zeroes
 	dataCluster = dataCluster[1:,:]	
-
-	data = dataCluster[:,0:framesNumber+2]	
-	km = KMeans(init='k-means++', n_clusters=clustersNumber, n_init=10,n_jobs=-1)
-	km.fit(data)
-	labels = km.labels_
-	fit = metrics.silhouette_score(data, labels, metric='euclidean')
-	rfe.graficaCluster(labels, dataCluster[:,0:framesNumber-1], outputFolder+'no_pca.png',clustersColours, fit) 
+		
+	#Solo temporal dataCluster[:,0:framesNumber]
+	#Temporal y espacial dataCluster[:,0:framesNumber+2]
+	data = dataCluster[:,0:framesNumber]
+	#Standardization
+	#data = preprocessing.scale(dataConjunta)
 	
+	if clusteringAlgorithm == 'spectral':
+		from sklearn.cluster import SpectralClustering
+		sc = SpectralClustering(n_clusters=clustersNumber, eigen_solver=None, random_state=None,  n_init=10, gamma=1.0, affinity='nearest_neighbors', n_neighbors=10, eigen_tol=0.0, assign_labels='kmeans', degree=3, coef0=1, kernel_params=None)
+		sc.fit(data)
+		labels = sc.labels_
+	elif clusteringAlgorithm == 'gmm':
+		from sklearn import mixture
+		gmix = mixture.GMM(n_components=clustersNumber, covariance_type='full')
+		gmix.fit(data)
+		labels = gmix.predict(data)
+	else:
+		from sklearn.cluster import KMeans
+		km = KMeans(init='k-means++', n_clusters=clustersNumber, n_init=10,n_jobs=-1)
+		km.fit(data)
+		labels = km.labels_
+
+	fit = metrics.silhouette_score(data, labels, metric='euclidean')
+	rfe.graficaCluster(labels, dataCluster[:,0:framesNumber-1], outputFolder+clusteringAlgorithm+'.png', clustersColours, fit)
+	
+	fig = plt.figure()
+	ax = fig.add_subplot(111)
 	# generate graphics of all ellipses
 	for clusterId in range(clustersNumber):
-		dataGrilla = np.zeros((1,framesNumber+5))
+		dataGrilla = np.zeros((1,framesNumber+7))
 		for unitId in range(dataCluster.shape[0]):
 			if labels[unitId] == clusterId:
-				datos=np.zeros((1,framesNumber+5))
+				datos=np.zeros((1,framesNumber+7))
 				datos[0]=dataCluster[unitId,:]
 				dataGrilla = np.append(dataGrilla,datos, axis=0)
-		# remove the first row of zeroes
+				ax.plot(dataCluster[unitId,0:framesNumber-1],clustersColours[clusterId],alpha=0.2)
+		## remove the first row of zeroes
 		dataGrilla = dataGrilla[1:,:]
-		rfe.graficaGrilla(dataGrilla,outputFolder+'Grilla_'+str(clusterId)+'.png',clustersColours[clusterId],framesNumber,xSize,ySize)
-		rfe.graficaCluster(labels, dataGrilla[:,0:framesNumber-1], outputFolder+'cluster_'+str(clusterId)+'.png',clustersColours[clusterId])
+		meanData = dataGrilla.mean(axis=0)
+		ax.plot(meanData[0:framesNumber-1],clustersColours[clusterId],linewidth=4)
+		rfe.graficaGrilla(dataGrilla, outputFolder+'Grilla_'+str(clusterId)+'.png', clustersColours[clusterId], framesNumber, xSize, ySize)
+		rfe.graficaCluster(labels, dataGrilla[:,0:framesNumber-1], outputFolder+'cluster_'+str(clusterId)+'.png', clustersColours[clusterId])
 	
-	rfe.guardaClustersIDs(outputFolder,units,labels,outputFolder+'clustering_no_pca.csv')
-	
-	if args.doPCA:
-		pca = PCA(n_components=args.pcaComponents)
-		newData = pca.fit_transform(data)
-		km.fit(newData)
-		fit = metrics.silhouette_score(newData, labels, metric='euclidean')
-		rfe.graficaCluster(labels, dataCluster[:,0:framesNumber-1], outputFolder+'pca.png',clustersColours,fit)	
-		rfe.guardaClustersIDs(outputFolder,units,labels,outputFolder+'clustering_pca.csv')
-	
+	fig.savefig(outputFolder+clusteringAlgorithm+'_new.png')
+	plt.close()	
+		
+		
+	rfe.guardaClustersIDs(outputFolder, units, labels, outputFolder+'clusterings.csv')
+
 	return 0
 
 if __name__ == '__main__':

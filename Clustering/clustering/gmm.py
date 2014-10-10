@@ -25,7 +25,7 @@
 # Performs SpectralClustering using scikit-learn
 
 import sys, os 
-sys.path.append(os.path.join(os.path.dirname(__file__), '../../..','LIB'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '../..','LIB'))
 import rfestimationLib as rfe
 import argparse #argument parsing
 import numpy as np
@@ -55,6 +55,10 @@ def main():
 	parser.add_argument('--framesNumber',
 	 help='Number of frames used in STA analysis',
 	 type=int, default='20', required=False)
+	parser.add_argument('--blockSize',
+	 help='Size of each block in micrometres',
+	 type=int, default='50', required=False)
+	 
 
 	args = parser.parse_args()
 
@@ -81,11 +85,15 @@ def main():
 	#Frames used in STA analysis
 	framesNumber = args.framesNumber
 	
+	#Size of each block in micrometres
+	blockSize = args.blockSize
+	
 	#dataCluster stores the data to be used for the clustering process
 	#the size is equal to the number of frames, aka, the time component
-	#plus 5 as we are incorporating the 2 dimensions of the ellipse,
+	#plus 7 as we are incorporating the 2 dimensions of the ellipse, 
+	#2 dimensions of the ellipse on micrometres,
 	#x position, y position and angle
-	dataCluster = np.zeros((1,framesNumber+5))
+	dataCluster = np.zeros((1,framesNumber+7))
 	units=[]
 	dato=np.zeros((1,1))
 	for unitFile in os.listdir(sourceFolder):
@@ -97,20 +105,26 @@ def main():
 			fitResult = rfe.loadFitMatrix(sourceFolder,unitFile)
 			#should we use the not-gaussian-fitted data for clustering?
 			dataUnitGauss = scipy.ndimage.gaussian_filter(dataUnit[coordinates[0][0],[coordinates[1][0]],:],2)
-			#A radius of the RF ellipse
-			dato[0]=fitResult[0][2]
+			#A radius of the RF ellipse, adjusted to micrometres
+			dato[0] = blockSize * fitResult[0][2]
 			dataUnitCompleta = np.concatenate((dataUnitGauss,dato),1)
+			#B radius of the RF ellipse, adjusted to micrometres
+			dato[0] = blockSize * fitResult[0][3]
+			dataUnitCompleta = np.concatenate((dataUnitCompleta,dato),1)
+			#A radius of the RF ellipse
+			dato[0] = fitResult[0][2]
+			dataUnitCompleta = np.concatenate((dataUnitCompleta,dato),1)
 			#B radius of the RF ellipse
-			dato[0]=fitResult[0][3]
+			dato[0] = fitResult[0][3]
 			dataUnitCompleta = np.concatenate((dataUnitCompleta,dato),1)
 			#angle of the RF ellipse
-			dato[0]=fitResult[0][1]
+			dato[0] = fitResult[0][1]
 			dataUnitCompleta = np.concatenate((dataUnitCompleta,dato),1)
 			#X coordinate of the RF ellipse
-			dato[0]=fitResult[0][4]
+			dato[0] = fitResult[0][4]
 			dataUnitCompleta = np.concatenate((dataUnitCompleta,dato),1)
 			#Y coordinate of the RF ellipse
-			dato[0]=fitResult[0][5]
+			dato[0] = fitResult[0][5]
 			dataUnitCompleta = np.concatenate((dataUnitCompleta,dato),1)
 			dataCluster = np.append(dataCluster,dataUnitCompleta, axis=0)
 			units.append(unitName)
@@ -126,10 +140,10 @@ def main():
 	
 	# generate graphics of all ellipses
 	for clusterId in range(clustersNumber):
-		dataGrilla = np.zeros((1,framesNumber+5))
+		dataGrilla = np.zeros((1,framesNumber+7))
 		for unitId in range(dataCluster.shape[0]):
 			if labels[unitId] == clusterId:
-				datos=np.zeros((1,framesNumber+5))
+				datos=np.zeros((1,framesNumber+7))
 				datos[0]=dataCluster[unitId,:]
 				dataGrilla = np.append(dataGrilla,datos, axis=0)
 		## remove the first row of zeroes

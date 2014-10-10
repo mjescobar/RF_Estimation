@@ -146,10 +146,10 @@ def graficaGrilla(dataGrilla,name,colour,framesNumber,xPixels,yPixels):
 
 	ax = fig.add_subplot(111, aspect='equal')
 	for unit in range(dataGrilla.shape[0]):
-		eWidth = dataGrilla[unit][framesNumber-1+1]
-		eHeight = dataGrilla[unit][framesNumber-1+2]
-		eAngle = dataGrilla[unit][framesNumber-1+3]
-		eXY = [dataGrilla[unit][framesNumber-1+4],  dataGrilla[unit][framesNumber-1+5]]
+		eWidth = dataGrilla[unit][framesNumber-1+3]
+		eHeight = dataGrilla[unit][framesNumber-1+4]
+		eAngle = dataGrilla[unit][framesNumber-1+5]
+		eXY = [dataGrilla[unit][framesNumber-1+6],  dataGrilla[unit][framesNumber-1+7]]
 		e = Ellipse(xy=eXY, width=eWidth, height=eHeight, angle=eAngle)
 		ax.add_artist(e)
 		e.set_alpha(0.2)
