@@ -1,4 +1,4 @@
-function signalAnalyzer(mcdFile,signalFile,experimentName,sampleRating,EntityNumber,inicio,distanciaFrames,outputFolder);
+function signalAnalyzer(mcdFile,experimentName,sampleRating,EntityNumber,inicio,distanciaFrames,outputFolder);
 % Synchrony signal ANALIZER 3
 
 % mcdFile, full path al archivo
