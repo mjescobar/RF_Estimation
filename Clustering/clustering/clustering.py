@@ -39,7 +39,7 @@ from matplotlib import pyplot as plt
 from matplotlib import mlab as mlab
 
 clustersColours = ['#fcfa00', '#ff0000', '#820c2c', '#ff006f', '#af00ff','#0200ff','#008dff','#00e8ff','#0c820e','#28ea04','#ea8404','#c8628f','#6283ff','#5b6756','#0c8248','k','#820cff','#932c11','#002c11','#829ca7']
-clustersColours = ['blue', 'red', 'green', 'orange', 'black','yellow']
+clustersColours = ['blue', 'red', 'green', 'yellow', 'black','orange','#ff006f']
 
 def main():
 	
@@ -54,7 +54,7 @@ def main():
 	 type=str, required=True)
 	parser.add_argument('--clustersNumber',
 	 help='Number of clusters',
-	 type=int, default='5', choices=[3,4,5,6,7,8,9,10,11,12,13,14,15], required=False)
+	 type=int, default='5', choices=[2,3,4,5,6,7,8,9,10,11,12,13,14,15], required=False)
 	parser.add_argument('--framesNumber',
 	 help='Number of frames used in STA analysis',
 	 type=int, default='20', required=False)
@@ -158,7 +158,7 @@ def main():
 		labels = sc.labels_
 	elif clusteringAlgorithm == 'gmm':
 		from sklearn import mixture
-		gmix = mixture.GMM(n_components=clustersNumber, covariance_type='full')
+		gmix = mixture.GMM(n_components=clustersNumber, covariance_type='spherical')
 		gmix.fit(data)
 		labels = gmix.predict(data)
 	else:
@@ -167,8 +167,8 @@ def main():
 		km.fit(data)
 		labels = km.labels_
 
-	fit = metrics.silhouette_score(data, labels, metric='euclidean')
-	rfe.graficaCluster(labels, dataCluster[:,0:framesNumber-1], outputFolder+clusteringAlgorithm+'.png', clustersColours, fit)
+	#fit = metrics.silhouette_score(data, labels, metric='euclidean')
+	#rfe.graficaCluster(labels, dataCluster[:,0:framesNumber-1], outputFolder+clusteringAlgorithm+'.png', clustersColours, fit)
 	
 	fig = plt.figure()
 	ax = fig.add_subplot(111)
@@ -177,19 +177,25 @@ def main():
 		dataGrilla = np.zeros((1,framesNumber+7))
 		for unitId in range(dataCluster.shape[0]):
 			if labels[unitId] == clusterId:
+				
 				datos=np.zeros((1,framesNumber+7))
 				datos[0]=dataCluster[unitId,:]
 				dataGrilla = np.append(dataGrilla,datos, axis=0)
 				ax.plot(dataCluster[unitId,0:framesNumber-1],clustersColours[clusterId],alpha=0.2)
 		## remove the first row of zeroes
 		dataGrilla = dataGrilla[1:,:]
-		meanData = dataGrilla.mean(axis=0)
+		meanData = dataGrilla.mean(axis=0)			
 		ax.plot(meanData[0:framesNumber-1],clustersColours[clusterId],linewidth=4)
 		rfe.graficaGrilla(dataGrilla, outputFolder+'Grilla_'+str(clusterId)+'.png', clustersColours[clusterId], framesNumber, xSize, ySize)
-		rfe.graficaCluster(labels, dataGrilla[:,0:framesNumber-1], outputFolder+'cluster_'+str(clusterId)+'.png', clustersColours[clusterId])
-	
+		figCluster = plt.figure()
+		axCluster = figCluster.add_subplot(111)
+		#rfe.graficaCluster(labels, dataGrilla[:,0:framesNumber-1], outputFolder+'cluster_'+str(clusterId)+'.png', clustersColours[clusterId])
+		for curve in range(dataGrilla.shape[0]):
+			axCluster.plot(dataGrilla[curve,0:framesNumber-1],clustersColours[clusterId],alpha=0.2)
+			axCluster.plot(meanData[0:framesNumber-1],clustersColours[clusterId],linewidth=4)
+		figCluster.savefig(outputFolder+'cluster_'+str(clusterId)+'.png')
 	fig.savefig(outputFolder+clusteringAlgorithm+'_new.png')
-	plt.close()	
+	#plt.close()	
 		
 		
 	rfe.guardaClustersIDs(outputFolder, units, labels, outputFolder+'clusterings.csv')
