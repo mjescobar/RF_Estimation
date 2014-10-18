@@ -91,7 +91,9 @@ def returnPathCharacter():
 # Genera la salida grafica para los clusters encontrados
 # 
 def graficaCluster(labels, data, name, colours, fit=None):
-	import matplotlib.pyplot as plt 	  # plot lib (for figures)
+	import matplotlib
+	matplotlib.use('Agg')
+	from matplotlib import pyplot as plt
 
 	fig = plt.figure()
 	ax = fig.add_subplot(111)

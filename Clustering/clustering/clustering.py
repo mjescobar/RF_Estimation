@@ -31,19 +31,20 @@ import argparse #argument parsing
 import numpy as np
 import scipy.ndimage
 from sklearn.decomposition import PCA
-import matplotlib.pyplot as plt
-import matplotlib.mlab as mlab
 from sklearn import metrics
 from sklearn import preprocessing
-import matplotlib.pyplot as plt 
+import matplotlib
+matplotlib.use('Agg')
+from matplotlib import pyplot as plt
+from matplotlib import mlab as mlab
 
 clustersColours = ['#fcfa00', '#ff0000', '#820c2c', '#ff006f', '#af00ff','#0200ff','#008dff','#00e8ff','#0c820e','#28ea04','#ea8404','#c8628f','#6283ff','#5b6756','#0c8248','k','#820cff','#932c11','#002c11','#829ca7']
 clustersColours = ['blue', 'red', 'green', 'orange', 'black','yellow']
 
 def main():
 	
-	parser = argparse.ArgumentParser(prog='kmeans_scikit.py',
-	 description='Performs K-means using scikit-learn',
+	parser = argparse.ArgumentParser(prog='clustering.py',
+	 description='Performs clustering, Gaussian Mixture, KMeans or Spectral',
 	 formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 	parser.add_argument('--sourceFolder',
 	 help='Source folder',
@@ -101,8 +102,8 @@ def main():
 	#2 dimensions of the ellipse on micrometres,
 	#x position, y position and angle
 	dataCluster = np.zeros((1,framesNumber+7))
-	units=[]
-	dato=np.zeros((1,1))
+	units = []
+	dato = np.zeros((1,1))
 	for unitFile in os.listdir(sourceFolder):
 		if os.path.isdir(sourceFolder+unitFile):			
 			unitName = unitFile.rsplit('_', 1)[0]
@@ -112,11 +113,19 @@ def main():
 			fitResult = rfe.loadFitMatrix(sourceFolder,unitFile)
 			#should we use the not-gaussian-fitted data for clustering?
 			dataUnitGauss = scipy.ndimage.gaussian_filter(dataUnit[coordinates[0][0],[coordinates[1][0]],:],2)
-			#A radius of the RF ellipse, adjusted to micrometres
-			dato[0] = blockSize * fitResult[0][2]
+
+			# Standarisation
+			dataMedia = dataUnitGauss[0].mean(axis=0)
+			dataStd = dataUnitGauss[0].std(axis=0)
+			featureRange = [dataMedia-dataStd, dataMedia+dataStd]
+			minMaxScaler = preprocessing.MinMaxScaler(featureRange)
+			dimensionsToScale = np.array([fitResult[0][2], fitResult[0][3]])
+			dimensionsScaled = minMaxScaler.fit_transform(dimensionsToScale)
+			#A radius of the RF ellipse, adjusted to micrometres and scaled
+			dato[0] = dimensionsScaled[0]
 			dataUnitCompleta = np.concatenate((dataUnitGauss,dato),1)
 			#B radius of the RF ellipse, adjusted to micrometres
-			dato[0] = blockSize * fitResult[0][3]
+			dato[0] = dimensionsScaled[1]
 			dataUnitCompleta = np.concatenate((dataUnitCompleta,dato),1)
 			#A radius of the RF ellipse
 			dato[0] = fitResult[0][2]
@@ -140,9 +149,7 @@ def main():
 		
 	#Solo temporal dataCluster[:,0:framesNumber]
 	#Temporal y espacial dataCluster[:,0:framesNumber+2]
-	data = dataCluster[:,0:framesNumber]
-	#Standardization
-	#data = preprocessing.scale(dataConjunta)
+	data = dataCluster[:,0:framesNumber+2]
 	
 	if clusteringAlgorithm == 'spectral':
 		from sklearn.cluster import SpectralClustering
