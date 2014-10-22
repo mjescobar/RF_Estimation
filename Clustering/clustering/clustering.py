@@ -39,7 +39,7 @@ from matplotlib import pyplot as plt
 from matplotlib import mlab as mlab
 
 clustersColours = ['#fcfa00', '#ff0000', '#820c2c', '#ff006f', '#af00ff','#0200ff','#008dff','#00e8ff','#0c820e','#28ea04','#ea8404','#c8628f','#6283ff','#5b6756','#0c8248','k','#820cff','#932c11','#002c11','#829ca7']
-clustersColours = ['blue', 'red', 'green', 'yellow', 'black','orange','#ff006f']
+clustersColours = ['blue', 'red', 'green', 'yellow', 'black','orange','#ff006f','#00e8ff']
 
 def main():
 	
@@ -193,7 +193,14 @@ def main():
 		for curve in range(dataGrilla.shape[0]):
 			axCluster.plot(dataGrilla[curve,0:framesNumber-1],clustersColours[clusterId],alpha=0.2)
 			axCluster.plot(meanData[0:framesNumber-1],clustersColours[clusterId],linewidth=4)
+		
 		figCluster.savefig(outputFolder+'cluster_'+str(clusterId)+'.png')
+	#Estimate fit for the clusterings
+	fit = metrics.silhouette_score(data, labels, metric='euclidean')
+	ax.text(0.01, 0.01, 'Silhouette score: '+str(round(fit,4)),
+		verticalalignment='bottom', horizontalalignment='left',
+		transform=ax.transAxes,
+		color='green', fontsize=15)
 	fig.savefig(outputFolder+clusteringAlgorithm+'_new.png')
 	#plt.close()	
 		
