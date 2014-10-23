@@ -64,7 +64,6 @@ datosname = experimentName;
 
 x = data;
 
-%plot(x(1:100000))
 umbral_volts = 0.151111112; %0.1511 ; % umbral en volts, determina criticamente el performance de la deteccion de frames
 puntos_pulso = 50; %24*2; 24; % puntos maximos requeridos para considerar como un pulso de frame
 
@@ -147,7 +146,7 @@ fin_frame = posicion_bajada_frame; %valores medidos
 inicio_frame = fin_frame - distancias2(1: length(fin_frame)); %valores estimados
 inicio_fin_frame = [inicio_frame', fin_frame'];
 %save('sync_analysis_output.mat','s','s2','cantobajada2','frameduracion');
-save([outputFolder,'inicio_fin_frame_',datosname,'.txt' ],'inicio_fin_frame', '-ASCII' ,'-DOUBLE');
+save([outputFolder,'inicio_fin_frame_',experimentName,'.txt' ],'inicio_fin_frame', '-ASCII' ,'-DOUBLE');
 
 % inicio de frames corresponde a : cantobajada2(1)-frameduracion
 % posici�n inicial de cada frame (i) corresponde al vector : s2(:,1)-frameduracion
