@@ -114,18 +114,19 @@ def main():
 			#should we use the not-gaussian-fitted data for clustering?
 			dataUnitGauss = scipy.ndimage.gaussian_filter(dataUnit[coordinates[0][0],[coordinates[1][0]],:],2)
 
-			# Standarisation
+			# Standardisation
 			dataMedia = dataUnitGauss[0].mean(axis=0)
 			dataStd = dataUnitGauss[0].std(axis=0)
 			featureRange = [dataMedia-dataStd, dataMedia+dataStd]
 			minMaxScaler = preprocessing.MinMaxScaler(featureRange)
-			dimensionsToScale = np.array([fitResult[0][2], fitResult[0][3]])
+			dimensionsToScale = np.array([[fitResult[0][2], fitResult[0][3]]])
+			#dimensionsToScale = [fitResult[0][2], fitResult[0][3]]
 			dimensionsScaled = minMaxScaler.fit_transform(dimensionsToScale)
 			#A radius of the RF ellipse, adjusted to micrometres and scaled
-			dato[0] = dimensionsScaled[0]
+			dato[0] = dimensionsScaled[0][0]
 			dataUnitCompleta = np.concatenate((dataUnitGauss,dato),1)
 			#B radius of the RF ellipse, adjusted to micrometres
-			dato[0] = dimensionsScaled[1]
+			dato[0] = dimensionsScaled[0][1]
 			dataUnitCompleta = np.concatenate((dataUnitCompleta,dato),1)
 			#A radius of the RF ellipse
 			dato[0] = fitResult[0][2]
