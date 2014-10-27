@@ -201,7 +201,7 @@ def main():
 		verticalalignment='bottom', horizontalalignment='left',
 		transform=ax.transAxes,
 		color='green', fontsize=15)
-	fig.savefig(outputFolder+clusteringAlgorithm+'_new.png')
+	fig.savefig(outputFolder+clusteringAlgorithm+'_media.png')
 	#plt.close()	
 		
 		
