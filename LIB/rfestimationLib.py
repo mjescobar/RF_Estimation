@@ -120,7 +120,7 @@ def graficaCluster(labels, data, name, colours, fit=None):
 #
 def guardaClustersIDs(outputFolder,units,labels, name):
 	
-	file = open(name, "w")
+	file = open(outputFolder+name, "w")
 	header = '\"Unit\" \t \"ClusterID\"'+'\n'
 	file.write(header)
 	indice = 0

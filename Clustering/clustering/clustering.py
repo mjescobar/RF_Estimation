@@ -150,7 +150,7 @@ def main():
 		
 	#Solo temporal dataCluster[:,0:framesNumber]
 	#Temporal y espacial dataCluster[:,0:framesNumber+2]
-	data = dataCluster[:,0:framesNumber+2]
+	data = dataCluster[:,0:framesNumber]
 	
 	if clusteringAlgorithm == 'spectral':
 		from sklearn.cluster import SpectralClustering
@@ -206,7 +206,7 @@ def main():
 	#plt.close()	
 		
 		
-	rfe.guardaClustersIDs(outputFolder, units, labels, outputFolder+'clusterings.csv')
+	rfe.guardaClustersIDs(outputFolder, units, labels, 'clusterings.csv')
 
 	return 0
 
