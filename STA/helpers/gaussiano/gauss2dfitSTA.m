@@ -9,7 +9,7 @@ function gauss2dfitSTA(folder,cell)
 % FOLDER NAME OF THE CELL
 nombre_cell_grupo = cell;
 
-carpeta = [folder,'20140801_',nombre_cell_grupo,'_lineal/'];
+carpeta = [folder,nombre_cell_grupo,'_lineal/'];
 
 load([carpeta,'stavisual_lin_array_',nombre_cell_grupo,'.mat']);
 
