@@ -98,10 +98,9 @@ def main():
 	
 	#dataCluster stores the data to be used for the clustering process
 	#the size is equal to the number of frames, aka, the time component
-	#plus 7 as we are incorporating the 2 dimensions of the ellipse, 
-	#2 dimensions of the ellipse on micrometres,
+	#plus 5 as we are incorporating the 2 dimensions of the ellipse, 
 	#x position, y position and angle
-	dataCluster = np.zeros((1,framesNumber+7))
+	dataCluster = np.zeros((1,framesNumber+5))
 	units = []
 	dato = np.zeros((1,1))
 	for unitFile in os.listdir(sourceFolder):
@@ -114,23 +113,9 @@ def main():
 			#should we use the not-gaussian-fitted data for clustering?
 			dataUnitGauss = scipy.ndimage.gaussian_filter(dataUnit[coordinates[0][0],[coordinates[1][0]],:],2)
 
-			# Standardisation
-			dataMedia = dataUnitGauss[0].mean(axis=0)
-			dataStd = dataUnitGauss[0].std(axis=0)
-			featureRange = [dataMedia-dataStd, dataMedia+dataStd]
-			minMaxScaler = preprocessing.MinMaxScaler(featureRange)
-			dimensionsToScale = np.array([[fitResult[0][2], fitResult[0][3]]])
-			#dimensionsToScale = [fitResult[0][2], fitResult[0][3]]
-			dimensionsScaled = minMaxScaler.fit_transform(dimensionsToScale)
-			#A radius of the RF ellipse, adjusted to micrometres and scaled
-			dato[0] = dimensionsScaled[0][0]
-			dataUnitCompleta = np.concatenate((dataUnitGauss,dato),1)
-			#B radius of the RF ellipse, adjusted to micrometres
-			dato[0] = dimensionsScaled[0][1]
-			dataUnitCompleta = np.concatenate((dataUnitCompleta,dato),1)
 			#A radius of the RF ellipse
 			dato[0] = fitResult[0][2]
-			dataUnitCompleta = np.concatenate((dataUnitCompleta,dato),1)
+			dataUnitCompleta = np.concatenate((dataUnitGauss,dato),1)
 			#B radius of the RF ellipse
 			dato[0] = fitResult[0][3]
 			dataUnitCompleta = np.concatenate((dataUnitCompleta,dato),1)
@@ -143,6 +128,7 @@ def main():
 			#Y coordinate of the RF ellipse
 			dato[0] = fitResult[0][5]
 			dataUnitCompleta = np.concatenate((dataUnitCompleta,dato),1)
+
 			dataCluster = np.append(dataCluster,dataUnitCompleta, axis=0)
 			units.append(unitName)
 	# remove the first row of zeroes
@@ -167,19 +153,15 @@ def main():
 		km = KMeans(init='k-means++', n_clusters=clustersNumber, n_init=10,n_jobs=-1)
 		km.fit(data)
 		labels = km.labels_
-
-	#fit = metrics.silhouette_score(data, labels, metric='euclidean')
-	#rfe.graficaCluster(labels, dataCluster[:,0:framesNumber-1], outputFolder+clusteringAlgorithm+'.png', clustersColours, fit)
 	
 	fig = plt.figure()
 	ax = fig.add_subplot(111)
 	# generate graphics of all ellipses
 	for clusterId in range(clustersNumber):
-		dataGrilla = np.zeros((1,framesNumber+7))
+		dataGrilla = np.zeros((1,framesNumber+5))
 		for unitId in range(dataCluster.shape[0]):
 			if labels[unitId] == clusterId:
-				
-				datos=np.zeros((1,framesNumber+7))
+				datos=np.zeros((1,framesNumber+5))
 				datos[0]=dataCluster[unitId,:]
 				dataGrilla = np.append(dataGrilla,datos, axis=0)
 				ax.plot(dataCluster[unitId,0:framesNumber-1],clustersColours[clusterId],alpha=0.2)
@@ -190,7 +172,6 @@ def main():
 		rfe.graficaGrilla(dataGrilla, outputFolder+'Grilla_'+str(clusterId)+'.png', clustersColours[clusterId], framesNumber, xSize, ySize)
 		figCluster = plt.figure()
 		axCluster = figCluster.add_subplot(111)
-		#rfe.graficaCluster(labels, dataGrilla[:,0:framesNumber-1], outputFolder+'cluster_'+str(clusterId)+'.png', clustersColours[clusterId])
 		for curve in range(dataGrilla.shape[0]):
 			axCluster.plot(dataGrilla[curve,0:framesNumber-1],clustersColours[clusterId],alpha=0.2)
 			axCluster.plot(meanData[0:framesNumber-1],clustersColours[clusterId],linewidth=4)
