@@ -169,7 +169,7 @@ def main():
 		dataGrilla = dataGrilla[1:,:]
 		meanData = dataGrilla.mean(axis=0)			
 		ax.plot(meanData[0:framesNumber],clustersColours[clusterId],linewidth=4)
-		rfe.graficaGrilla(dataGrilla, outputFolder+'Grilla_'+str(clusterId)+'.png', clustersColours[clusterId], xSize, ySize)
+		rfe.graficaGrilla(dataGrilla, outputFolder+'Grilla_'+str(clusterId)+'.png', framesNumber, clustersColours[clusterId], xSize, ySize)
 		figCluster = plt.figure()
 		axCluster = figCluster.add_subplot(111)
 		for curve in range(dataGrilla.shape[0]):
