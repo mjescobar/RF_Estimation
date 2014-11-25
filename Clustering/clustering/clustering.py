@@ -39,7 +39,7 @@ from matplotlib import pyplot as plt
 from matplotlib import mlab as mlab
 
 clustersColours = ['#fcfa00', '#ff0000', '#820c2c', '#ff006f', '#af00ff','#0200ff','#008dff','#00e8ff','#0c820e','#28ea04','#ea8404','#c8628f','#6283ff','#5b6756','#0c8248','k','#820cff','#932c11','#002c11','#829ca7']
-clustersColours = ['blue', 'red', 'green', 'yellow', 'black','orange','#ff006f','#00e8ff']
+clustersColours = ['blue', 'red', 'green', 'orange', 'black','yellow','#ff006f','#00e8ff']
 
 def main():
 	
@@ -184,8 +184,6 @@ def main():
 		transform=ax.transAxes,
 		color='green', fontsize=15)
 	fig.savefig(outputFolder+clusteringAlgorithm+'_media.png')
-	#plt.close()	
-		
 		
 	rfe.guardaClustersIDs(outputFolder, units, labels, 'clusterings.csv')
 
