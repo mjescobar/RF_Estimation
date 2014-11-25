@@ -132,7 +132,7 @@ def guardaClustersIDs(outputFolder,units,labels, name):
 	
 	return 0
 
-def graficaGrilla(dataGrilla,name,colour,framesNumber,xPixels,yPixels):	
+def graficaGrilla(dataGrilla,name,colour,xPixels,yPixels):	
 	from matplotlib.patches import Ellipse
 	from pylab import figure, show, savefig
 
@@ -159,5 +159,5 @@ def graficaGrilla(dataGrilla,name,colour,framesNumber,xPixels,yPixels):
 	
 	ax.set_xlim(0, xPixels)
 	ax.set_ylim(0, yPixels)
-	savefig(name, dpi=None)
+	savefig(name, dpi=None, bbox_inches='tight')
 	return 0

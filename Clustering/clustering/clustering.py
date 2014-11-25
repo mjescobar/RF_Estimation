@@ -164,26 +164,26 @@ def main():
 				datos=np.zeros((1,framesNumber+5))
 				datos[0]=dataCluster[unitId,:]
 				dataGrilla = np.append(dataGrilla,datos, axis=0)
-				ax.plot(dataCluster[unitId,0:framesNumber-1],clustersColours[clusterId],alpha=0.2)
+				ax.plot(dataCluster[unitId,0:framesNumber],clustersColours[clusterId],alpha=0.2)
 		## remove the first row of zeroes
 		dataGrilla = dataGrilla[1:,:]
 		meanData = dataGrilla.mean(axis=0)			
-		ax.plot(meanData[0:framesNumber-1],clustersColours[clusterId],linewidth=4)
-		rfe.graficaGrilla(dataGrilla, outputFolder+'Grilla_'+str(clusterId)+'.png', clustersColours[clusterId], framesNumber, xSize, ySize)
+		ax.plot(meanData[0:framesNumber],clustersColours[clusterId],linewidth=4)
+		rfe.graficaGrilla(dataGrilla, outputFolder+'Grilla_'+str(clusterId)+'.png', clustersColours[clusterId], xSize, ySize)
 		figCluster = plt.figure()
 		axCluster = figCluster.add_subplot(111)
 		for curve in range(dataGrilla.shape[0]):
-			axCluster.plot(dataGrilla[curve,0:framesNumber-1],clustersColours[clusterId],alpha=0.2)
-			axCluster.plot(meanData[0:framesNumber-1],clustersColours[clusterId],linewidth=4)
+			axCluster.plot(dataGrilla[curve,0:framesNumber],clustersColours[clusterId],alpha=0.2)
+			axCluster.plot(meanData[0:framesNumber],clustersColours[clusterId],linewidth=4)
 		
-		figCluster.savefig(outputFolder+'cluster_'+str(clusterId)+'.png')
+		figCluster.savefig(outputFolder+'cluster_'+str(clusterId)+'.png', bbox_inches='tight')
 	#Estimate fit for the clusterings
 	fit = metrics.silhouette_score(data, labels, metric='euclidean')
 	ax.text(0.01, 0.01, 'Silhouette score: '+str(round(fit,4)),
 		verticalalignment='bottom', horizontalalignment='left',
 		transform=ax.transAxes,
 		color='green', fontsize=15)
-	fig.savefig(outputFolder+clusteringAlgorithm+'_media.png')
+	fig.savefig(outputFolder+clusteringAlgorithm+'_media.png', bbox_inches='tight')
 		
 	rfe.guardaClustersIDs(outputFolder, units, labels, 'clusterings.csv')
 
