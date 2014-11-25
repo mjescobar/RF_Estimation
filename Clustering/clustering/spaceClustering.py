@@ -74,7 +74,7 @@ def main():
 			units.append(unitName)
 
 		
-	gmix = mixture.GMM(n_components=clustersNumber, covariance_type='spherical')
+	gmix = mixture.GMM(n_components=2, covariance_type='spherical')
 	gmix.fit(data)
 	labels = gmix.predict(data)
 	
