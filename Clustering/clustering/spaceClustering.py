@@ -27,9 +27,9 @@
 import sys, os 
 sys.path.append(os.path.join(os.path.dirname(__file__), '../..','LIB'))
 import rfestimationLib as rfe
-import argparse #argument parsing
-import numpy as np
-from sklearn.cluster import KMeans
+import argparse 					# argument parsing
+import numpy as np					# Numpy
+from sklearn import mixture			# GMM
 
 def main():
 	
@@ -73,22 +73,21 @@ def main():
 			data.append([radiusA,radiusB])
 			units.append(unitName)
 
-	km = KMeans(init='k-means++', n_clusters=2, n_init=10,n_jobs=-1)
-	km.fit(data)
-	labels = km.labels_
+		
+	gmix = mixture.GMM(n_components=clustersNumber, covariance_type='spherical')
+	gmix.fit(data)
+	labels = gmix.predict(data)
 	
-	smallUnits = []
-	largeUnits = []
-	fileSmall = open(outputFolder+'clusterSmall.csv', "w")
-	fileLarge = open(outputFolder+'clusterLarge.csv', "w")
+	file_0 = open(outputFolder+'cluste_0.csv', "w")
+	file_1 = open(outputFolder+'cluster_1.csv', "w")
 	for unit in range(labels.size):
 		if labels[unit] == 0:
-			fileSmall.write(units[unit]+'\n')
+			file_0.write(units[unit]+'\n')
 		else:
-			fileLarge.write(units[unit]+'\n')
+			file_1.write(units[unit]+'\n')
 
-	fileSmall.close
-	fileLarge.close
+	file_0.close
+	file_1.close
 		
 	return 0
 
