@@ -78,7 +78,7 @@ def main():
 	gmix.fit(data)
 	labels = gmix.predict(data)
 	
-	file_0 = open(outputFolder+'cluste_0.csv', "w")
+	file_0 = open(outputFolder+'cluster_0.csv', "w")
 	file_1 = open(outputFolder+'cluster_1.csv', "w")
 	for unit in range(labels.size):
 		if labels[unit] == 0:
