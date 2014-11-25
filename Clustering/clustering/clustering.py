@@ -37,6 +37,7 @@ import matplotlib
 matplotlib.use('Agg')
 from matplotlib import pyplot as plt
 from matplotlib import mlab as mlab
+import math
 
 clustersColours = ['#fcfa00', '#ff0000', '#820c2c', '#ff006f', '#af00ff','#0200ff','#008dff','#00e8ff','#0c820e','#28ea04','#ea8404','#c8628f','#6283ff','#5b6756','#0c8248','k','#820cff','#932c11','#002c11','#829ca7']
 clustersColours = ['blue', 'red', 'green', 'orange', 'black','yellow','#ff006f','#00e8ff']
@@ -112,7 +113,6 @@ def main():
 			fitResult = rfe.loadFitMatrix(sourceFolder,unitFile)
 			#should we use the not-gaussian-fitted data for clustering?
 			dataUnitGauss = scipy.ndimage.gaussian_filter(dataUnit[coordinates[0][0],[coordinates[1][0]],:],2)
-
 			#A radius of the RF ellipse
 			dato[0] = fitResult[0][2]
 			dataUnitCompleta = np.concatenate((dataUnitGauss,dato),1)
@@ -137,7 +137,11 @@ def main():
 	#Solo temporal dataCluster[:,0:framesNumber]
 	#Temporal y espacial dataCluster[:,0:framesNumber+2]
 	data = dataCluster[:,0:framesNumber]
-	
+
+	# Calculates the next 5-step for the y-coordinate
+	maxData =  math.ceil(np.amax(data)/5)*5
+	minData = math.floor(np.amin(data)/5)*5
+
 	if clusteringAlgorithm == 'spectral':
 		from sklearn.cluster import SpectralClustering
 		sc = SpectralClustering(n_clusters=clustersNumber, eigen_solver=None, random_state=None,  n_init=10, gamma=1.0, affinity='nearest_neighbors', n_neighbors=10, eigen_tol=0.0, assign_labels='kmeans', degree=3, coef0=1, kernel_params=None)
@@ -169,6 +173,8 @@ def main():
 		dataGrilla = dataGrilla[1:,:]
 		meanData = dataGrilla.mean(axis=0)			
 		ax.plot(meanData[0:framesNumber],clustersColours[clusterId],linewidth=4)
+		ax.set_xlim(0, framesNumber-1)		
+		ax.set_ylim(minData,maxData)
 		rfe.graficaGrilla(dataGrilla, outputFolder+'Grilla_'+str(clusterId)+'.png', framesNumber, clustersColours[clusterId], xSize, ySize)
 		figCluster = plt.figure()
 		axCluster = figCluster.add_subplot(111)
@@ -176,8 +182,8 @@ def main():
 			axCluster.plot(dataGrilla[curve,0:framesNumber],clustersColours[clusterId],alpha=0.2)
 			axCluster.plot(meanData[0:framesNumber],clustersColours[clusterId],linewidth=4)
 		
-		axCluster.set_xlim(0, 20)
-		axCluster.set_ylim(0, -50)
+		axCluster.set_xlim(0, framesNumber-1)
+		axCluster.set_ylim(minData,maxData)
 		figCluster.savefig(outputFolder+'cluster_'+str(clusterId)+'.png', bbox_inches='tight')
 	#Estimate fit for the clusterings
 	fit = metrics.silhouette_score(data, labels, metric='euclidean')
