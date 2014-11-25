@@ -176,6 +176,8 @@ def main():
 			axCluster.plot(dataGrilla[curve,0:framesNumber],clustersColours[clusterId],alpha=0.2)
 			axCluster.plot(meanData[0:framesNumber],clustersColours[clusterId],linewidth=4)
 		
+		axCluster.set_xlim(0, 20)
+		axCluster.set_ylim(0, -50)
 		figCluster.savefig(outputFolder+'cluster_'+str(clusterId)+'.png', bbox_inches='tight')
 	#Estimate fit for the clusterings
 	fit = metrics.silhouette_score(data, labels, metric='euclidean')
