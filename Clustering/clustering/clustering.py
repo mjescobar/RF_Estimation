@@ -22,7 +22,7 @@
 #  
 #  
 
-# Performs SpectralClustering using scikit-learn
+# Performs clustering using different libraries
 
 import sys, os 
 sys.path.append(os.path.join(os.path.dirname(__file__), '../..','LIB'))
@@ -39,8 +39,12 @@ from matplotlib import pyplot as plt
 from matplotlib import mlab as mlab
 import math
 
-clustersColours = ['#fcfa00', '#ff0000', '#820c2c', '#ff006f', '#af00ff','#0200ff','#008dff','#00e8ff','#0c820e','#28ea04','#ea8404','#c8628f','#6283ff','#5b6756','#0c8248','k','#820cff','#932c11','#002c11','#829ca7']
-clustersColours = ['blue', 'red', 'green', 'orange', 'black','yellow','#ff006f','#00e8ff']
+clustersColours = ['blue', 'red', 'green', 'orange', 'black','yellow', \
+				'#ff006f','#00e8ff','#fcfa00', '#ff0000', '#820c2c', \
+				'#ff006f', '#af00ff','#0200ff','#008dff','#00e8ff', \
+				'#0c820e','#28ea04','#ea8404','#c8628f','#6283ff', \
+				'#5b6756','#0c8248','k','#820cff','#932c11', \
+				'#002c11','#829ca7']
 
 def main():
 	
@@ -64,7 +68,7 @@ def main():
 	 type=int, default='50', required=False)
 	parser.add_argument('--clusteringAlgorithm',
 	 help='Clustering algorithm to use: K-Means, Spectral Clustering, GMM',
-	 type=str, default='kmeans', choices=['kmeans','spectral','gmm'], required=False)
+	 type=str, default='kmeans', choices=['kmeans','spectral','gmm','densityPeaks'], required=False)
 	 
 	args = parser.parse_args()
 
@@ -152,6 +156,11 @@ def main():
 		gmix = mixture.GMM(n_components=clustersNumber, covariance_type='spherical')
 		gmix.fit(data)
 		labels = gmix.predict(data)
+	elif clusteringAlgorithm == 'densityPeaks':
+		import densityPeaks as dp
+		dc = 50    #exploratory
+		fitData, labels = dp.predict(data, clustersNumber, dc)
+		sys.exit()
 	else:
 		from sklearn.cluster import KMeans
 		km = KMeans(init='k-means++', n_clusters=clustersNumber, n_init=10,n_jobs=-1)
