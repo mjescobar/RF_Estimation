@@ -56,7 +56,7 @@ end
 
 im1 = stim(:,:,:,1);
 figure, imshow(im1); axis image; title('result image');
-
+figure,imshow (oi1); axis image; title('original');
 oi1_resized = imresize(oi1,1/size(oi1,1)*blocks,'box');
 figure, imshow(oi1_resized); axis image; title('resized original image');
 
