@@ -26,6 +26,7 @@
 #  http://www.sciencemag.org/content/344/6191/1492.short
 
 import numpy as np
+from scipy.spatial import distance
 ridiculouslyHighNumber = 1000000
 
 #  
@@ -47,7 +48,8 @@ def calculateDistance(data, length):
 	distances = np.zeros((length,length))
 	for x in range(length):
 		for y in range(length):
-			distances[x][y] = np.linalg.norm(data[x]-data[y],2)
+			#distances[x][y] = np.linalg.norm(data[x]-data[y],2)
+			distances[x][y] = distance.cdist(data[x][np.newaxis,:], data[y][np.newaxis,:], 'canberra')
 	
 	return distances
 
