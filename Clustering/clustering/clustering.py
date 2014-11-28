@@ -148,7 +148,10 @@ def main():
 
 	if clusteringAlgorithm == 'spectral':
 		from sklearn.cluster import SpectralClustering
-		sc = SpectralClustering(n_clusters=clustersNumber, eigen_solver=None, random_state=None,  n_init=10, gamma=1.0, affinity='nearest_neighbors', n_neighbors=10, eigen_tol=0.0, assign_labels='kmeans', degree=3, coef0=1, kernel_params=None)
+		sc = SpectralClustering(n_clusters=clustersNumber, eigen_solver=None, \
+				random_state=None,  n_init=10, gamma=1.0, affinity='nearest_neighbors', \
+				n_neighbors=10, eigen_tol=0.0, assign_labels='kmeans', degree=3, \
+				coef0=1, kernel_params=None)
 		sc.fit(data)
 		labels = sc.labels_
 	elif clusteringAlgorithm == 'gmm':
@@ -158,9 +161,8 @@ def main():
 		labels = gmix.predict(data)
 	elif clusteringAlgorithm == 'densityPeaks':
 		import densityPeaks as dp
-		dc = 50    #exploratory
-		fitData, labels = dp.predict(data, clustersNumber, dc)
-		sys.exit()
+		dc = 45    #exploratory, '...for large data sets, the results of the analysis are robust with respect to the choice of d_c'
+		clustersNumber, labels = dp.predict(data, dc)
 	else:
 		from sklearn.cluster import KMeans
 		km = KMeans(init='k-means++', n_clusters=clustersNumber, n_init=10,n_jobs=-1)
