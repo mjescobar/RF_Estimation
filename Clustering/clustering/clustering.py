@@ -161,7 +161,7 @@ def main():
 		labels = gmix.predict(data)
 	elif clusteringAlgorithm == 'densityPeaks':
 		import densityPeaks as dp
-		dc = 25    #exploratory, '...for large data sets, the results of the analysis are robust with respect to the choice of d_c'
+		dc = 60    #exploratory, '...for large data sets, the results of the analysis are robust with respect to the choice of d_c'
 		clustersNumber, labels = dp.predict(data, dc)
 	else:
 		from sklearn.cluster import KMeans
