@@ -26,6 +26,7 @@
 #  http://www.sciencemag.org/content/344/6191/1492.short
 
 import numpy as np
+from scipy.spatial import distance
 ridiculouslyHighNumber = 1000000
 
 #  
@@ -47,18 +48,15 @@ def calculateDistance(data, length):
 	distances = np.zeros((length,length))
 	for x in range(length):
 		for y in range(length):
-<<<<<<< HEAD
-			distances[x][y] = np.linalg.norm(data[x]-data[y])
-=======
 			distances[x][y] = distance.cdist(data[x][np.newaxis,:], data[y][np.newaxis,:], 'euclidean')
->>>>>>> CAmbios en la densityPeaks, distancia euclidiana y dc 60
+
 	
 	return distances
 
 #  
 #  Calculate the mimimum distance
 #  
-def delta(distances, densities, length, i):
+def delta(distances, densities, length, i,clustersCenters):
 	minDistance = ridiculouslyHighNumber    # ridiculously high number
 	
 	density = densities[i]
@@ -67,7 +65,16 @@ def delta(distances, densities, length, i):
 		if densities[j] > density:
 			if distances[i][j] < minDistance:
 				minDistance = distances[i][j]
-		
+	
+	# A Super dense point has been found
+	if minDistance == ridiculouslyHighNumber:
+		maxDistance = 0
+		for j in range(length):
+			if distances[i][j] > maxDistance:
+				maxDistance = distances[i][j]
+		minDistance = maxDistance
+		clustersCenters.append(i)
+	
 	return minDistance
 
 #  
@@ -77,24 +84,27 @@ def predict(data, dc):
 	length = data.shape[0]
 	
 	distances = calculateDistance(data, length)
+<<<<<<< HEAD
 	
 	print distances
+=======
+
+	#import matplotlib.pyplot as plt
+	#plt.hist(distances, bins=50)
+	#plt.savefig('/tmp/histograma.png', bbox_inches='tight')
+	#plt.close()
+>>>>>>> 41daa749d295261366a6afe462187c9ab2486889
 	
 	densities = np.zeros((length))
 	for i in range(length):
 		for j in range(length):
 			densities[i] = densities[i] + X(distances[i][j],dc)
-
-	deltas = np.zeros((length))
-	for i in range(length):
-		deltas[i] = delta(distances, densities, length, i)
 	
-	# Spot the clusters centers
+	deltas = np.zeros((length))
 	clustersCenters = []
 	for i in range(length):
-		if deltas[i] == ridiculouslyHighNumber:
-			clustersCenters.append(i)
-		
+		deltas[i] = delta(distances, densities, length, i,clustersCenters)
+	
 	labels = np.zeros((length))
 	for i in range(length):
 		currentDistance = ridiculouslyHighNumber
@@ -103,8 +113,11 @@ def predict(data, dc):
 				currentDistance = distances[i][j]
 				labels[i] = clustersCenters.index(j)
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
+=======
+>>>>>>> 41daa749d295261366a6afe462187c9ab2486889
 	
 	import matplotlib.pyplot as plt
 	from operator import itemgetter
@@ -113,5 +126,8 @@ def predict(data, dc):
 	plt.savefig('/tmp/densitiesvsdeltas.png', bbox_inches='tight')
 	plt.close()
 	
+<<<<<<< HEAD
 >>>>>>> CAmbios en la densityPeaks, distancia euclidiana y dc 60
+=======
+>>>>>>> 41daa749d295261366a6afe462187c9ab2486889
 	return (len(clustersCenters), labels)
