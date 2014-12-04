@@ -47,7 +47,11 @@ def calculateDistance(data, length):
 	distances = np.zeros((length,length))
 	for x in range(length):
 		for y in range(length):
+<<<<<<< HEAD
 			distances[x][y] = np.linalg.norm(data[x]-data[y])
+=======
+			distances[x][y] = distance.cdist(data[x][np.newaxis,:], data[y][np.newaxis,:], 'euclidean')
+>>>>>>> CAmbios en la densityPeaks, distancia euclidiana y dc 60
 	
 	return distances
 
@@ -98,5 +102,16 @@ def predict(data, dc):
 			if distances[i][j] < currentDistance:
 				currentDistance = distances[i][j]
 				labels[i] = clustersCenters.index(j)
+<<<<<<< HEAD
 
+=======
+	
+	import matplotlib.pyplot as plt
+	from operator import itemgetter
+	list1, list2 = (list(x) for x in zip(*sorted(zip(densities, deltas), key=lambda pair: pair[0])))
+	plt.plot(list1,list2,'ro')
+	plt.savefig('/tmp/densitiesvsdeltas.png', bbox_inches='tight')
+	plt.close()
+	
+>>>>>>> CAmbios en la densityPeaks, distancia euclidiana y dc 60
 	return (len(clustersCenters), labels)
