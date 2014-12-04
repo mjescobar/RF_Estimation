@@ -73,7 +73,9 @@ def predict(data, dc):
 	length = data.shape[0]
 	
 	distances = calculateDistance(data, length)
-
+	
+	print distances
+	
 	densities = np.zeros((length))
 	for i in range(length):
 		for j in range(length):
