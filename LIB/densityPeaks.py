@@ -33,10 +33,11 @@ ridiculouslyHighNumber = 1000000
 #  Calculate the distance
 #  
 def X(dij, dc):
-	if dij - dc < 0:
-		return 1
-	else:
-		return 0
+	x=0
+	if (dij - dc) < 0:
+		x=1
+	
+	return x
 #  
 #  For each data point calculate the distances
 #  
@@ -83,17 +84,12 @@ def delta(distances, densities, length, i,clustersCenters):
 def predict(data, dc):
 	length = data.shape[0]
 	
-	distances = calculateDistance(data, length)
-<<<<<<< HEAD
+	distances = calculateDistance(data, length)	
 	
-	print distances
-=======
-
 	#import matplotlib.pyplot as plt
 	#plt.hist(distances, bins=50)
 	#plt.savefig('/tmp/histograma.png', bbox_inches='tight')
 	#plt.close()
->>>>>>> 41daa749d295261366a6afe462187c9ab2486889
 	
 	densities = np.zeros((length))
 	for i in range(length):
@@ -112,12 +108,6 @@ def predict(data, dc):
 			if distances[i][j] < currentDistance:
 				currentDistance = distances[i][j]
 				labels[i] = clustersCenters.index(j)
-<<<<<<< HEAD
-<<<<<<< HEAD
-
-=======
-=======
->>>>>>> 41daa749d295261366a6afe462187c9ab2486889
 	
 	import matplotlib.pyplot as plt
 	from operator import itemgetter
@@ -126,8 +116,4 @@ def predict(data, dc):
 	plt.savefig('/tmp/densitiesvsdeltas.png', bbox_inches='tight')
 	plt.close()
 	
-<<<<<<< HEAD
->>>>>>> CAmbios en la densityPeaks, distancia euclidiana y dc 60
-=======
->>>>>>> 41daa749d295261366a6afe462187c9ab2486889
 	return (len(clustersCenters), labels)
