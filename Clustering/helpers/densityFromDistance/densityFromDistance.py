@@ -63,19 +63,15 @@ def delta(distances, densities, length, i,clustersCenters):
 	density = densities[i]
 	
 	for j in range(i-1):
-		#if densities[j] > density:
-		if distances[i][j] < minDistance:
-			minDistance = distances[i][j]
+		if densities[j] > density:
+			if distances[i][j] < minDistance:
+				minDistance = distances[i][j]
 	
 	# A Super dense point has been found
 	if minDistance == maxDistance:
 		maxDistance = 0
 		for j in range(length):
-			# print 'i ',i,' maxDistance ',maxDistance
 			if distances[i][j] > maxDistance:
-				# print 'i ',i,' maxDistance ',maxDistance,' j ', j
-				# print 'distances[i][j] ',distances[i][j]
-				# print 'density ',density
 				maxDistance = distances[i][j]
 		minDistance = maxDistance
 		clustersCenters.append(i)
@@ -90,8 +86,6 @@ def predict(distancesFile, dc):
 	densities = np.zeros((length))
 	for i in range(length-1):
 		for j in range(i+1,length):
-			#if i < j:
-				#densities[i] = densities[i] + X(distances[i][j],dc)
 			densities[i] = densities[i] + math.exp(-(distances[i][j]/dc)*(distances[i][j]/dc))
 			densities[j] = densities[j] + math.exp(-(distances[i][j]/dc)*(distances[i][j]/dc))
 		
@@ -101,27 +95,48 @@ def predict(distancesFile, dc):
 	
 	deltas = np.zeros((length))
 	clustersCenters = []
+	maxDistance = np.amax(distances)
 	for i in range(length):
-		deltas[i] = delta(distances, densities, length, i, clustersCenters)
-	
+		deltas[i] = maxDistance
+		for j in range(length):
+			if densities[j] > densities[i]:
+				if distances[i][j] < deltas[i]:
+					deltas[i] = distances[i][j]
+
+	# Al punto de mayor densidad le asigno la mayor distancia calculada para un punto
+	deltas[np.where(deltas==np.sort(deltas)[-1])[0]]=np.sort(deltas)[-2]
+
 	print 'Max deltas (0.2970) ',np.amax(deltas)
+
+	
+	ordDeltas = sorted(deltas, reverse=True)
+	varDeltas = np.var(deltas)
+	varDeltas = 0.1
+	
+	for i in range(length-1):
+		if (ordDeltas[i]-ordDeltas[i+1]) > varDeltas:
+			cut = i
+	
+	for i in range(cut+1):
+		for center in np.where(deltas==ordDeltas[i]):
+			for j in range(len(center)):
+				clustersCenters.append(center[j])
+	
+	clustersCenters = np.unique(clustersCenters)
 	
 	labels = np.zeros((length))
 	for i in range(length):
-		currentDistance = ridiculouslyHighNumber
+		currentDistance = maxDistance
 		for j in clustersCenters:
 			if distances[i][j] < currentDistance:
 				currentDistance = distances[i][j]
-				labels[i] = clustersCenters.index(j)
+				labels[i] = np.where(clustersCenters==j)[0]
 	
 	import matplotlib.pyplot as plt
 	from operator import itemgetter
-	print densities
 	plt.plot(densities,deltas,'ro')
 	plt.savefig('/tmp/densitiesvsdeltas.png', bbox_inches='tight')
 	plt.close()
-		
-	print clustersCenters
 
 	return (len(clustersCenters), labels)
 	
@@ -139,9 +154,10 @@ def main():
 	args = parser.parse_args()
 	
 	clusters, labels = predict(args.sourceFile, args.dc)
-	
-	print clusters
 
+	print clusters
+	print labels
+	
 	return 0
 
 if __name__ == '__main__':
