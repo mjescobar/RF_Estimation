@@ -72,7 +72,7 @@ def main():
 		randomNumbers= random.sample (xrange (len(listOfSpikes)), numberOfSpikes)
 		randomNumbers.sort()
 		path=outputFolder+'/'+str(numberOfSpikes)
-		mkdir(path)
+		os.mkdir(path)
 		fileOutName = path +'/'+ 'resultFile'+str(i)+'.txt'
 		file= open (fileOutName, 'w')
 		for number in randomNumbers:
