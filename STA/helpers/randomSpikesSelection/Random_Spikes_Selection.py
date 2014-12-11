@@ -71,7 +71,9 @@ def main():
 		numberOfSpikes=(percentOfSpikes*len(listOfSpikes))/100
 		randomNumbers= random.sample (xrange (len(listOfSpikes)), numberOfSpikes)
 		randomNumbers.sort()
-		fileOutName = outputFolder+'/'+str(numberOfSpikes)+'/'+ 'resultFile'+str(i)+'.txt'
+		path=outputFolder+'/'+str(numberOfSpikes)
+		mkdir(path)
+		fileOutName = path +'/'+ 'resultFile'+str(i)+'.txt'
 		file= open (fileOutName, 'w')
 		for number in randomNumbers:
 		 file.write(listOfSpikes[number])
