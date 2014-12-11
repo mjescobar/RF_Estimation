@@ -34,7 +34,7 @@ def main():
 	parser.add_argument('--sourceFile',
 	 help='Source file',
 	 type=str, required=True)
-	parser.add_argument('--numberOfSpikes',
+	parser.add_argument('--percentOfSpikes',
 	 help='Number of spikes to be extracted',
 	 type=int, default= '1000' , required=False)
 	parser.add_argument('--outputFolder',
@@ -46,7 +46,7 @@ def main():
 	args = parser.parse_args()
 
 	sourceFile = args.sourceFile
-	numberOfSpikes = args.numberOfSpikes
+	percentOfSpikes = args.percentOfSpikes
 	outputFolder= args.outputFolder
 	repetitions=args.repetitions
 
@@ -68,10 +68,10 @@ def main():
 	for i in range (repetitions):
 		f= open (sourceFile,'r')
 		listOfSpikes= f.readlines()
-		#listOfSpikes= lines.split('\n')
+		numberOfSpikes=(percentOfSpikes*len(listOfSpikes))/100
 		randomNumbers= random.sample (xrange (len(listOfSpikes)), numberOfSpikes)
 		randomNumbers.sort()
-		fileOutName = outputFolder+'resultFile'+str(i)+'.txt'
+		fileOutName = outputFolder+'/'+str(numberOfSpikes)+'/'+ 'resultFile'+str(i)+'.txt'
 		file= open (fileOutName, 'w')
 		for number in randomNumbers:
 		 file.write(listOfSpikes[number])
