@@ -31,8 +31,8 @@ def main():
 	parser = argparse.ArgumentParser(prog='Random_Spikes_Selection.py',
 	 description='Selecciona aleatoriamente un numero x de spikes dentro del fichero timestamps',
 	 formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-	parser.add_argument('--sourceFile',
-	 help='Source file',
+	parser.add_argument('--sourceFolder',
+	 help='Source folder',
 	 type=str, required=True)
 	parser.add_argument('--percentOfSpikes',
 	 help='Number of spikes to be extracted',
@@ -45,7 +45,7 @@ def main():
 	 type=int, required=False)
 	args = parser.parse_args()
 
-	sourceFile = args.sourceFile
+	sourceFolder = args.sourceFolder
 	percentOfSpikes = args.percentOfSpikes
 	outputFolder= args.outputFolder
 	repetitions=args.repetitions
@@ -65,29 +65,30 @@ def main():
 			print 'Unable to create folder ' + outputFolder
 			sys.exit()
 	
-	for i in range (repetitions):
-		f= open (sourceFile,'r')
-		listOfSpikes= f.readlines()
-		numberOfSpikes=(percentOfSpikes*len(listOfSpikes))/100
-		randomNumbers= random.sample (xrange (len(listOfSpikes)), numberOfSpikes)
-		randomNumbers.sort()
-		path=outputFolder+'/'+str(numberOfSpikes)
-		 #Output folder for the graphics
-		
-		if not os.path.exists(path):
-			try:
-				os.makedirs(path)
-			except:
-				print ''
-				print 'Unable to create folder ' + path
-				sys.exit()
-		
-		fileOutName = path +'/'+ 'resultFile'+str(i)+'.txt'
-		file= open (fileOutName, 'w')
-		for number in randomNumbers:
-		 file.write(listOfSpikes[number])
-	f.close()
-	file.close()
+	for unit in os.listdir(sourceFolder) : 
+		for i in range (repetitions):
+			f= open (unit,'r')
+			listOfSpikes= f.readlines()
+			numberOfSpikes=(percentOfSpikes*len(listOfSpikes))/100
+			randomNumbers= random.sample (xrange (len(listOfSpikes)), numberOfSpikes)
+			randomNumbers.sort()
+			path=outputFolder+'/'+unit+'/'+str(numberOfSpikes)
+			 #Output folder for the graphics
+			
+			if not os.path.exists(path):
+				try:
+					os.makedirs(path)
+				except:
+					print ''
+					print 'Unable to create folder ' + path
+					sys.exit()
+			
+			fileOutName = path +'/'+ 'resultFile'+str(i)+'.txt'
+			file= open (fileOutName, 'w')
+			for number in randomNumbers:
+			 file.write(listOfSpikes[number])
+		f.close()
+		file.close()
 		
 
 if __name__ == '__main__':
