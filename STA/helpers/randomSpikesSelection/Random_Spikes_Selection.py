@@ -72,7 +72,16 @@ def main():
 		randomNumbers= random.sample (xrange (len(listOfSpikes)), numberOfSpikes)
 		randomNumbers.sort()
 		path=outputFolder+'/'+str(numberOfSpikes)
-		os.mkdir(path)
+		 #Output folder for the graphics
+		
+		if not os.path.exists(path):
+			try:
+				os.makedirs(path)
+			except:
+				print ''
+				print 'Unable to create folder ' + path
+				sys.exit()
+		
 		fileOutName = path +'/'+ 'resultFile'+str(i)+'.txt'
 		file= open (fileOutName, 'w')
 		for number in randomNumbers:
