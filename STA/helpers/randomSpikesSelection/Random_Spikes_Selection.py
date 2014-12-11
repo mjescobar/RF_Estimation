@@ -40,11 +40,15 @@ def main():
 	parser.add_argument('--outputFolder',
 	 help='Output folder',
 	 type=str, required=True)
+	parser.add_argument('--repetitions', default=10,
+	 help='Number of repetitions',
+	 type=int, required=False)
 	args = parser.parse_args()
 
 	sourceFile = args.sourceFile
 	numberOfSpikes = args.numberOfSpikes
 	outputFolder= args.outputFolder
+	repetitions=args.repetitions
 
 	
 	#Output folder of the files with the timestamps selected
@@ -60,16 +64,17 @@ def main():
 			print ''
 			print 'Unable to create folder ' + outputFolder
 			sys.exit()
-
-	f= open (sourceFile,'r')
-	listOfSpikes= f.readlines()
-	#listOfSpikes= lines.split('\n')
-	randomNumbers= random.sample (xrange (len(listOfSpikes)), numberOfSpikes)
-	randomNumbers.sort()
-	fileOutName = outputFolder+'resultFile.txt'
-	file= open (fileOutName, 'w')
-	for number in randomNumbers:
-	 file.write(listOfSpikes[number])
+	
+	for i in range (repetitions):
+		f= open (sourceFile,'r')
+		listOfSpikes= f.readlines()
+		#listOfSpikes= lines.split('\n')
+		randomNumbers= random.sample (xrange (len(listOfSpikes)), numberOfSpikes)
+		randomNumbers.sort()
+		fileOutName = outputFolder+'resultFile'+str(i)+'.txt'
+		file= open (fileOutName, 'w')
+		for number in randomNumbers:
+		 file.write(listOfSpikes[number])
 	f.close()
 	file.close()
 		
