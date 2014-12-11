@@ -67,7 +67,7 @@ def main():
 	
 	for unit in os.listdir(sourceFolder) : 
 		for i in range (repetitions):
-			f= open (unit,'r')
+			f= open (sourceFolder+unit,'r')
 			listOfSpikes= f.readlines()
 			numberOfSpikes=(percentOfSpikes*len(listOfSpikes))/100
 			randomNumbers= random.sample (xrange (len(listOfSpikes)), numberOfSpikes)
