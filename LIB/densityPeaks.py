@@ -27,17 +27,8 @@
 
 import numpy as np
 from scipy.spatial import distance
-ridiculouslyHighNumber = 1000000
+import math
 
-#  
-#  Calculate the distance
-#  
-def X(dij, dc):
-	x=0
-	if (dij - dc) < 0:
-		x=1
-	
-	return x
 #  
 #  For each data point calculate the distances
 #  
@@ -86,26 +77,50 @@ def predict(data, dc):
 	
 	distances = calculateDistance(data, length)	
 	
-	#import matplotlib.pyplot as plt
-	#plt.hist(distances, bins=50)
-	#plt.savefig('/tmp/histograma.png', bbox_inches='tight')
-	#plt.close()
-	
 	densities = np.zeros((length))
-	for i in range(length):
-		for j in range(length):
-			densities[i] = densities[i] + X(distances[i][j],dc)
+	for i in range(length-1):
+		for j in range(i+1,length):
+			densities[i] = densities[i] + math.exp(-(distances[i][j]/dc)*(distances[i][j]/dc))
+			densities[j] = densities[j] + math.exp(-(distances[i][j]/dc)*(distances[i][j]/dc))
 	
 	deltas = np.zeros((length))
-	clustersCenters = []
+	maxDistance = np.amax(distances)
 	for i in range(length):
-		deltas[i] = delta(distances, densities, length, i,clustersCenters)
+		deltas[i] = maxDistance
+		for j in range(length):
+			if densities[j] > densities[i]:
+				if distances[i][j] < deltas[i]:
+					deltas[i] = distances[i][j]
+
+	# Al punto de mayor densidad le asigno la mayor distancia calculada para un punto
+	ordDeltas = sorted(deltas)
+	deltas[np.where(deltas==ordDeltas[-1])[0]] = ordDeltas[-2]
+	
+	previousDistance = ordDeltas[-2]
+	clustersCenters = []
+	for i in range(1,length):
+		print i
+		print 'previousDistance',previousDistance
+		print 'ordDeltas[-i] - ordDeltas[-i-1]',ordDeltas[-i-1] - ordDeltas[-i-2]
+		print 'ordDeltas[-i]',ordDeltas[-i-1]
+		print 'ordDeltas[-i-1]',ordDeltas[-i-2]
+		iDistance = ordDeltas[-i-1] - ordDeltas[-i-2]
+		if (3. * iDistance) <= previousDistance:
+			break
+		else:
+			print np.where(deltas==ordDeltas[-i-1])
+			print np.where(deltas==ordDeltas[-i-1])[0]
+			for cluster in np.where(deltas==ordDeltas[-i-1])[0]:
+				clustersCenters.append(cluster)
+			previousDistance = iDistance
+	
+	print clustersCenters
 	
 	labels = np.zeros((length))
 	for i in range(length):
-		currentDistance = ridiculouslyHighNumber
+		currentDistance = maxDistance
 		for j in clustersCenters:
-			if distances[i][j] < currentDistance:
+			if distances[i][j] <= currentDistance:
 				currentDistance = distances[i][j]
 				labels[i] = clustersCenters.index(j)
 	
@@ -114,6 +129,10 @@ def predict(data, dc):
 	list1, list2 = (list(x) for x in zip(*sorted(zip(densities, deltas), key=lambda pair: pair[0])))
 	plt.plot(list1,list2,'ro')
 	plt.savefig('/tmp/densitiesvsdeltas.png', bbox_inches='tight')
+	plt.close()
+	
+	plt.plot(densities,deltas,'ro')
+	plt.savefig('/tmp/densitiesvsdeltas_unsorted.png', bbox_inches='tight')
 	plt.close()
 	
 	return (len(clustersCenters), labels)
