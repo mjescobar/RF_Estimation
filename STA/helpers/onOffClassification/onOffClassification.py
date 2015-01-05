@@ -29,14 +29,9 @@
 
 import sys    # system lib
 import os     # operative system lib
-import matplotlib.pyplot as plt
 import argparse #argument parsing
 import scipy.io 	      # input output lib (for save matlab matrix)
 import numpy
-import matplotlib.pyplot as plt 	  # plot lib (for figures)
-import scipy.ndimage
-from scipy.cluster.vq import kmeans,vq
-from pylab import plot,show
 
 parser = argparse.ArgumentParser(prog='onOffClassification.py',
  description='Classify On-Off or Off-On units',
@@ -84,7 +79,7 @@ def main():
 	
 	file = open(outputFolder+'onOff.csv', "w")
 	
-	header = 'Unidad\t'+'OnOff\t'+'PeekFrame''\n'
+	header = 'Unidad\t'+'OnOff\t'+'PeakFrame''\n'
 	file.write(header)
 	maxDataSTAValue = 0
 	minDataSTAValue = 0
@@ -94,26 +89,17 @@ def main():
 			# The STA matrix is named as M8a_lineal/sta_array_M8a.mat
 			staMatrixFile = scipy.io.loadmat(sourceFolder+unitFile+'/sta_array_'+unitName+'.mat')
 			staMatrix = staMatrixFile['STA_array']
-			xLength = staMatrix.shape[0]
-			yLength = staMatrix.shape[1]
-			result = numpy.zeros((xLength,yLength))
-			maxDataSTAValue = 0
-			minDataSTAValue = 0
-			for xAxis in range(xLength):
-				for yAxis in range(yLength):
-					dataSTA = staMatrix[xAxis,yAxis,:]
-					maxDataSTAtmp = numpy.amax(staMatrix[xAxis,yAxis,:])
-					minDataSTAtmp = numpy.amin(staMatrix[xAxis,yAxis,:])
-					if maxDataSTAtmp > maxDataSTAValue:
-						maxDataSTAValue = maxDataSTAtmp
-						maxDataSTAId = numpy.where(maxDataSTAValue==dataSTA)
-					if minDataSTAtmp <  minDataSTAValue:
-						minDataSTAValue = minDataSTAtmp
-						minDataSTAId = numpy.where(minDataSTAValue==dataSTA)
-			if maxDataSTAId[0] > minDataSTAId[0]:
-				linea = '"'+unitName+'"\t"On"\t"'+ str(maxDataSTAId[0]+1) + '\n'
+			
+			media = numpy.mean(staMatrix)
+			maximo = numpy.amax(staMatrix)
+			minimo = numpy.amin(staMatrix)
+			maximaDistancia = numpy.absolute(maximo-media)
+			minimaDistancia = numpy.absolute(minimo-media) 
+			if maximaDistancia > minimaDistancia:
+				linea = '"'+unitName+'"\t"On"\t"'+ str(numpy.where(maximo==staMatrix)[2][0]) + '\"\n'
 			else:
-				linea = '"'+unitName+'"\t"Off"\t"'+ str(minDataSTAId[0]+1) + '\n'
+				linea = '"'+unitName+'"\t"Off"\t"'+ str(numpy.where(minimo==staMatrix)[2][0]) + '\"\n'
+							
 			file.write(linea)
 	file.close
 	return 0
