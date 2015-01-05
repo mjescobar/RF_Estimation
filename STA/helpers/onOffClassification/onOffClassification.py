@@ -96,9 +96,9 @@ def main():
 			maximaDistancia = numpy.absolute(maximo-media)
 			minimaDistancia = numpy.absolute(minimo-media) 
 			if maximaDistancia > minimaDistancia:
-				linea = '"'+unitName+'"\t"On"\t"'+ str(numpy.where(maximo==staMatrix)[2][0]) + '\"\n'
+				linea = '"'+unitName+'"\t"On"\t"'+ str(numpy.where(maximo==staMatrix)[2][0]+1) + '\"\n'
 			else:
-				linea = '"'+unitName+'"\t"Off"\t"'+ str(numpy.where(minimo==staMatrix)[2][0]) + '\"\n'
+				linea = '"'+unitName+'"\t"Off"\t"'+ str(numpy.where(minimo==staMatrix)[2][0]+1) + '\"\n'
 							
 			file.write(linea)
 	file.close
