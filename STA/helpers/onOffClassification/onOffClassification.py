@@ -29,14 +29,14 @@
 
 import sys    # system lib
 import os     # operative system lib
-import matplotlib.pyplot as plt
+sys.path.append(os.path.join(os.path.dirname(__file__), '../../..','LIB'))
+import rfestimationLib as rfe
+import gaussfitter as gf
 import argparse #argument parsing
 import scipy.io 	      # input output lib (for save matlab matrix)
 import numpy
-import matplotlib.pyplot as plt 	  # plot lib (for figures)
-import scipy.ndimage
-from scipy.cluster.vq import kmeans,vq
-from pylab import plot,show
+import matplotlib.pyplot as plt
+  
 
 parser = argparse.ArgumentParser(prog='onOffClassification.py',
  description='Classify On-Off or Off-On units',
@@ -84,7 +84,7 @@ def main():
 	
 	file = open(outputFolder+'onOff.csv', "w")
 	
-	header = 'Unidad\t'+'OnOff\t'+'PeekFrame''\n'
+	header = 'Unidad\t'+'OnOff\t'+'PeakFrame''\n'
 	file.write(header)
 	maxDataSTAValue = 0
 	minDataSTAValue = 0
@@ -94,26 +94,74 @@ def main():
 			# The STA matrix is named as M8a_lineal/sta_array_M8a.mat
 			staMatrixFile = scipy.io.loadmat(sourceFolder+unitFile+'/sta_array_'+unitName+'.mat')
 			staMatrix = staMatrixFile['STA_array']
-			xLength = staMatrix.shape[0]
-			yLength = staMatrix.shape[1]
-			result = numpy.zeros((xLength,yLength))
-			maxDataSTAValue = 0
-			minDataSTAValue = 0
-			for xAxis in range(xLength):
-				for yAxis in range(yLength):
-					dataSTA = staMatrix[xAxis,yAxis,:]
-					maxDataSTAtmp = numpy.amax(staMatrix[xAxis,yAxis,:])
-					minDataSTAtmp = numpy.amin(staMatrix[xAxis,yAxis,:])
-					if maxDataSTAtmp > maxDataSTAValue:
-						maxDataSTAValue = maxDataSTAtmp
-						maxDataSTAId = numpy.where(maxDataSTAValue==dataSTA)
-					if minDataSTAtmp <  minDataSTAValue:
-						minDataSTAValue = minDataSTAtmp
-						minDataSTAId = numpy.where(minDataSTAValue==dataSTA)
-			if maxDataSTAId[0] > minDataSTAId[0]:
-				linea = '"'+unitName+'"\t"On"\t"'+ str(maxDataSTAId[0]+1) + '\n'
+			staMatrix = staMatrix[:,:,1:18]
+			
+			dataUnit, coordinates = rfe.loadSTACurve(sourceFolder,unitFile,unitName)
+			
+			print unitName
+			print 'coordinates',coordinates
+			
+			media = numpy.mean(staMatrix)
+			maximo = numpy.amax(staMatrix)
+			minimo = numpy.amin(staMatrix)
+			maximaDistancia = numpy.absolute(maximo-media)
+			minimaDistancia = numpy.absolute(minimo-media) 
+			if maximaDistancia > minimaDistancia:
+				frame = numpy.where(maximo==staMatrix)[2][0]
+				linea = '"'+unitName+'"\t"On"\t"'+ str(frame + 1) + '\"\n'
+				data = gf.moments(staMatrix[:,:,frame],circle=0,rotate=1,vheight=1)
+				print 'frame',frame
+				print 'height',data[0]
+				print 'amplitude',data[1]
+				print 'x',data[2]
+				print 'y',data[3]
+				print 'width_x',data[4]
+				print 'width_y',data[5]
+				print 'rotation',data[6]
+							
+				dataFit = gf.gaussfit(staMatrix[:,:,frame],autoderiv=1, \
+				 return_all=1,circle=0,fixed=numpy.repeat(False,7), \
+				 limitedmin=[False,False,False,False,True,True,True], \
+				 limitedmax=[False,False,False,False,False,False,True], \
+				 usemoment=[1,1,1,1],minpars=numpy.repeat(0,7),maxpars=[0,0,0,0,0,0,360], \
+				 rotate=1,vheight=1,quiet=True,returnmp=False, \
+				 returnfitimage=True)
+
+				fig = plt.figure(1, figsize=(10,10))
+				ax = fig.add_subplot(111)
+				plt.imshow(dataFit[1])
+
+				plt.savefig("/tmp/"+unitName+".png")
+				plt.close()
 			else:
-				linea = '"'+unitName+'"\t"Off"\t"'+ str(minDataSTAId[0]+1) + '\n'
+				linea = '"'+unitName+'"\t"Off"\t"'+ str(numpy.where(minimo==staMatrix)[2][0]) + '\"\n'
+				frame = numpy.where(minimo==staMatrix)[2][0]
+				linea = '"'+unitName+'"\t"On"\t"'+ str(frame + 1) + '\"\n'
+				data = gf.moments(staMatrix[:,:,frame],circle=0,rotate=1,vheight=1)
+				print 'frame',frame
+				print 'height',data[0]
+				print 'amplitude',data[1]
+				print 'x',data[2]
+				print 'y',data[3]
+				print 'width_x',data[4]
+				print 'width_y',data[5]
+				print 'rotation',data[6]
+				
+				dataFit = gf.gaussfit(staMatrix[:,:,frame],autoderiv=1, \
+				 return_all=1,circle=0,fixed=numpy.repeat(False,7), \
+				 limitedmin=[False,False,False,False,True,True,True], \
+				 limitedmax=[False,False,False,False,False,False,True], \
+				 usemoment=[1,1,1,1],minpars=numpy.repeat(0,7),maxpars=[0,0,0,0,0,0,360], \
+				 rotate=1,vheight=1,quiet=True,returnmp=False, \
+				 returnfitimage=True)
+
+				fig = plt.figure(1, figsize=(10,10))
+				ax = fig.add_subplot(111)
+				plt.imshow(dataFit[1])
+
+				plt.savefig("/tmp/"+unitName+".png")
+				plt.close()
+				
 			file.write(linea)
 	file.close
 	return 0

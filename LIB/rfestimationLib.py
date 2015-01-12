@@ -29,6 +29,7 @@ import numpy
 import scipy.io 	      # input output lib (for save matlab matrix)
 import platform				# Windows or Linux?
 
+
 def fixPath(folderName):
 	pathCharacter = returnPathCharacter()
 	# Check for trailing / on the folder

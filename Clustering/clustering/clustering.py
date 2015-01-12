@@ -142,9 +142,24 @@ def main():
 	#Temporal y espacial dataCluster[:,0:framesNumber+2]
 	data = dataCluster[:,0:framesNumber]
 
+	# PCA to obtain only the two main components
+	pca = PCA(n_components=2)
+	pca.fit(data.T)
+	dataPCA = pca.components_.T
+
+	dato = np.zeros((dataCluster.shape[0],1))
+	dato[:,0] = dataCluster[:,framesNumber+1]
+	data = np.hstack((dataPCA,dato))
+	dato = np.zeros((dataCluster.shape[0],1))
+	dato[:,0] = dataCluster[:,framesNumber+2]
+	data = np.hstack((data,dato))
+
 	# Calculates the next 5-step for the y-coordinate
-	maxData =  math.ceil(np.amax(data)/5)*5
-	minData = math.floor(np.amin(data)/5)*5
+	maxData =  math.ceil(np.amax(dataCluster[:,0:framesNumber])/5)*5
+	minData = math.floor(np.amin(dataCluster[:,0:framesNumber])/5)*5
+
+#	maxData = 10
+#	minData = -50
 
 	if clusteringAlgorithm == 'spectral':
 		from sklearn.cluster import SpectralClustering
@@ -152,13 +167,13 @@ def main():
 				random_state=None,  n_init=10, gamma=1.0, affinity='nearest_neighbors', \
 				n_neighbors=10, eigen_tol=0.0, assign_labels='kmeans', degree=3, \
 				coef0=1, kernel_params=None)
-		sc.fit(data)
+		sc.fit(dataPCA)
 		labels = sc.labels_
 	elif clusteringAlgorithm == 'gmm':
 		from sklearn import mixture
 		gmix = mixture.GMM(n_components=clustersNumber, covariance_type='spherical')
-		gmix.fit(data)
-		labels = gmix.predict(data)
+		gmix.fit(dataPCA)
+		labels = gmix.predict(dataPCA)
 	elif clusteringAlgorithm == 'densityPeaks':
 		import densityPeaks as dp
 		dc = 2    #exploratory, '...for large data sets, the results of the analysis are robust with respect to the choice of d_c'
@@ -166,7 +181,7 @@ def main():
 	else:
 		from sklearn.cluster import KMeans
 		km = KMeans(init='k-means++', n_clusters=clustersNumber, n_init=10,n_jobs=-1)
-		km.fit(data)
+		km.fit(dataPCA)
 		labels = km.labels_
 	
 	fig = plt.figure()
@@ -198,6 +213,7 @@ def main():
 		figCluster.savefig(outputFolder+'cluster_'+str(clusterId)+'.png', bbox_inches='tight')
 	#Estimate fit for the clusterings
 	fit = metrics.silhouette_score(data, labels, metric='euclidean')
+	
 	ax.text(0.01, 0.01, 'Silhouette score: '+str(round(fit,4)),
 		verticalalignment='bottom', horizontalalignment='left',
 		transform=ax.transAxes,
