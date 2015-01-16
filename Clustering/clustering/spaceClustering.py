@@ -29,7 +29,17 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '../..','LIB'))
 import rfestimationLib as rfe
 import argparse 					# argument parsing
 import numpy as np					# Numpy
-from sklearn import mixture			# GMM
+import densityPeaks as dp
+import matplotlib
+matplotlib.use('Agg')
+from matplotlib import pyplot as plt
+
+clustersColours = ['blue', 'red', 'green', 'orange', 'black','yellow', \
+				'#ff006f','#00e8ff','#fcfa00', '#ff0000', '#820c2c', \
+				'#ff006f', '#af00ff','#0200ff','#008dff','#00e8ff', \
+				'#0c820e','#28ea04','#ea8404','#c8628f','#6283ff', \
+				'#5b6756','#0c8248','k','#820cff','#932c11', \
+				'#002c11','#829ca7']
 
 def main():
 	
@@ -63,32 +73,45 @@ def main():
 			sys.exit()
 	
 	units = []
-	data = []
-	for unitFile in os.listdir(sourceFolder):
+	dataCluster = np.zeros((1,5))
+	for unitFile in sorted(os.listdir(sourceFolder)):
 		if os.path.isdir(sourceFolder+unitFile):
 			unitName = unitFile.rsplit('_', 1)[0]
 			fitResult = rfe.loadFitMatrix(sourceFolder,unitFile)
-			radiusA = fitResult[0][2]
-			radiusB = fitResult[0][3]
-			data.append([radiusA,radiusB])
+			dataCluster = np.vstack((dataCluster,[fitResult[0][2],fitResult[0][3],fitResult[0][1],fitResult[0][4],fitResult[0][5]]))
 			units.append(unitName)
+	# remove the first row of zeroes
+	dataCluster = dataCluster[1:,:]	
 
-		
-	gmix = mixture.GMM(n_components=2, covariance_type='spherical')
-	gmix.fit(data)
-	labels = gmix.predict(data)
+	print units
+	print dataCluster[:,0:2]
+	percentage = 2    #exploratory, '...for large data sets, the results of the analysis are robust with respect to the choice of d_c'
+	clustersNumber, labels = dp.predict(dataCluster[:,0:2], percentage)
+
+	for clusterId in range(clustersNumber):
+		clusterFile = open(outputFolder+'cluster_'+str(clusterId)+'.csv', "w")
+		for unit in range(labels.size):
+			if labels[unit] == clusterId:
+				clusterFile.write(units[unit]+'\n')
+		clusterFile.close
 	
-	file_0 = open(outputFolder+'cluster_0.csv', "w")
-	file_1 = open(outputFolder+'cluster_1.csv', "w")
-	for unit in range(labels.size):
-		if labels[unit] == 0:
-			file_0.write(units[unit]+'\n')
-		else:
-			file_1.write(units[unit]+'\n')
+	fig = plt.figure()
+	ax = fig.add_subplot(111)
+	xSize = 31
+	ySize = 31
+	# generate graphics of all ellipses
+	for clusterId in range(clustersNumber):
+		dataGrilla = np.zeros((1,5))
+		for unitId in range(dataCluster.shape[0]):
+			if labels[unitId] == clusterId:
+				datos=np.zeros((1,5))
+				datos[0]=dataCluster[unitId,:]
+				dataGrilla = np.append(dataGrilla,datos, axis=0)
+		## remove the first row of zeroes
+		dataGrilla = dataGrilla[1:,:]
 
-	file_0.close
-	file_1.close
-		
+		rfe.graficaGrilla(dataGrilla, outputFolder+'Grilla_'+str(clusterId)+'.png', 0, clustersColours[clusterId], xSize, ySize)
+
 	return 0
 
 if __name__ == '__main__':

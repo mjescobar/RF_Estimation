@@ -28,6 +28,8 @@
 import numpy as np
 from scipy.spatial import distance
 import math
+import heapq
+import sys
 
 #  
 #  For each data point calculate the distances
@@ -39,55 +41,48 @@ def calculateDistance(data, length):
 		
 	distances = np.zeros((length,length))
 	for x in range(length):
-		for y in range(length):
+		for y in range(x):
 			distances[x][y] = distance.cdist(data[x][np.newaxis,:], data[y][np.newaxis,:], 'euclidean')
 
-	
 	return distances
 
-#  
-#  Calculate the mimimum distance
-#  
-def delta(distances, densities, length, i,clustersCenters):
-	minDistance = ridiculouslyHighNumber    # ridiculously high number
-	
-	density = densities[i]
-		
-	for j in range(length):
-		if densities[j] > density:
-			if distances[i][j] < minDistance:
-				minDistance = distances[i][j]
-	
-	# A Super dense point has been found
-	if minDistance == ridiculouslyHighNumber:
-		maxDistance = 0
-		for j in range(length):
-			if distances[i][j] > maxDistance:
-				maxDistance = distances[i][j]
-		minDistance = maxDistance
-		clustersCenters.append(i)
-	
-	return minDistance
 
 #  
 #  Perform the prediction
 #  
-def predict(data, dc):
+def predict(data, percentage):
 	length = data.shape[0]
 	
 	distances = calculateDistance(data, length)	
 	
+	sortedDistances = sorted(set(distances.ravel()))
+
+	position=int(math.ceil(len(sortedDistances)*percentage/100.))
+	print 'position',position
+	
+
+	dcs = heapq.nsmallest(position, sortedDistances)[position-1]
+	print 'dc_s',dcs
+
+	dcl = heapq.nlargest(position, sortedDistances)[position-1]
+	print 'dc_l',dcl
+
+	dcss = sortedDistances[position]
+	print 'dc_sorted',dcss
+
+	dc = dcss
+
 	densities = np.zeros((length))
 	for i in range(length-1):
-		for j in range(i+1,length):
+		for j in range(i):
 			densities[i] = densities[i] + math.exp(-(distances[i][j]/dc)*(distances[i][j]/dc))
 			densities[j] = densities[j] + math.exp(-(distances[i][j]/dc)*(distances[i][j]/dc))
-	
+
 	deltas = np.zeros((length))
 	maxDistance = np.amax(distances)
-	for i in range(length):
+	for i in range(1,length):
 		deltas[i] = maxDistance
-		for j in range(length):
+		for j in range(i):
 			if densities[j] > densities[i]:
 				if distances[i][j] < deltas[i]:
 					deltas[i] = distances[i][j]
@@ -95,42 +90,42 @@ def predict(data, dc):
 	# Al punto de mayor densidad le asigno la mayor distancia calculada para un punto
 	ordDeltas = sorted(deltas)
 	deltas[np.where(deltas==ordDeltas[-1])[0]] = ordDeltas[-2]
-	
-	previousDistance = ordDeltas[-2]
+	ordDeltas = sorted(deltas)
+
+	previousDistance = ordDeltas[-1]
+	print 'densities',densities
+	print 'deltas',deltas
+	print 'ordDeltas',ordDeltas
 	clustersCenters = []
-	for i in range(1,length):
-		print i
-		print 'previousDistance',previousDistance
-		print 'ordDeltas[-i] - ordDeltas[-i-1]',ordDeltas[-i-1] - ordDeltas[-i-2]
-		print 'ordDeltas[-i]',ordDeltas[-i-1]
-		print 'ordDeltas[-i-1]',ordDeltas[-i-2]
-		iDistance = ordDeltas[-i-1] - ordDeltas[-i-2]
-		if (3. * iDistance) <= previousDistance:
+	for cluster in np.where(deltas==ordDeltas[-1])[0]:
+				clustersCenters.append(cluster)
+
+	for i in range(len(clustersCenters),length):
+		iDistance = ordDeltas[-i] - ordDeltas[-i-1]
+		if iDistance >= (previousDistance*30/100):
 			break
 		else:
-			print np.where(deltas==ordDeltas[-i-1])
-			print np.where(deltas==ordDeltas[-i-1])[0]
 			for cluster in np.where(deltas==ordDeltas[-i-1])[0]:
 				clustersCenters.append(cluster)
 			previousDistance = iDistance
 	
-	print clustersCenters
-	
+	#clustersCenters = np.unique(clustersCenters)
+
+	print 'clustersCenters',clustersCenters
+
 	labels = np.zeros((length))
 	for i in range(length):
-		currentDistance = maxDistance
+		currentDistance = 2 * maxDistance
 		for j in clustersCenters:
-			if distances[i][j] <= currentDistance:
+			#print 'i',i,'j',j,distances[i][j]
+			if distances[i][j] < currentDistance:
 				currentDistance = distances[i][j]
+				#print 'labels ',i,' cluster ',j
 				labels[i] = clustersCenters.index(j)
-	
+		#print ''
+	print 'labels',labels
+
 	import matplotlib.pyplot as plt
-	from operator import itemgetter
-	list1, list2 = (list(x) for x in zip(*sorted(zip(densities, deltas), key=lambda pair: pair[0])))
-	plt.plot(list1,list2,'ro')
-	plt.savefig('/tmp/densitiesvsdeltas.png', bbox_inches='tight')
-	plt.close()
-	
 	plt.plot(densities,deltas,'ro')
 	plt.savefig('/tmp/densitiesvsdeltas_unsorted.png', bbox_inches='tight')
 	plt.close()
