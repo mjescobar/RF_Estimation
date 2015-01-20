@@ -41,11 +41,9 @@ def calculateDistance(data, length):
 		
 	distances = np.zeros((length,length))
 	for x in range(length):
-		for y in range(x):
+		for y in range(length):
 			distances[x][y] = distance.cdist(data[x][np.newaxis,:], data[y][np.newaxis,:], 'euclidean')
-
 	return distances
-
 
 #  
 #  Perform the prediction
@@ -55,11 +53,10 @@ def predict(data, percentage):
 	
 	distances = calculateDistance(data, length)	
 	
-	sortedDistances = sorted(set(distances.ravel()))
-
+	sortedDistances = sorted(set(distances.ravel()))[1:]
+	
 	position=int(math.ceil(len(sortedDistances)*percentage/100.))
 	print 'position',position
-	
 
 	dcs = heapq.nsmallest(position, sortedDistances)[position-1]
 	print 'dc_s',dcs
@@ -70,22 +67,41 @@ def predict(data, percentage):
 	dcss = sortedDistances[position]
 	print 'dc_sorted',dcss
 
-	dc = dcss
+	dc = dcs
 
 	densities = np.zeros((length))
+	print 'length',length
 	for i in range(length-1):
 		for j in range(i):
-			densities[i] = densities[i] + math.exp(-(distances[i][j]/dc)*(distances[i][j]/dc))
-			densities[j] = densities[j] + math.exp(-(distances[i][j]/dc)*(distances[i][j]/dc))
-
+			densities[i] += math.exp(-(distances[i][j]/dc)*(distances[i][j]/dc))
+			densities[j] += math.exp(-(distances[i][j]/dc)*(distances[i][j]/dc))
+	
+	print 'densities',densities[:-1]
+	ordDensities = (-np.array(densities)).argsort()
+	
 	deltas = np.zeros((length))
+	deltas[ordDensities[0]] = -1
+
 	maxDistance = np.amax(distances)
-	for i in range(1,length):
-		deltas[i] = maxDistance
-		for j in range(i):
-			if densities[j] > densities[i]:
-				if distances[i][j] < deltas[i]:
-					deltas[i] = distances[i][j]
+
+	for x in range(1,length):
+		deltas[ordDensities[x]] = maxDistance
+		for y in range(x-1):
+			print 'x',x,'y',y
+			print 'ordDensities[x]',ordDensities[x]
+			print 'ordDensities[y]',ordDensities[y]
+			print 'distances', distances[ordDensities[x],ordDensities[y]]
+			print 'deltas',deltas[ordDensities[x]]
+			if distances[ordDensities[x],ordDensities[y]] < deltas[ordDensities[x]]:
+				deltas[ordDensities[x]] = distances[ordDensities[x],ordDensities[y]]
+
+	#maxDistance = np.amax(distances)
+	#for i in range(length):
+	#	deltas[i] = maxDistance
+	#	for j in range(i):
+	#		if densities[j] > densities[i]:
+	#			if distances[i][j] < deltas[i]:
+	#				deltas[i] = distances[i][j]
 
 	# Al punto de mayor densidad le asigno la mayor distancia calculada para un punto
 	ordDeltas = sorted(deltas)
@@ -93,7 +109,7 @@ def predict(data, percentage):
 	ordDeltas = sorted(deltas)
 
 	previousDistance = ordDeltas[-1]
-	print 'densities',densities
+	#print 'densities',densities
 	print 'deltas',deltas
 	print 'ordDeltas',ordDeltas
 	clustersCenters = []

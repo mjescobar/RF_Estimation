@@ -83,10 +83,14 @@ def main():
 	# remove the first row of zeroes
 	dataCluster = dataCluster[1:,:]	
 
-	print units
-	print dataCluster[:,0:2]
 	percentage = 2    #exploratory, '...for large data sets, the results of the analysis are robust with respect to the choice of d_c'
-	clustersNumber, labels = dp.predict(dataCluster[:,0:2], percentage)
+	#clustersNumber, labels = dp.predict(dataCluster[:,0:2], percentage)
+
+	clustersNumber = 2
+	from sklearn import mixture
+	gmix = mixture.GMM(n_components=clustersNumber, covariance_type='spherical')
+	gmix.fit(dataCluster[:,0:2])
+	labels = gmix.predict(dataCluster[:,0:2])
 
 	for clusterId in range(clustersNumber):
 		clusterFile = open(outputFolder+'cluster_'+str(clusterId)+'.csv', "w")
