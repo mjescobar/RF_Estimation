@@ -56,27 +56,15 @@ def predict(data, percentage):
 	sortedDistances = sorted(set(distances.ravel()))[1:]
 	
 	position=int(math.ceil(len(sortedDistances)*percentage/100.))
-	print 'position',position
-
 	dcs = heapq.nsmallest(position, sortedDistances)[position-1]
-	print 'dc_s',dcs
-
-	dcl = heapq.nlargest(position, sortedDistances)[position-1]
-	print 'dc_l',dcl
-
-	dcss = sortedDistances[position]
-	print 'dc_sorted',dcss
-
 	dc = dcs
 
 	densities = np.zeros((length))
-	print 'length',length
 	for i in range(length-1):
 		for j in range(i):
 			densities[i] += math.exp(-(distances[i][j]/dc)*(distances[i][j]/dc))
 			densities[j] += math.exp(-(distances[i][j]/dc)*(distances[i][j]/dc))
 	
-	print 'densities',densities[:-1]
 	ordDensities = (-np.array(densities)).argsort()
 	
 	deltas = np.zeros((length))
@@ -87,11 +75,6 @@ def predict(data, percentage):
 	for x in range(1,length):
 		deltas[ordDensities[x]] = maxDistance
 		for y in range(x-1):
-			print 'x',x,'y',y
-			print 'ordDensities[x]',ordDensities[x]
-			print 'ordDensities[y]',ordDensities[y]
-			print 'distances', distances[ordDensities[x],ordDensities[y]]
-			print 'deltas',deltas[ordDensities[x]]
 			if distances[ordDensities[x],ordDensities[y]] < deltas[ordDensities[x]]:
 				deltas[ordDensities[x]] = distances[ordDensities[x],ordDensities[y]]
 
@@ -104,14 +87,11 @@ def predict(data, percentage):
 	#				deltas[i] = distances[i][j]
 
 	# Al punto de mayor densidad le asigno la mayor distancia calculada para un punto
-	ordDeltas = sorted(deltas)
-	deltas[np.where(deltas==ordDeltas[-1])[0]] = ordDeltas[-2]
+	deltas[ordDensities[0]] = np.amax(deltas)
+
 	ordDeltas = sorted(deltas)
 
 	previousDistance = ordDeltas[-1]
-	#print 'densities',densities
-	print 'deltas',deltas
-	print 'ordDeltas',ordDeltas
 	clustersCenters = []
 	for cluster in np.where(deltas==ordDeltas[-1])[0]:
 				clustersCenters.append(cluster)
@@ -125,25 +105,17 @@ def predict(data, percentage):
 				clustersCenters.append(cluster)
 			previousDistance = iDistance
 	
-	#clustersCenters = np.unique(clustersCenters)
-
-	print 'clustersCenters',clustersCenters
-
 	labels = np.zeros((length))
 	for i in range(length):
 		currentDistance = 2 * maxDistance
 		for j in clustersCenters:
-			#print 'i',i,'j',j,distances[i][j]
 			if distances[i][j] < currentDistance:
 				currentDistance = distances[i][j]
-				#print 'labels ',i,' cluster ',j
 				labels[i] = clustersCenters.index(j)
-		#print ''
-	print 'labels',labels
 
 	import matplotlib.pyplot as plt
 	plt.plot(densities,deltas,'ro')
-	plt.savefig('/tmp/densitiesvsdeltas_unsorted.png', bbox_inches='tight')
+	plt.savefig('/tmp/densitiesvsdeltas.png', bbox_inches='tight')
 	plt.close()
 	
 	return (len(clustersCenters), labels)

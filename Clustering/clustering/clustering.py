@@ -69,6 +69,9 @@ def main():
 	parser.add_argument('--clusteringAlgorithm',
 	 help='Clustering algorithm to use: K-Means, Spectral Clustering, GMM',
 	 type=str, default='kmeans', choices=['kmeans','spectral','gmm','densityPeaks'], required=False)
+	parser.add_argument('--percentageDensityDistance',
+	 help='Percentage used to calculate the distance',
+	 type=float, default='2', required=False)
 	 
 	args = parser.parse_args()
 
@@ -161,8 +164,8 @@ def main():
 		labels = gmix.predict(data)
 	elif clusteringAlgorithm == 'densityPeaks':
 		import densityPeaks as dp
-		dc = 2    #exploratory, '...for large data sets, the results of the analysis are robust with respect to the choice of d_c'
-		clustersNumber, labels = dp.predict(data, dc)
+		percentageDensityDistance = args.percentageDensityDistance
+		clustersNumber, labels = dp.predict(data, percentageDensityDistance)
 	else:
 		from sklearn.cluster import KMeans
 		km = KMeans(init='k-means++', n_clusters=clustersNumber, n_init=10,n_jobs=-1)
