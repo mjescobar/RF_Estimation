@@ -78,14 +78,6 @@ def predict(data, percentage):
 			if distances[ordDensities[x],ordDensities[y]] < deltas[ordDensities[x]]:
 				deltas[ordDensities[x]] = distances[ordDensities[x],ordDensities[y]]
 
-	#maxDistance = np.amax(distances)
-	#for i in range(length):
-	#	deltas[i] = maxDistance
-	#	for j in range(i):
-	#		if densities[j] > densities[i]:
-	#			if distances[i][j] < deltas[i]:
-	#				deltas[i] = distances[i][j]
-
 	# Al punto de mayor densidad le asigno la mayor distancia calculada para un punto
 	deltas[ordDensities[0]] = np.amax(deltas)
 

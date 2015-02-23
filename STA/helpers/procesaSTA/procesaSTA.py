@@ -76,7 +76,7 @@ def main():
 	blockSize = args.blockSize
 			
 	file = open(outputFolder+'data_rf.csv', "w")
-	header = "Unidad\t"+"Radio A\t"+"Radio B\t"+"Area\t"+"Angulo,"+"X\t"+"Y"+'\n'
+	header = 'Unidad\tRadio A\tRadio B\tArea\tAngulo\tX\tY\n'
 	file.write(header)
 	for unitFile in os.listdir(sourceFolder):
 		if os.path.isdir(sourceFolder+unitFile):			
