@@ -74,12 +74,6 @@ if not os.path.exists(outputFolder):
 		print 'Unable to create folder ' + outputFolder
 		sys.exit()
 
-def loadFitMatrix(sourceFolder,unitFile):
-	firResultFile = scipy.io.loadmat(sourceFolder+unitFile+'/fit_var.mat')
-	firResult = firResultFile['fitresult']
-	
-	return firResult
-
 def main():
 	
 	file = open(outputFolder+'onOff.csv', "w")
@@ -88,7 +82,7 @@ def main():
 	file.write(header)
 	maxDataSTAValue = 0
 	minDataSTAValue = 0
-	for unitFile in os.listdir(sourceFolder):
+	for unitFile in sorted(os.listdir(sourceFolder)):
 		unitName = unitFile.rsplit('_', 1)[0]
 		if os.path.isdir(sourceFolder+unitFile):
 			# The STA matrix is named as M8a_lineal/sta_array_M8a.mat
@@ -109,45 +103,37 @@ def main():
 			if maximaDistancia > minimaDistancia:
 				frame = numpy.where(maximo==staMatrix)[2][0]
 				linea = '"'+unitName+'"\t"On"\t"'+ str(frame + 1) + '\"\n'
-				data = gf.moments(staMatrix[:,:,frame],circle=0,rotate=1,vheight=1)
-				print 'frame',frame
-				print 'height',data[0]
-				print 'amplitude',data[1]
-				print 'x',data[2]
-				print 'y',data[3]
-				print 'width_x',data[4]
-				print 'width_y',data[5]
-				print 'rotation',data[6]
-							
-				dataFit = gf.gaussfit(staMatrix[:,:,frame],autoderiv=1, \
-				 return_all=1,circle=0,fixed=numpy.repeat(False,7), \
-				 limitedmin=[False,False,False,False,True,True,True], \
-				 limitedmax=[False,False,False,False,False,False,True], \
-				 usemoment=[1,1,1,1],minpars=numpy.repeat(0,7),maxpars=[0,0,0,0,0,0,360], \
-				 rotate=1,vheight=1,quiet=True,returnmp=False, \
-				 returnfitimage=True)
-
-				fig = plt.figure(1, figsize=(10,10))
-				ax = fig.add_subplot(111)
-				plt.imshow(dataFit[1])
-
-				plt.savefig(outputFolder+unitName+".png")
-				plt.close()
 			else:
-				linea = '"'+unitName+'"\t"Off"\t"'+ str(numpy.where(minimo==staMatrix)[2][0]) + '\"\n'
 				frame = numpy.where(minimo==staMatrix)[2][0]
-				linea = '"'+unitName+'"\t"On"\t"'+ str(frame + 1) + '\"\n'
-				data = gf.moments(staMatrix[:,:,frame],circle=0,rotate=1,vheight=1)
-				print 'frame',frame
-				print 'height',data[0]
-				print 'amplitude',data[1]
-				print 'x',data[2]
-				print 'y',data[3]
-				print 'width_x',data[4]
-				print 'width_y',data[5]
-				print 'rotation',data[6]
+				linea = '"'+unitName+'"\t"Off"\t"'+ str(frame + 1) + '\"\n'
 				
-				dataFit = gf.gaussfit(staMatrix[:,:,frame],autoderiv=1, \
+			data = gf.moments(staMatrix[:,:,frame],circle=0,rotate=1,vheight=1)
+			print 'frame',frame
+			print 'height',data[0]
+			print 'amplitude',data[1]
+			print 'x',data[2]
+			print 'y',data[3]
+			print 'width_x',data[4]
+			print 'width_y',data[5]
+			print 'rotation',data[6]
+			
+			curva = staMatrix[data[3],data[2],:]
+			
+			from numpy import linspace,exp
+			from numpy.random import randn
+			import matplotlib.pyplot as plt
+			from scipy.interpolate import UnivariateSpline
+			x = linspace(1, len(curva), len(curva))
+			s = UnivariateSpline(x, curva, s=1)
+			xs = linspace(1, len(curva), len(curva)*10)
+			ys = s(xs)
+			plt.plot(x, curva,'r')
+			plt.plot(xs, ys,'b')
+			plt.savefig(outputFolder+unitName+"_spline.png")
+			plt.close()
+			
+				
+			dataFit = gf.gaussfit(staMatrix[:,:,frame],autoderiv=1, \
 				 return_all=1,circle=0,fixed=numpy.repeat(False,7), \
 				 limitedmin=[False,False,False,False,True,True,True], \
 				 limitedmax=[False,False,False,False,False,False,True], \
@@ -155,12 +141,12 @@ def main():
 				 rotate=1,vheight=1,quiet=True,returnmp=False, \
 				 returnfitimage=True)
 
-				fig = plt.figure(1, figsize=(10,10))
-				ax = fig.add_subplot(111)
-				plt.imshow(dataFit[1])
+			fig = plt.figure(1, figsize=(10,10))
+			ax = fig.add_subplot(111)
+			plt.imshow(dataFit[1])
 
-				plt.savefig(outputFolder+unitName+".png")
-				plt.close()
+			plt.savefig(outputFolder+unitName+".png")
+			plt.close()
 				
 			file.write(linea)
 	file.close
