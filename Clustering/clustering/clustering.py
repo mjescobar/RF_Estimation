@@ -25,10 +25,10 @@
 # Performs clustering using different libraries
 
 import sys, os 
+#Relative path for LIB
 sys.path.append(os.path.join(os.path.dirname(__file__), '../..','LIB'))
-import rfestimationLib as rfe
-import argparse #argument parsing
-import numpy as np
+import rfestimationLib as rfe				#Some custom functions
+import argparse 							#argument parsing
 import scipy.ndimage
 from sklearn.decomposition import PCA
 from sklearn import metrics
@@ -37,7 +37,15 @@ import matplotlib
 matplotlib.use('Agg')
 from matplotlib import pyplot as plt
 from matplotlib import mlab as mlab
-import math
+from math import ceil
+from math import floor
+from scipy.interpolate import UnivariateSpline
+from numpy import zeros
+from numpy import linspace
+from numpy import concatenate
+from numpy import append
+from numpy import amax
+from numpy import amin
 
 clustersColours = ['blue', 'red', 'green', 'orange', 'black','yellow', \
 				'#ff006f','#00e8ff','#fcfa00', '#ff0000', '#820c2c', \
@@ -108,9 +116,9 @@ def main():
 	#the size is equal to the number of frames, aka, the time component
 	#plus 5 as we are incorporating the 2 dimensions of the ellipse, 
 	#x position, y position and angle
-	dataCluster = np.zeros((1,framesNumber+5))
+	dataCluster = zeros((1,framesNumber+5))
 	units = []
-	dato = np.zeros((1,1))
+	dato = zeros((1,1))
 	for unitFile in os.listdir(sourceFolder):
 		if os.path.isdir(sourceFolder+unitFile):			
 			unitName = unitFile.rsplit('_', 1)[0]
@@ -122,21 +130,21 @@ def main():
 			dataUnitGauss = scipy.ndimage.gaussian_filter(dataUnit[coordinates[0][0],[coordinates[1][0]],:],2)
 			#A radius of the RF ellipse
 			dato[0] = fitResult[0][2]
-			dataUnitCompleta = np.concatenate((dataUnitGauss,dato),1)
+			dataUnitCompleta = concatenate((dataUnitGauss,dato),1)
 			#B radius of the RF ellipse
 			dato[0] = fitResult[0][3]
-			dataUnitCompleta = np.concatenate((dataUnitCompleta,dato),1)
+			dataUnitCompleta = concatenate((dataUnitCompleta,dato),1)
 			#angle of the RF ellipse
 			dato[0] = fitResult[0][1]
-			dataUnitCompleta = np.concatenate((dataUnitCompleta,dato),1)
+			dataUnitCompleta = concatenate((dataUnitCompleta,dato),1)
 			#X coordinate of the RF ellipse
 			dato[0] = fitResult[0][4]
-			dataUnitCompleta = np.concatenate((dataUnitCompleta,dato),1)
+			dataUnitCompleta = concatenate((dataUnitCompleta,dato),1)
 			#Y coordinate of the RF ellipse
 			dato[0] = fitResult[0][5]
-			dataUnitCompleta = np.concatenate((dataUnitCompleta,dato),1)
+			dataUnitCompleta = concatenate((dataUnitCompleta,dato),1)
 
-			dataCluster = np.append(dataCluster,dataUnitCompleta, axis=0)
+			dataCluster = append(dataCluster,dataUnitCompleta, axis=0)
 			units.append(unitName)
 	# remove the first row of zeroes
 	dataCluster = dataCluster[1:,:]	
@@ -146,8 +154,8 @@ def main():
 	data = dataCluster[:,0:framesNumber]
 
 	# Calculates the next 5-step for the y-coordinate
-	maxData =  math.ceil(np.amax(data)/5)*5
-	minData = math.floor(np.amin(data)/5)*5
+	maxData =  ceil(amax(data)/5)*5
+	minData = floor(amin(data)/5)*5
 
 	if clusteringAlgorithm == 'spectral':
 		from sklearn.cluster import SpectralClustering
@@ -176,27 +184,47 @@ def main():
 	ax = fig.add_subplot(111)
 	# generate graphics of all ellipses
 	for clusterId in range(clustersNumber):
-		dataGrilla = np.zeros((1,framesNumber+5))
+		dataGrilla = zeros((1,framesNumber+5))
 		for unitId in range(dataCluster.shape[0]):
 			if labels[unitId] == clusterId:
-				datos=np.zeros((1,framesNumber+5))
-				datos[0]=dataCluster[unitId,:]
-				dataGrilla = np.append(dataGrilla,datos, axis=0)
-				ax.plot(dataCluster[unitId,0:framesNumber],clustersColours[clusterId],alpha=0.2)
+				datos = zeros((1,framesNumber+5))
+				datos[0] = dataCluster[unitId,:]
+				dataGrilla = append(dataGrilla,datos, axis=0)
+				x = linspace(1, framesNumber, framesNumber)
+				s = UnivariateSpline(x, dataCluster[unitId,0:framesNumber], s=0)
+				xs = linspace(1, framesNumber, framesNumber*100)
+				ys = s(xs)
+				#ax.plot(dataCluster[unitId,0:framesNumber],clustersColours[clusterId],alpha=0.2)
+				ax.plot(ys,clustersColours[clusterId],alpha=0.2)
 		## remove the first row of zeroes
 		dataGrilla = dataGrilla[1:,:]
-		meanData = dataGrilla.mean(axis=0)			
-		ax.plot(meanData[0:framesNumber],clustersColours[clusterId],linewidth=4)
-		ax.set_xlim(0, framesNumber-1)		
+		meanData = dataGrilla.mean(axis=0)
+		x = linspace(1, framesNumber, framesNumber)
+		s = UnivariateSpline(x, meanData[0:framesNumber], s=0)
+		xs = linspace(1, framesNumber, framesNumber*100)
+		ys = s(xs)			
+		#ax.plot(meanData[0:framesNumber],clustersColours[clusterId],linewidth=4)
+		ax.plot(ys,clustersColours[clusterId],linewidth=4)
+		ax.set_xlim(0, 100*framesNumber-1)		
 		ax.set_ylim(minData,maxData)
 		rfe.graficaGrilla(dataGrilla, outputFolder+'Grilla_'+str(clusterId)+'.png', framesNumber, clustersColours[clusterId], xSize, ySize)
 		figCluster = plt.figure()
 		axCluster = figCluster.add_subplot(111)
 		for curve in range(dataGrilla.shape[0]):
-			axCluster.plot(dataGrilla[curve,0:framesNumber],clustersColours[clusterId],alpha=0.2)
-			axCluster.plot(meanData[0:framesNumber],clustersColours[clusterId],linewidth=4)
+			x = linspace(1, framesNumber, framesNumber)
+			s = UnivariateSpline(x, dataGrilla[curve,0:framesNumber], s=0)
+			xs = linspace(1, framesNumber, framesNumber*100)
+			ys = s(xs)
+			#axCluster.plot(dataGrilla[curve,0:framesNumber],clustersColours[clusterId],alpha=0.2)
+			#axCluster.plot(meanData[0:framesNumber],clustersColours[clusterId],linewidth=4)
+			axCluster.plot(ys,clustersColours[clusterId],alpha=0.2)
+			x = linspace(1, framesNumber, framesNumber)
+			s = UnivariateSpline(x, meanData[0:framesNumber], s=0)
+			xs = linspace(1, framesNumber, framesNumber*100)
+			ys = s(xs)
+			axCluster.plot(ys,clustersColours[clusterId],linewidth=4)
 		
-		axCluster.set_xlim(0, framesNumber-1)
+		axCluster.set_xlim(0, 100*framesNumber-1)
 		axCluster.set_ylim(minData,maxData)
 		figCluster.savefig(outputFolder+'cluster_'+str(clusterId)+'.png', bbox_inches='tight')
 	#Estimate fit for the clusterings
