@@ -46,7 +46,28 @@ from numpy import concatenate
 from numpy import append
 from numpy import amax
 from numpy import amin
+from numpy import chararray
+from numpy import shape
+from numpy import savetxt
 
+#Output file format
+
+# 0:  Number of spikes   (Default value 1)
+# 1:  STA valid          (Default value 1)
+# 2:  On-Off label (1: OFF, 2: ON) (Default value 0)
+# 3:  Peak time
+# 4:  A Radius
+# 5:  B Radius
+# 6:  Area
+# 7:  Angle
+# 8:  X position
+# 9:  Y position
+# 10: SNR                (Default value 1)
+# 11: ClusterId
+# 12: Unit Label
+# 13: STA Frames time behaviour of the curve
+# 
+          
 clustersColours = ['blue', 'red', 'green', 'orange', 'black','yellow', \
 				'#ff006f','#00e8ff','#fcfa00', '#ff0000', '#820c2c', \
 				'#ff006f', '#af00ff','#0200ff','#008dff','#00e8ff', \
@@ -126,24 +147,34 @@ def main():
 			xSize = dataUnit.shape[0]
 			ySize = dataUnit.shape[1]
 			fitResult = rfe.loadFitMatrix(sourceFolder,unitFile)
-			#should we use the not-gaussian-fitted data for clustering?
-			dataUnitGauss = scipy.ndimage.gaussian_filter(dataUnit[coordinates[0][0],[coordinates[1][0]],:],2)
+			#Time data from STA with gauss fit
+			#dataUnitTemporal = scipy.ndimage.gaussian_filter(dataUnit[coordinates[0][0],[coordinates[1][0]],:],2)
+			#Time data from STA without  gauss fit
+			dataUnitTemporal = dataUnit[coordinates[0][0],[coordinates[1][0]],:]
+			#Time data from FITResult
+			#dataUnitTemporal = rfe.loadVectorAmp(sourceFolder,unitFile).T
 			#A radius of the RF ellipse
-			dato[0] = fitResult[0][2]
-			dataUnitCompleta = concatenate((dataUnitGauss,dato),1)
+			aRadius = fitResult[0][2]
+			dato[0] = aRadius
+			print 'aRadius',aRadius
+			dataUnitCompleta = concatenate((dataUnitTemporal,dato),1)
 			#B radius of the RF ellipse
-			dato[0] = fitResult[0][3]
+			bRadius = fitResult[0][2]
+			dato[0] = bRadius
 			dataUnitCompleta = concatenate((dataUnitCompleta,dato),1)
 			#angle of the RF ellipse
-			dato[0] = fitResult[0][1]
+			angle = fitResult[0][1]
+			dato[0] = angle
 			dataUnitCompleta = concatenate((dataUnitCompleta,dato),1)
 			#X coordinate of the RF ellipse
-			dato[0] = fitResult[0][4]
+			xCoordinate = fitResult[0][4]
+			dato[0] = xCoordinate
 			dataUnitCompleta = concatenate((dataUnitCompleta,dato),1)
 			#Y coordinate of the RF ellipse
-			dato[0] = fitResult[0][5]
+			yCoordinate = fitResult[0][5]
+			dato[0] = yCoordinate
 			dataUnitCompleta = concatenate((dataUnitCompleta,dato),1)
-
+			
 			dataCluster = append(dataCluster,dataUnitCompleta, axis=0)
 			units.append(unitName)
 	# remove the first row of zeroes
@@ -183,19 +214,26 @@ def main():
 	fig = plt.figure()
 	ax = fig.add_subplot(111)
 	# generate graphics of all ellipses
+	dataFile = zeros((1,framesNumber+6))
 	for clusterId in range(clustersNumber):
 		dataGrilla = zeros((1,framesNumber+5))
 		for unitId in range(dataCluster.shape[0]):
-			if labels[unitId] == clusterId:
+			if labels[unitId] == clusterId:	
 				datos = zeros((1,framesNumber+5))
 				datos[0] = dataCluster[unitId,:]
 				dataGrilla = append(dataGrilla,datos, axis=0)
+				datos = zeros((1,1))
+				datos[0] = clusterId
+
+				dataFile = append(dataFile, concatenate(([dataCluster[unitId,:]],datos),1), axis=0)
 				x = linspace(1, framesNumber, framesNumber)
 				s = UnivariateSpline(x, dataCluster[unitId,0:framesNumber], s=0)
 				xs = linspace(1, framesNumber, framesNumber*100)
 				ys = s(xs)
+				labels[unitId]
 				#ax.plot(dataCluster[unitId,0:framesNumber],clustersColours[clusterId],alpha=0.2)
 				ax.plot(ys,clustersColours[clusterId],alpha=0.2)
+
 		## remove the first row of zeroes
 		dataGrilla = dataGrilla[1:,:]
 		meanData = dataGrilla.mean(axis=0)
@@ -227,6 +265,12 @@ def main():
 		axCluster.set_xlim(0, 100*framesNumber-1)
 		axCluster.set_ylim(minData,maxData)
 		figCluster.savefig(outputFolder+'cluster_'+str(clusterId)+'.png', bbox_inches='tight')
+	
+	# remove the first row of zeroes
+	dataFile = dataFile[1:,:]
+	savetxt(outputFolder+'outputFile.csv',dataFile, fmt='%s', delimiter=',', newline='\n')
+	savetxt(outputFolder+'labels.csv',units,fmt='%s',delimiter=',', newline='\n')
+	
 	#Estimate fit for the clusterings
 	fit = metrics.silhouette_score(data, labels, metric='euclidean')
 	ax.text(0.01, 0.01, 'Silhouette score: '+str(round(fit,4)),

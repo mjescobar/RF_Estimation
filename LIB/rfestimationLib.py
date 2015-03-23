@@ -45,10 +45,19 @@ def loadFitMatrix(sourceFolder,unitFile):
 	
 	firResultFileName = sourceFolder+unitFile+pathCharacter+'fit_var.mat'
 	firResultFile = scipy.io.loadmat(firResultFileName)
-	firResult = firResultFile['fitresult']
 	
-	return firResult
+	return firResultFile['fitresult']
+
+# 
+# loadFitMatrix will recover the result of the gauss2dfitSTA script
+# will return the matrix ready to use
+def loadVectorAmp(sourceFolder,unitFile):
+	pathCharacter = returnPathCharacter()
 	
+	vectorAmpFileName = sourceFolder+unitFile+pathCharacter+'fit_var.mat'
+	vectorAmpFile = scipy.io.loadmat(vectorAmpFileName)
+	
+	return vectorAmpFile['vector_amp']	
 #
 # loadSTACurve will load the curve, adjusted with a Gaussian filter.
 # for the a unit previously processed with the STA code
