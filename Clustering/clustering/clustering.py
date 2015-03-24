@@ -49,6 +49,10 @@ from numpy import amin
 from numpy import chararray
 from numpy import shape
 from numpy import savetxt
+from numpy import where
+from numpy import unique
+from numpy import mean
+from numpy import absolute
 
 #Output file format
 
@@ -109,6 +113,7 @@ def main():
 	if not os.path.exists(sourceFolder):
 		print ''
 		print 'Source folder does not exists ' + sourceFolder
+		print ''
 		sys.exit()
 
 	#Output folder for the graphics
@@ -119,6 +124,7 @@ def main():
 		except:
 			print ''
 			print 'Unable to create folder ' + outputFolder
+			print ''
 			sys.exit()
 	
 	#Clusters number for the kmeans algorithm
@@ -156,7 +162,6 @@ def main():
 			#A radius of the RF ellipse
 			aRadius = fitResult[0][2]
 			dato[0] = aRadius
-			print 'aRadius',aRadius
 			dataUnitCompleta = concatenate((dataUnitTemporal,dato),1)
 			#B radius of the RF ellipse
 			bRadius = fitResult[0][2]
@@ -214,23 +219,34 @@ def main():
 	fig = plt.figure()
 	ax = fig.add_subplot(111)
 	# generate graphics of all ellipses
-	dataFile = zeros((1,framesNumber+6))
+	dataFile = zeros((1,framesNumber+7))
+	datos = zeros((1,framesNumber+5))
+	dato = zeros((1,1))
 	for clusterId in range(clustersNumber):
 		dataGrilla = zeros((1,framesNumber+5))
 		for unitId in range(dataCluster.shape[0]):
-			if labels[unitId] == clusterId:	
-				datos = zeros((1,framesNumber+5))
+			if labels[unitId] == clusterId:			
 				datos[0] = dataCluster[unitId,:]
-				dataGrilla = append(dataGrilla,datos, axis=0)
-				datos = zeros((1,1))
-				datos[0] = clusterId
-
-				dataFile = append(dataFile, concatenate(([dataCluster[unitId,:]],datos),1), axis=0)
+				dataGrilla = append(dataGrilla,datos, axis=0)		
+				dato[0] = clusterId
+				dataFileTmp = concatenate(([dataCluster[unitId,:]],dato),1)
 				x = linspace(1, framesNumber, framesNumber)
 				s = UnivariateSpline(x, dataCluster[unitId,0:framesNumber], s=0)
 				xs = linspace(1, framesNumber, framesNumber*100)
 				ys = s(xs)
-				labels[unitId]
+				
+				media = mean(ys)
+				maximo = amax(ys)
+				minimo = amin(ys)
+				maximaDistancia = absolute(maximo-media)
+				minimaDistancia = absolute(minimo-media) 
+				peakTempCurve = minimo
+				if maximaDistancia > minimaDistancia:
+					peakTempCurve = maximo
+				dato[0] = unique(where(peakTempCurve==ys)[0])[0]
+				dataFileTmp = concatenate((dataFileTmp,dato),1)
+				dataFile = append(dataFile, dataFileTmp, axis=0)
+
 				#ax.plot(dataCluster[unitId,0:framesNumber],clustersColours[clusterId],alpha=0.2)
 				ax.plot(ys,clustersColours[clusterId],alpha=0.2)
 

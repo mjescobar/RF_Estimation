@@ -69,6 +69,7 @@ def main():
 	if not os.path.exists(sourceFolder):
 		print ''
 		print 'Source folder does not exists ' + sourceFolder
+		print ''
 		sys.exit()
 
 	#Output folder for the graphics
@@ -79,6 +80,7 @@ def main():
 		except:
 			print ''
 			print 'Unable to create folder ' + outputFolder
+			print ''
 			sys.exit()
 	
 	units = []

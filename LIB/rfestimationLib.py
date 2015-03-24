@@ -25,10 +25,6 @@
 # Set of functions used on different codes of the project
 # 
 
-import numpy
-import scipy.io 	      # input output lib (for save matlab matrix)
-import platform				# Windows or Linux?
-
 def fixPath(folderName):
 	pathCharacter = returnPathCharacter()
 	# Check for trailing / on the folder
@@ -41,10 +37,12 @@ def fixPath(folderName):
 # loadFitMatrix will recover the result of the gauss2dfitSTA script
 # will return the matrix ready to use
 def loadFitMatrix(sourceFolder,unitFile):
+	from scipy.io import loadmat  # input output lib (for save matlab matrix)
+	
 	pathCharacter = returnPathCharacter()
 	
 	firResultFileName = sourceFolder+unitFile+pathCharacter+'fit_var.mat'
-	firResultFile = scipy.io.loadmat(firResultFileName)
+	firResultFile = loadmat(firResultFileName)
 	
 	return firResultFile['fitresult']
 
@@ -52,37 +50,47 @@ def loadFitMatrix(sourceFolder,unitFile):
 # loadFitMatrix will recover the result of the gauss2dfitSTA script
 # will return the matrix ready to use
 def loadVectorAmp(sourceFolder,unitFile):
+	from scipy.io import loadmat  # input output lib (for save matlab matrix)
+	
 	pathCharacter = returnPathCharacter()
 	
 	vectorAmpFileName = sourceFolder+unitFile+pathCharacter+'fit_var.mat'
-	vectorAmpFile = scipy.io.loadmat(vectorAmpFileName)
+	vectorAmpFile = loadmat(vectorAmpFileName)
 	
 	return vectorAmpFile['vector_amp']	
 #
 # loadSTACurve will load the curve, adjusted with a Gaussian filter.
 # for the a unit previously processed with the STA code
 def loadSTACurve(sourceFolder,unitFile,unitName):
+	from scipy.io import loadmat  # input output lib (for save matlab matrix)
+	from numpy import shape
+	from numpy import amax
+	from numpy import where
+	from numpy import var
+	from numpy import zeros
+	from numpy import abs
+	
 	pathCharacter = returnPathCharacter()
 	
 	# The STA matrix is named as M8a_lineal/sta_array_M8a.mat
-	staMatrixFile = scipy.io.loadmat(sourceFolder+unitFile+pathCharacter+'sta_array_'+unitName+'.mat')
+	staMatrixFile = loadmat(sourceFolder+unitFile+pathCharacter+'sta_array_'+unitName+'.mat')
 	staMatrix = staMatrixFile['STA_array']
 
 	# STA matrix shaped (xPixels, yPixels, nFrames) 
 	# x,y,z; x=pixel width, y=pixel heigth, z=number of images
 	xLength = staMatrix.shape[0]
 	yLength = staMatrix.shape[1]
-	result = numpy.zeros((xLength,yLength))
+	result = zeros((xLength,yLength))
 	maxDataSTAValue = 0
 	for xAxis in range(xLength):
 		for yAxis in range(yLength):
 			dataSTA = staMatrix[xAxis,yAxis,:]
-			maxDataSTAtmp = numpy.amax(numpy.abs(staMatrix[xAxis,yAxis,:]))
+			maxDataSTAtmp = amax(abs(staMatrix[xAxis,yAxis,:]))
 			if maxDataSTAtmp > maxDataSTAValue:
 				maxDataSTAValue = maxDataSTAtmp
-				maxDataSTAId = numpy.where(maxDataSTAValue==dataSTA)
-			result[xAxis][yAxis] = numpy.var(dataSTA)
-	coordinates = numpy.where(result==numpy.amax(result))
+				maxDataSTAId = where(maxDataSTAValue==dataSTA)
+			result[xAxis][yAxis] = var(dataSTA)
+	coordinates = where(result==amax(result))
 
 	return staMatrix, coordinates
 
@@ -90,8 +98,10 @@ def loadSTACurve(sourceFolder,unitFile,unitName):
 # Determine which character use to path contatenation
 # 
 def returnPathCharacter():
+	from platform import system				# Windows or Linux?
+
 	pathCharacter = '/'
-	if platform.system() == 'Windows':
+	if system() == 'Windows':
 		pathCharacter = '\\'
 	
 	return pathCharacter
