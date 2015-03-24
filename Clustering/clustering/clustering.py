@@ -53,24 +53,19 @@ from numpy import where
 from numpy import unique
 from numpy import mean
 from numpy import absolute
+from math import pi
 
 #Output file format
 
-# 0:  Number of spikes   (Default value 1)
-# 1:  STA valid          (Default value 1)
-# 2:  On-Off label (1: OFF, 2: ON) (Default value 0)
-# 3:  Peak time
-# 4:  A Radius
-# 5:  B Radius
-# 6:  Area
-# 7:  Angle
-# 8:  X position
-# 9:  Y position
-# 10: SNR                (Default value 1)
-# 11: ClusterId
-# 12: Unit Label
-# 13: STA Frames time behaviour of the curve
-# 
+# 0-20 Timestamps
+# aRadius
+# bRadius
+# angle
+# xCoordinate
+# yCoordinate
+# area
+# clusterId
+# peakTime
           
 clustersColours = ['blue', 'red', 'green', 'orange', 'black','yellow', \
 				'#ff006f','#00e8ff','#fcfa00', '#ff0000', '#820c2c', \
@@ -143,7 +138,7 @@ def main():
 	#the size is equal to the number of frames, aka, the time component
 	#plus 5 as we are incorporating the 2 dimensions of the ellipse, 
 	#x position, y position and angle
-	dataCluster = zeros((1,framesNumber+5))
+	dataCluster = zeros((1,framesNumber+6))
 	units = []
 	dato = zeros((1,1))
 	for unitFile in os.listdir(sourceFolder):
@@ -178,6 +173,10 @@ def main():
 			#Y coordinate of the RF ellipse
 			yCoordinate = fitResult[0][5]
 			dato[0] = yCoordinate
+			dataUnitCompleta = concatenate((dataUnitCompleta,dato),1)
+			#Area of the RF ellipse
+			area = aRadius*bRadius*pi
+			dato[0] = area
 			dataUnitCompleta = concatenate((dataUnitCompleta,dato),1)
 			
 			dataCluster = append(dataCluster,dataUnitCompleta, axis=0)
@@ -219,11 +218,11 @@ def main():
 	fig = plt.figure()
 	ax = fig.add_subplot(111)
 	# generate graphics of all ellipses
-	dataFile = zeros((1,framesNumber+7))
-	datos = zeros((1,framesNumber+5))
+	dataFile = zeros((1,framesNumber+8))
+	datos = zeros((1,framesNumber+6))
 	dato = zeros((1,1))
 	for clusterId in range(clustersNumber):
-		dataGrilla = zeros((1,framesNumber+5))
+		dataGrilla = zeros((1,framesNumber+6))
 		for unitId in range(dataCluster.shape[0]):
 			if labels[unitId] == clusterId:			
 				datos[0] = dataCluster[unitId,:]
