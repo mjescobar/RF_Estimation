@@ -84,19 +84,22 @@ def main():
 			sys.exit()
 	
 	units = []
-	dataCluster = np.zeros((1,5))
+	dataCluster = np.zeros((1,7))
 	for unitFile in sorted(os.listdir(sourceFolder)):
 		if os.path.isdir(sourceFolder+unitFile):
 			unitName = unitFile.rsplit('_', 1)[0]
 			fitResult = rfe.loadFitMatrix(sourceFolder,unitFile)
-			dataCluster = np.vstack((dataCluster,[fitResult[0][2],fitResult[0][3],fitResult[0][1],fitResult[0][4],fitResult[0][5]]))
+			dataCluster = np.vstack((dataCluster,[fitResult[0][2],fitResult[0][3],fitResult[0][1],fitResult[0][4],fitResult[0][5],fitResult[0][2]*fitResult[0][3]*3,(fitResult[0][2]+fitResult[0][3])/2]))
 			units.append(unitName)
 	# remove the first row of zeroes
 	dataCluster = dataCluster[1:,:]	
 
 	percentage = args.percentage    #exploratory, '...for large data sets, the results of the analysis are robust with respect to the choice of d_c'
-	clustersNumber, labels = dp.predict(dataCluster[:,0:2], percentage)
-
+	# Area instead o Radius
+	#clustersNumber, labels = dp.predict(dataCluster[:,0:2], percentage)
+	clustersNumber, labels = dp.predict(dataCluster[:,5:7], percentage)
+	
+	
 	for clusterId in range(clustersNumber):
 		clusterFile = open(outputFolder+'cluster_'+str(clusterId)+'.csv', "w")
 		for unit in range(labels.size):
@@ -108,10 +111,10 @@ def main():
 	ySize = args.ySize
 	# generate graphics of all ellipses
 	for clusterId in range(clustersNumber):
-		dataGrilla = np.zeros((1,5))
+		dataGrilla = np.zeros((1,7))
 		for unitId in range(dataCluster.shape[0]):
 			if labels[unitId] == clusterId:
-				datos=np.zeros((1,5))
+				datos=np.zeros((1,7))
 				datos[0]=dataCluster[unitId,:]
 				dataGrilla = np.append(dataGrilla,datos, axis=0)
 		## remove the first row of zeroes
