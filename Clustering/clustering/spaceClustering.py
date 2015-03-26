@@ -3,7 +3,7 @@
 #
 #  spaceClustering.py
 #  
-#  Copyright 2014 Carlos "casep" Sepulveda <casep@alumnos.inf.utfsm.cl>
+#  Copyright 2014 Carlos "casep" Sepulveda <carlos.sepulveda@gmail.com>
 #  
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -89,7 +89,10 @@ def main():
 		if os.path.isdir(sourceFolder+unitFile):
 			unitName = unitFile.rsplit('_', 1)[0]
 			fitResult = rfe.loadFitMatrix(sourceFolder,unitFile)
-			dataCluster = np.vstack((dataCluster,[fitResult[0][2],fitResult[0][3],fitResult[0][1],fitResult[0][4],fitResult[0][5],fitResult[0][2]*fitResult[0][3]*3,(fitResult[0][2]+fitResult[0][3])/2]))
+			dataCluster = np.vstack((dataCluster,[fitResult[0][2],\
+			fitResult[0][3],fitResult[0][1],fitResult[0][4],\
+			fitResult[0][5],fitResult[0][2]*fitResult[0][3]*3,\
+			(fitResult[0][2]+fitResult[0][3])/2]))
 			units.append(unitName)
 	# remove the first row of zeroes
 	dataCluster = dataCluster[1:,:]	
