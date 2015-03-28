@@ -3,7 +3,7 @@
 #
 #  SpectralClustering.py
 #  
-#  Copyright 2014 Carlos "casep" Sepulveda <casep@alumnos.inf.utfsm.cl>
+#  Copyright 2014 Carlos "casep" Sepulveda <carlos.sepulveda@gmail.com>
 #  
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -30,7 +30,6 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '../..','LIB'))
 import rfestimationLib as rfe				#Some custom functions
 import argparse 							#argument parsing
 import scipy.ndimage
-from sklearn.decomposition import PCA
 from sklearn import metrics
 from sklearn import preprocessing
 import matplotlib
@@ -54,6 +53,9 @@ from numpy import unique
 from numpy import mean
 from numpy import absolute
 from math import pi
+from numpy import reshape
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import normalize
 
 #Output file format
 
@@ -186,11 +188,20 @@ def main():
 		
 	#Solo temporal dataCluster[:,0:framesNumber]
 	#Temporal y espacial dataCluster[:,0:framesNumber+2]
-	data = dataCluster[:,0:framesNumber]
-
+	#data = dataCluster[:,0:framesNumber]
+	#PCA
+	n_components = 2
+	pca = PCA(n_components=n_components)
+	timePCA = pca.fit_transform(dataCluster[:,0:framesNumber])
+	media = (dataCluster[:,framesNumber+1] + dataCluster[:,framesNumber+2])/2
+	area = dataCluster[:,framesNumber+1]*dataCluster[:,framesNumber+2]*3
+	timePlusMedia = concatenate((timePCA,reshape(media,(len(media),1))),axis=1)
+	data = concatenate((timePlusMedia,reshape(area,(len(area),1))),axis=1)
+	data = normalize(data, axis=0)
+	
 	# Calculates the next 5-step for the y-coordinate
-	maxData =  ceil(amax(data)/5)*5
-	minData = floor(amin(data)/5)*5
+	maxData =  ceil(amax(dataCluster[:,0:framesNumber])/5)*5
+	minData = floor(amin(dataCluster[:,0:framesNumber])/5)*5
 
 	if clusteringAlgorithm == 'spectral':
 		from sklearn.cluster import SpectralClustering
@@ -231,7 +242,7 @@ def main():
 				dataFileTmp = concatenate(([dataCluster[unitId,:]],dato),1)
 				x = linspace(1, framesNumber, framesNumber)
 				s = UnivariateSpline(x, dataCluster[unitId,0:framesNumber], s=0)
-				xs = linspace(1, framesNumber, framesNumber*100)
+				xs = linspace(1, framesNumber, framesNumber*1000)
 				ys = s(xs)
 				
 				media = mean(ys)
@@ -254,11 +265,12 @@ def main():
 		meanData = dataGrilla.mean(axis=0)
 		x = linspace(1, framesNumber, framesNumber)
 		s = UnivariateSpline(x, meanData[0:framesNumber], s=0)
-		xs = linspace(1, framesNumber, framesNumber*100)
+		xs = linspace(1, framesNumber, framesNumber*1000)
 		ys = s(xs)			
 		#ax.plot(meanData[0:framesNumber],clustersColours[clusterId],linewidth=4)
 		ax.plot(ys,clustersColours[clusterId],linewidth=4)
-		ax.set_xlim(0, 100*framesNumber-1)		
+		ax.set_xlim(0, 1000*framesNumber-1)		
+		#ax.set_xlim(0, 20)
 		ax.set_ylim(minData,maxData)
 		rfe.graficaGrilla(dataGrilla, outputFolder+'Grilla_'+str(clusterId)+'.png', framesNumber, clustersColours[clusterId], xSize, ySize)
 		figCluster = plt.figure()
@@ -266,18 +278,19 @@ def main():
 		for curve in range(dataGrilla.shape[0]):
 			x = linspace(1, framesNumber, framesNumber)
 			s = UnivariateSpline(x, dataGrilla[curve,0:framesNumber], s=0)
-			xs = linspace(1, framesNumber, framesNumber*100)
+			xs = linspace(1, framesNumber, framesNumber*1000)
 			ys = s(xs)
 			#axCluster.plot(dataGrilla[curve,0:framesNumber],clustersColours[clusterId],alpha=0.2)
 			#axCluster.plot(meanData[0:framesNumber],clustersColours[clusterId],linewidth=4)
 			axCluster.plot(ys,clustersColours[clusterId],alpha=0.2)
 			x = linspace(1, framesNumber, framesNumber)
 			s = UnivariateSpline(x, meanData[0:framesNumber], s=0)
-			xs = linspace(1, framesNumber, framesNumber*100)
+			xs = linspace(1, framesNumber, framesNumber*1000)
 			ys = s(xs)
 			axCluster.plot(ys,clustersColours[clusterId],linewidth=4)
 		
-		axCluster.set_xlim(0, 100*framesNumber-1)
+		axCluster.set_xlim(0, 1000*framesNumber-1)
+		#axCluster.set_xlim(0, framesNumber)
 		axCluster.set_ylim(minData,maxData)
 		figCluster.savefig(outputFolder+'cluster_'+str(clusterId)+'.png', bbox_inches='tight')
 	
