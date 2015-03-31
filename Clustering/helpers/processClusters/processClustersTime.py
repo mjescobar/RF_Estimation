@@ -125,10 +125,10 @@ def main():
 
 	# Por cada cluster recorro las units
 	for clusterId in range(numeroClusters + 1):
-		clusterUnits = empty([1, 28])
+		clusterUnits = empty([1, 29])
 		for unitId in range(len(Units)):
 			if Units[unitId,26] == clusterId:
-				clusterUnits = append(clusterUnits,Units[unitId].reshape(1, 28), axis=0)
+				clusterUnits = append(clusterUnits,Units[unitId].reshape(1, 29), axis=0)
 				x = linspace(1, framesNumber, framesNumber)
 				s = UnivariateSpline(x, Units[unitId,0:framesNumber], s=0)
 				xs = linspace(1, framesNumber, framesNumber*1000)

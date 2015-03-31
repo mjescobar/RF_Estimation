@@ -51,6 +51,7 @@ from numpy import empty
 # area
 # clusterId
 # peakTime
+# On/Off 
 
 def loadClusterFile(sourceFile):
 	data = loadtxt(sourceFile, delimiter=',')
@@ -102,7 +103,7 @@ def main():
 			print ''
 			sys.exit()
 	
-	Units = rfe.loadClusterFile(sourceFile)
+	Units = loadClusterFile(sourceFile)
 	# Slow, Fast ?
 	# Separación en base a 2 bins segun peak time
 	peaks = Units[:,27]
@@ -110,8 +111,8 @@ def main():
 	slowMaximum = edges[1]
 	fastMaximum = edges[2]
 
-	slowUnits = empty([1, 28])
-	fastUnits = empty([1, 28])
+	slowUnits = empty([1, 29])
+	fastUnits = empty([1, 29])
 	
 	# Por cada cluster recorro las units
 	for clusterId in range(int(max(Units[:,26]))+1):
@@ -119,9 +120,9 @@ def main():
 		for unitId in range(len(Units)):
 			if Units[unitId,26] == clusterId:
 				if Units[unitId,27] <= slowMaximum:
-					slowUnits = append(slowUnits,Units[unitId].reshape(1, 28), axis=0)
+					slowUnits = append(slowUnits,Units[unitId].reshape(1, 29), axis=0)
 				else:
-					fastUnits = append(fastUnits,Units[unitId].reshape(1, 28), axis=0)
+					fastUnits = append(fastUnits,Units[unitId].reshape(1, 29), axis=0)
 	
 		# Elimino la primera fila
 		slowUnits = slowUnits[1:,:]	
