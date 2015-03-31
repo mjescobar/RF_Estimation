@@ -167,7 +167,7 @@ def main():
 			dato[0] = aRadius
 			dataUnitCompleta = concatenate((dataUnitTemporal,dato),1)
 			#B radius of the RF ellipse
-			bRadius = fitResult[0][2]
+			bRadius = fitResult[0][3]
 			dato[0] = bRadius
 			dataUnitCompleta = concatenate((dataUnitCompleta,dato),1)
 			#angle of the RF ellipse
@@ -193,18 +193,7 @@ def main():
 	dataCluster = dataCluster[1:,:]	
 		
 	#Solo temporal dataCluster[:,0:framesNumber]
-	#Temporal y espacial dataCluster[:,0:framesNumber+2]
-	#data = dataCluster[:,0:framesNumber]
-	#PCA
-	n_components = 2
-	pca = PCA(n_components=n_components)
-	timePCA = pca.fit_transform(dataCluster[:,0:framesNumber])
-	media = (dataCluster[:,framesNumber+1] + dataCluster[:,framesNumber+2])/2
-	area = dataCluster[:,framesNumber+1]*dataCluster[:,framesNumber+2]*3
-	timePlusMedia = concatenate((timePCA,reshape(media,(len(media),1))),axis=1)
-	#data = concatenate((timePlusMedia,reshape(area,(len(area),1))),axis=1)
-	data = concatenate((timePCA,reshape(media,(len(media),1))),axis=1)
-	data = normalize(data, axis=0)
+	data = dataCluster[:,0:framesNumber]
 	
 	# Calculates the next 5-step for the y-coordinate
 	maxData =  ceil(amax(dataCluster[:,0:framesNumber])/5)*5
@@ -239,8 +228,6 @@ def main():
 	dataFile = zeros((1,framesNumber+8))
 	datos = zeros((1,framesNumber+6))
 	dato = zeros((1,1))
-	fig3D = plt.figure()
-	ax3D = fig3D.add_subplot(111, projection='3d')
 	for clusterId in range(clustersNumber):
 		dataGrilla = zeros((1,framesNumber+6))
 		for unitId in range(dataCluster.shape[0]):
@@ -253,10 +240,6 @@ def main():
 				s = UnivariateSpline(x, dataCluster[unitId,0:framesNumber], s=0)
 				xs = linspace(1, framesNumber, framesNumber*1000)
 				ys = s(xs)
-				
-				#3d plotting for each cluster
-				ax3D.scatter(data[unitId,0], data[unitId,1], data[unitId,2],\
-				 c=clustersColours[clusterId], marker=clustersMarkers[clusterId])
 				
 				media = mean(ys)
 				maximo = amax(ys)
@@ -275,6 +258,7 @@ def main():
 
 		## remove the first row of zeroes
 		dataGrilla = dataGrilla[1:,:]
+		
 		meanData = dataGrilla.mean(axis=0)
 		x = linspace(1, framesNumber, framesNumber)
 		s = UnivariateSpline(x, meanData[0:framesNumber], s=0)
@@ -283,7 +267,7 @@ def main():
 		#ax.plot(meanData[0:framesNumber],clustersColours[clusterId],linewidth=4)
 		ax.plot(ys,clustersColours[clusterId],linewidth=4)
 		ax.set_xlim(0, 1000*framesNumber-1)		
-		#ax.set_xlim(0, 20)
+		#ax.set_xlim(0, framesNumber)
 		ax.set_ylim(minData,maxData)
 		rfe.graficaGrilla(dataGrilla, outputFolder+'Grilla_'+str(clusterId)+'.png', framesNumber, clustersColours[clusterId], xSize, ySize)
 		figCluster = plt.figure()
@@ -306,14 +290,6 @@ def main():
 		#axCluster.set_xlim(0, framesNumber)
 		axCluster.set_ylim(minData,maxData)
 		figCluster.savefig(outputFolder+'cluster_'+str(clusterId)+'.png', bbox_inches='tight')
-	
-		ax3D.view_init(elev=10., azim=180)
-		fig3D.savefig(outputFolder+'3D_180_cluster_'+str(clusterId)+'.png', bbox_inches='tight')
-		ax3D.view_init(elev=10., azim=90)
-		fig3D.savefig(outputFolder+'3D_90_cluster_'+str(clusterId)+'.png', bbox_inches='tight')
-		ax3D.view_init(elev=10., azim=0)
-		fig3D.savefig(outputFolder+'3D_0_cluster_'+str(clusterId)+'.png', bbox_inches='tight')
-
 		
 	# remove the first row of zeroes
 	dataFile = dataFile[1:,:]
