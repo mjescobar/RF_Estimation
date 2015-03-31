@@ -22,11 +22,64 @@
 #  
 #  
 
+import sys,os
 
+sys.path.append(os.path.join(os.path.dirname(__file__), '../../..','LIB'))
+import rfestimationLib as rfe				#Some custom functions
+import argparse 							#argument parsing
+import matplotlib
+matplotlib.use('Agg')
+from matplotlib import pyplot as plt
+from numpy import loadtxt
+from numpy import shape
+from numpy import histogram
+from numpy import amax
+from numpy import amin
+from numpy import append
+from numpy import zeros
+from numpy import empty
+from numpy import linspace
+from scipy.interpolate import UnivariateSpline
+from math import ceil
+from math import floor
+from scipy.ndimage import gaussian_filter
+
+clustersColours = ['blue', 'red', 'green', 'orange', 'black','yellow', \
+				'#ff006f','#00e8ff','#fcfa00', '#ff0000', '#820c2c', \
+				'#ff006f', '#af00ff','#0200ff','#008dff','#00e8ff', \
+				'#0c820e','#28ea04','#ea8404','#c8628f','#6283ff', \
+				'#5b6756','#0c8248','k','#820cff','#932c11', \
+				'#002c11','#829ca7']
+
+clustersMarkers = ['o', '^', 'v', '*', 's','p', \
+				'<','>','1', '2', '3', \
+				'4', '8','h','H','+', \
+				'x','D','d','|','_']
+
+framesNumber = 20
+xSize = 31
+ySize = 31
+
+def loadClusterFile(sourceFile):
+	data = loadtxt(sourceFile, delimiter=',')
+	
+	return data
+
+#Input file format
+
+# 0-19 Timestamps
+# aRadius
+# bRadius
+# angle
+# xCoordinate
+# yCoordinate
+# area
+# clusterId
+# peakTime
 
 def main():
-	parser = argparse.ArgumentParser(prog='processClusters.py',
-	 description='Plot units from clustering',
+	parser = argparse.ArgumentParser(prog='processClustersTime.py',
+	 description='Plot units (time) from clustering',
 	 formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 	parser.add_argument('--sourceFile',
 	 help='Source file containing the units and its data',
@@ -57,46 +110,74 @@ def main():
 			sys.exit()
 	
 	Units = loadClusterFile(sourceFile)
-	# Slow, Fast ?
-	# Separación en base a 2 bins segun peak time
-	peaks = Units[:,27]
-	hist,edges = histogram(peaks,bins=2)
-	slowMaximum = edges[1]
-	fastMaximum = edges[2]
-
-	slowUnits = empty([1, 28])
-	fastUnits = empty([1, 28])
+	numeroClusters = int(max(Units[:,26]))
 	
+	# Calculates the next 5-step for the y-coordinate
+	maxData =  ceil(amax(Units[:,0:framesNumber])/5)*5
+	minData = floor(amin(Units[:,0:framesNumber])/5)*5
+	
+	figClusterCompletoSpline = plt.figure()
+	axClusterCompletoSpline = figClusterCompletoSpline.add_subplot(111)
+	figClusterCompletoGaussiano = plt.figure()
+	axClusterCompletoGaussiano = figClusterCompletoGaussiano.add_subplot(111)
+	figClusterCompletoCrudo = plt.figure()
+	axClusterCompletoCrudo = figClusterCompletoCrudo.add_subplot(111)
+
 	# Por cada cluster recorro las units
-	for clusterId in range(int(max(Units[:,26]))+1):
-		# Por cada unit las separo en lentas y rapidas dependiendo del Hist anerior
+	for clusterId in range(numeroClusters + 1):
+		clusterUnits = empty([1, 28])
 		for unitId in range(len(Units)):
 			if Units[unitId,26] == clusterId:
-				if Units[unitId,27] <= slowMaximum:
-					slowUnits = append(slowUnits,Units[unitId].reshape(1, 28), axis=0)
-				else:
-					fastUnits = append(fastUnits,Units[unitId].reshape(1, 28), axis=0)
-	
-		# Elimino la primera fila
-		slowUnits = slowUnits[1:,:]	
-		fastUnits = fastUnits[1:,:]	
-		
-		areaTotal = Units[:,25]
-		
-		# Podria quedar un bin vacio (creo)?
-		if shape(slowUnits)[0] > 0 :
-			# Extraigo caracteristica de interes
-			areaSlows = slowUnits[:,25]
-			# Graficas
-			graficaHistograma(areaTotal,areaSlows,outputFolder,'Slows',clusterId)
+				clusterUnits = append(clusterUnits,Units[unitId].reshape(1, 28), axis=0)
+				x = linspace(1, framesNumber, framesNumber)
+				s = UnivariateSpline(x, Units[unitId,0:framesNumber], s=0)
+				xs = linspace(1, framesNumber, framesNumber*1000)
+				ys = s(xs)
+				axClusterCompletoSpline.plot(ys,clustersColours[clusterId],\
+				 alpha=0.2)
+				axClusterCompletoGaussiano.plot(gaussian_filter(Units[unitId,0:framesNumber-1],1),\
+				 clustersColours[clusterId],alpha=0.2)
+				axClusterCompletoCrudo.plot(Units[unitId,0:framesNumber-1],\
+				 clustersColours[clusterId],alpha=0.2)
 
-		# Podria quedar un bin vacio (creo)?
-		if shape(fastUnits)[0] > 0 :
-			# Extraigo caracteristica de interes
-			areaFasts = fastUnits[:,25]
-			# Graficas
-			graficaHistograma(areaTotal,areaFasts,outputFolder,'Fasts',clusterId)
-			
+		## remove the first row of zeroes
+		clusterUnits = clusterUnits[1:,:]
+		
+		figCluster = plt.figure()
+		axCluster = figCluster.add_subplot(111)
+		meanData = clusterUnits[:,0:framesNumber].mean(axis=0)
+
+		for curve in range(clusterUnits.shape[0]):
+			x = linspace(1, framesNumber, framesNumber)
+			s = UnivariateSpline(x, clusterUnits[curve,0:framesNumber], s=0)
+			xs = linspace(1, framesNumber, framesNumber*1000)
+			ys = s(xs)
+			axCluster.plot(ys,clustersColours[clusterId],alpha=0.2)
+		x = linspace(1, framesNumber, framesNumber)
+		s = UnivariateSpline(x, meanData, s=0)
+		xs = linspace(1, framesNumber, framesNumber*1000)
+		ys = s(xs)
+		axCluster.plot(ys,clustersColours[clusterId],linewidth=4)
+		axClusterCompletoSpline.plot(ys,clustersColours[clusterId],linewidth=4)
+		axClusterCompletoGaussiano.plot(gaussian_filter(meanData,1),clustersColours[clusterId],linewidth=4)
+		axClusterCompletoCrudo.plot(meanData,clustersColours[clusterId],linewidth=4)
+		
+		axCluster.set_xlim(0, 1000*framesNumber-1)
+		axCluster.set_ylim(minData,maxData)
+		figCluster.savefig(outputFolder+'cluster_'+str(clusterId)+'.png', bbox_inches='tight')
+
+	axClusterCompletoSpline.set_xlim(0, 1000*framesNumber-1)
+	axClusterCompletoSpline.set_ylim(minData,maxData)
+	figClusterCompletoSpline.savefig(outputFolder+'clusters_Spline.png', bbox_inches='tight')
+
+	axClusterCompletoGaussiano.set_xlim(0, framesNumber-2)
+	axClusterCompletoGaussiano.set_ylim(minData,maxData)
+	figClusterCompletoGaussiano.savefig(outputFolder+'clusters_Gaussiano.png', bbox_inches='tight')
+
+	axClusterCompletoCrudo.set_xlim(0, framesNumber-2)
+	axClusterCompletoCrudo.set_ylim(minData,maxData)
+	figClusterCompletoCrudo.savefig(outputFolder+'clusters_Crudo.png', bbox_inches='tight')
+	
 	return 0
 
 if __name__ == '__main__':

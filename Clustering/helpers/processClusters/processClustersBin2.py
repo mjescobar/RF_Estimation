@@ -71,7 +71,7 @@ def graficaHistograma(areaTotal,areaInteres,outputFolder,titulo,clusterId):
 	
 def main():
 	
-	parser = argparse.ArgumentParser(prog='processClusters.py',
+	parser = argparse.ArgumentParser(prog='processClustersBin2.py',
 	 description='Plot units from clustering',
 	 formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 	parser.add_argument('--sourceFile',
@@ -102,7 +102,7 @@ def main():
 			print ''
 			sys.exit()
 	
-	Units = loadClusterFile(sourceFile)
+	Units = rfe.loadClusterFile(sourceFile)
 	# Slow, Fast ?
 	# Separación en base a 2 bins segun peak time
 	peaks = Units[:,27]

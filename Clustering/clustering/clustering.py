@@ -77,7 +77,7 @@ clustersColours = ['blue', 'red', 'green', 'orange', 'black','yellow', \
 				'#5b6756','#0c8248','k','#820cff','#932c11', \
 				'#002c11','#829ca7']
 
-clustersMarkers = ['o', '^', '*', 'v', 's','p', \
+clustersMarkers = ['o', '^', 'v', '*', 's','p', \
 				'<','>','1', '2', '3', \
 				'4', '8','h','H','+', \
 				'x','D','d','|','_']
