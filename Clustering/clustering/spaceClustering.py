@@ -33,6 +33,7 @@ import densityPeaks as dp
 import matplotlib
 matplotlib.use('Agg')
 from matplotlib import pyplot as plt
+from sklearn import mixture
 
 clustersColours = ['blue', 'red', 'green', 'orange', 'black','yellow', \
 				'#ff006f','#00e8ff','#fcfa00', '#ff0000', '#820c2c', \
@@ -102,7 +103,10 @@ def main():
 	#clustersNumber, labels = dp.predict(dataCluster[:,0:2], percentage)
 	clustersNumber, labels = dp.predict(dataCluster[:,5:7], percentage)
 	
-	
+	gmix = mixture.GMM(n_components=clustersNumber, covariance_type='spherical')
+	gmix.fit(dataCluster[:,5:7])
+	labels = gmix.predict(dataCluster[:,5:7])
+		
 	for clusterId in range(clustersNumber):
 		clusterFile = open(outputFolder+'cluster_'+str(clusterId)+'.csv', "w")
 		for unit in range(labels.size):
