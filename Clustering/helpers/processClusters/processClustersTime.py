@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-#  processClustersBin2.py
+#  processClustersTime.py
 #  
-#  Copyright 2015 Monica Otero <monicaot2011@gmail.com>
+#  Copyright 2015 Carlos "casep" Sepulveda <carlos.sepulveda@gmail.com>
 #  
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -22,55 +22,9 @@
 #  
 #  
 
-import sys,os
-
-sys.path.append(os.path.join(os.path.dirname(__file__), '../../..','LIB'))
-import rfestimationLib as rfe				#Some custom functions
-import argparse 							#argument parsing
-import matplotlib
-matplotlib.use('Agg')
-from matplotlib import pyplot as plt
-from numpy import loadtxt
-from numpy import shape
-from numpy import histogram
-from numpy import amax
-from numpy import amin
-from numpy import append
-from numpy import zeros
-from numpy import empty
 
 
-#Input file format
-
-# 0-19 Timestamps
-# aRadius
-# bRadius
-# angle
-# xCoordinate
-# yCoordinate
-# area
-# clusterId
-# peakTime
-
-def loadClusterFile(sourceFile):
-	data = loadtxt(sourceFile, delimiter=',')
-	
-	return data
-
-def graficaHistograma(areaTotal,areaInteres,outputFolder,titulo,clusterId):
-	plt.hist(areaTotal, bins=5, histtype='stepfilled', normed=0, color='grey', alpha=0.2, label='Total')
-	plt.hist(areaInteres, bins=5, histtype='stepfilled', normed=0, color='blue', alpha=0.4, label=titulo)
-	plt.title('Total/'+titulo)
-	plt.xlabel('Area')
-	plt.ylabel('Units')
-	plt.legend()
-	plt.savefig(outputFolder+titulo+'_cluster_'+str(clusterId)+'.png', bbox_inches='tight')
-	plt.close()
-	
-	return 0
-	
 def main():
-	
 	parser = argparse.ArgumentParser(prog='processClusters.py',
 	 description='Plot units from clustering',
 	 formatter_class=argparse.ArgumentDefaultsHelpFormatter)
