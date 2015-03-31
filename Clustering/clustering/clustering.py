@@ -25,7 +25,7 @@
 # Performs clustering using different libraries
 
 import sys, os 
-#Relative path for LIB
+#Relative path for RFE LIB
 sys.path.append(os.path.join(os.path.dirname(__file__), '../..','LIB'))
 import rfestimationLib as rfe				#Some custom functions
 import argparse 							#argument parsing
@@ -56,10 +56,11 @@ from math import pi
 from numpy import reshape
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import normalize
+from mpl_toolkits.mplot3d import Axes3D
 
 #Output file format
 
-# 0-20 Timestamps
+# 0-19 Timestamps
 # aRadius
 # bRadius
 # angle
@@ -75,6 +76,11 @@ clustersColours = ['blue', 'red', 'green', 'orange', 'black','yellow', \
 				'#0c820e','#28ea04','#ea8404','#c8628f','#6283ff', \
 				'#5b6756','#0c8248','k','#820cff','#932c11', \
 				'#002c11','#829ca7']
+
+clustersMarkers = ['o', '^', '*', 'v', 's','p', \
+				'<','>','1', '2', '3', \
+				'4', '8','h','H','+', \
+				'x','D','d','|','_']
 
 def main():
 	
@@ -196,7 +202,8 @@ def main():
 	media = (dataCluster[:,framesNumber+1] + dataCluster[:,framesNumber+2])/2
 	area = dataCluster[:,framesNumber+1]*dataCluster[:,framesNumber+2]*3
 	timePlusMedia = concatenate((timePCA,reshape(media,(len(media),1))),axis=1)
-	data = concatenate((timePlusMedia,reshape(area,(len(area),1))),axis=1)
+	#data = concatenate((timePlusMedia,reshape(area,(len(area),1))),axis=1)
+	data = concatenate((timePCA,reshape(media,(len(media),1))),axis=1)
 	data = normalize(data, axis=0)
 	
 	# Calculates the next 5-step for the y-coordinate
@@ -232,6 +239,8 @@ def main():
 	dataFile = zeros((1,framesNumber+8))
 	datos = zeros((1,framesNumber+6))
 	dato = zeros((1,1))
+	fig3D = plt.figure()
+	ax3D = fig3D.add_subplot(111, projection='3d')
 	for clusterId in range(clustersNumber):
 		dataGrilla = zeros((1,framesNumber+6))
 		for unitId in range(dataCluster.shape[0]):
@@ -244,6 +253,10 @@ def main():
 				s = UnivariateSpline(x, dataCluster[unitId,0:framesNumber], s=0)
 				xs = linspace(1, framesNumber, framesNumber*1000)
 				ys = s(xs)
+				
+				#3d plotting for each cluster
+				ax3D.scatter(data[unitId,0], data[unitId,1], data[unitId,2],\
+				 c=clustersColours[clusterId], marker=clustersMarkers[clusterId])
 				
 				media = mean(ys)
 				maximo = amax(ys)
@@ -294,6 +307,14 @@ def main():
 		axCluster.set_ylim(minData,maxData)
 		figCluster.savefig(outputFolder+'cluster_'+str(clusterId)+'.png', bbox_inches='tight')
 	
+		ax3D.view_init(elev=10., azim=180)
+		fig3D.savefig(outputFolder+'3D_180_cluster_'+str(clusterId)+'.png', bbox_inches='tight')
+		ax3D.view_init(elev=10., azim=90)
+		fig3D.savefig(outputFolder+'3D_90_cluster_'+str(clusterId)+'.png', bbox_inches='tight')
+		ax3D.view_init(elev=10., azim=0)
+		fig3D.savefig(outputFolder+'3D_0_cluster_'+str(clusterId)+'.png', bbox_inches='tight')
+
+		
 	# remove the first row of zeroes
 	dataFile = dataFile[1:,:]
 	savetxt(outputFolder+'outputFile.csv',dataFile, fmt='%s', delimiter=',', newline='\n')

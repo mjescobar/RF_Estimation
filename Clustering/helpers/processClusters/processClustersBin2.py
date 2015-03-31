@@ -24,11 +24,11 @@
 
 import sys,os
 
-sys.path.append(os.path.join(os.path.dirname(__file__), '../../..','LIB'))
+#sys.path.append(os.path.join(os.path.dirname(__file__), '../../..','LIB'))
 import rfestimationLib as rfe				#Some custom functions
 import argparse 							#argument parsing
-#import matplotlib
-#matplotlib.use('Agg')
+import matplotlib
+matplotlib.use('Agg')
 from matplotlib import pyplot as plt
 from numpy import loadtxt
 from numpy import shape
@@ -58,8 +58,8 @@ def loadClusterFile(sourceFile):
 	return data
 
 def graficaHistograma(areaTotal,areaInteres,outputFolder,titulo,clusterId):
-	plt.hist(areaTotal, bins=5, histtype='stepfilled', normed=0, color='b', alpha=0.2, label='Total')
-	plt.hist(areaInteres, bins=5, histtype='stepfilled', normed=0, color='r', alpha=0.4, label=titulo)
+	plt.hist(areaTotal, bins=5, histtype='stepfilled', normed=0, color='grey', alpha=0.2, label='Total')
+	plt.hist(areaInteres, bins=5, histtype='stepfilled', normed=0, color='blue', alpha=0.4, label=titulo)
 	plt.title('Total/'+titulo)
 	plt.xlabel('Area')
 	plt.ylabel('Units')
@@ -110,6 +110,8 @@ def main():
 	slowMaximum = edges[1]
 	fastMaximum = edges[2]
 
+	print 'slowMaximum',slowMaximum
+	print 'fastMaximum',fastMaximum
 	slowUnits = empty([1, 28])
 	fastUnits = empty([1, 28])
 	
@@ -123,24 +125,30 @@ def main():
 				else:
 					fastUnits = append(fastUnits,Units[unitId].reshape(1, 28), axis=0)
 	
-		# Elimino la primera fila de basura
+		# Elimino la primera fila
 		slowUnits = slowUnits[1:,:]	
 		fastUnits = fastUnits[1:,:]	
 
-		# Podria quedar un bin vacio (creo)?
-		if shape(slowUnits)[0] == 0 or shape(fastUnits)[0] == 0:
-			print '0 Units in bin'
-			continue
-
-		# Extraigo caracteristica de interes
-		areaTotal = Units[:,25]
-		areaSlows = slowUnits[:,25]
-		areaFasts = fastUnits[:,25]
+		print 'ClusterId',clusterId
+		print 'slowUnits',shape(slowUnits)[0]
+		print 'fast',shape(fastUnits)[0]
 		
-		# Graficas por doquier! oU5kGcpeMow
-		graficaHistograma(areaTotal,areaSlows,outputFolder,'Slows',clusterId)
-		graficaHistograma(areaTotal,areaFasts,outputFolder,'Fast',clusterId)	
-	
+		areaTotal = Units[:,25]
+		
+		# Podria quedar un bin vacio (creo)?
+		if shape(slowUnits)[0] > 0 :
+			# Extraigo caracteristica de interes
+			areaSlows = slowUnits[:,25]
+			# Graficas
+			graficaHistograma(areaTotal,areaSlows,outputFolder,'Slows',clusterId)
+
+		# Podria quedar un bin vacio (creo)?
+		if shape(fastUnits)[0] > 0 :
+			# Extraigo caracteristica de interes
+			areaFasts = fastUnits[:,25]
+			# Graficas
+			graficaHistograma(areaTotal,areaFasts,outputFolder,'Fasts',clusterId)
+			
 	return 0
 
 if __name__ == '__main__':
