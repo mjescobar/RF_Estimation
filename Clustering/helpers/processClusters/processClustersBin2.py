@@ -38,7 +38,7 @@ from numpy import amin
 from numpy import append
 from numpy import zeros
 from numpy import empty
-
+from numpy import arange
 
 #Input file format
 
@@ -59,8 +59,12 @@ def loadClusterFile(sourceFile):
 	return data
 
 def graficaHistograma(areaTotal,areaInteres,outputFolder,titulo,clusterId):
-	plt.hist(areaTotal, bins=5, histtype='stepfilled', normed=0, color='grey', alpha=0.2, label='Total')
-	plt.hist(areaInteres, bins=5, histtype='stepfilled', normed=0, color='blue', alpha=0.4, label=titulo)
+	binwidth=30
+	binsCalculados=arange(min(areaTotal), max(areaTotal) + binwidth, binwidth)
+	plt.hist(areaTotal, bins=binsCalculados,\
+	 histtype='stepfilled', normed=0, color='grey', alpha=0.2, label='Total')
+	plt.hist(areaInteres, bins=binsCalculados,\
+	 histtype='stepfilled', normed=0, color='blue', alpha=0.4, label=titulo)
 	plt.title('Total/'+titulo)
 	plt.xlabel('Area')
 	plt.ylabel('Units')
@@ -110,7 +114,7 @@ def main():
 	hist,edges = histogram(peaks,bins=2)
 	slowMaximum = edges[1]
 	fastMaximum = edges[2]
-
+	
 	slowUnits = empty([1, 29])
 	fastUnits = empty([1, 29])
 	
