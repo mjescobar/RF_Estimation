@@ -44,12 +44,12 @@ from math import ceil
 from math import floor
 from scipy.ndimage import gaussian_filter
 
-clustersColours = ['blue', 'red', 'green', 'orange', 'black','yellow', \
-				'#ff006f','#00e8ff','#fcfa00', '#ff0000', '#820c2c', \
-				'#ff006f', '#af00ff','#0200ff','#008dff','#00e8ff', \
-				'#0c820e','#28ea04','#ea8404','#c8628f','#6283ff', \
-				'#5b6756','#0c8248','k','#820cff','#932c11', \
-				'#002c11','#829ca7']
+clustersColours = ['green', 'red', 'blue', 'yellow', 'black','cyan', \
+'#ff006f','#00e8ff','#fcfa00', '#ff0000', '#820c2c', \
+'#ff006f', '#af00ff','#0200ff','#008dff','#00e8ff', \
+'#0c820e','#28ea04','#ea8404','#c8628f','#6283ff', \
+'#5b6756','#0c8248','k','#820cff','#932c11', \
+'#002c11','#829ca7']
 
 clustersMarkers = ['o', '^', 'v', '*', 's','p', \
 				'<','>','1', '2', '3', \
@@ -168,14 +168,29 @@ def main():
 
 	axClusterCompletoSpline.set_xlim(0, 1000*framesNumber-1)
 	axClusterCompletoSpline.set_ylim(minData,maxData)
+	axClusterCompletoSpline.set_xticks(linspace(0, 1000*framesNumber-1, num=7))
+	axClusterCompletoSpline.set_xticklabels(['-300','-250','-200','-150','-100','-50','0'])
+	axClusterCompletoSpline.set_xlabel('Time before spike (ms)')
+	axClusterCompletoSpline.set_ylabel('STA values')
+	axClusterCompletoSpline.set_title('STA versus Time')
 	figClusterCompletoSpline.savefig(outputFolder+'clusters_Spline.png', bbox_inches='tight')
 
 	axClusterCompletoGaussiano.set_xlim(0, framesNumber-2)
 	axClusterCompletoGaussiano.set_ylim(minData,maxData)
+	axClusterCompletoGaussiano.set_xticks(linspace(0, framesNumber-2, num=7))
+	axClusterCompletoGaussiano.set_xticklabels(['-300','-250','-200','-150','-100','-50','0'])
+	axClusterCompletoGaussiano.set_xlabel('Time before spike (ms)')
+	axClusterCompletoGaussiano.set_ylabel('STA values')
+	axClusterCompletoGaussiano.set_title('STA versus Time')
 	figClusterCompletoGaussiano.savefig(outputFolder+'clusters_Gaussiano.png', bbox_inches='tight')
 
 	axClusterCompletoCrudo.set_xlim(0, framesNumber-2)
 	axClusterCompletoCrudo.set_ylim(minData,maxData)
+	axClusterCompletoCrudo.set_xticks(linspace(0, framesNumber-2, num=7))
+	axClusterCompletoCrudo.set_xticklabels(['-300','-250','-200','-150','-100','-50','0'])
+	axClusterCompletoCrudo.set_xlabel('Time before spike (ms)')
+	axClusterCompletoCrudo.set_ylabel('STA values')
+	axClusterCompletoCrudo.set_title('STA versus Time')
 	figClusterCompletoCrudo.savefig(outputFolder+'clusters_Crudo.png', bbox_inches='tight')
 	
 	return 0

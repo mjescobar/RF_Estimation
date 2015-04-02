@@ -53,12 +53,12 @@ from numpy import arange
 # peakTime
 # On/Off 
 
-clustersColours = ['blue', 'red', 'green', 'orange', 'black','yellow', \
-				'#ff006f','#00e8ff','#fcfa00', '#ff0000', '#820c2c', \
-				'#ff006f', '#af00ff','#0200ff','#008dff','#00e8ff', \
-				'#0c820e','#28ea04','#ea8404','#c8628f','#6283ff', \
-				'#5b6756','#0c8248','k','#820cff','#932c11', \
-				'#002c11','#829ca7']
+clustersColours = ['green', 'red', 'blue', 'yellow', 'black','indigo', \
+'#ff006f','#00e8ff','#fcfa00', '#ff0000', '#820c2c', \
+'#ff006f', '#af00ff','#0200ff','#008dff','#00e8ff', \
+'#0c820e','#28ea04','#ea8404','#c8628f','#6283ff', \
+'#5b6756','#0c8248','k','#820cff','#932c11', \
+'#002c11','#829ca7']
 				
 def loadClusterFile(sourceFile):
 	data = loadtxt(sourceFile, delimiter=',')
