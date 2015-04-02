@@ -115,14 +115,19 @@ def main():
 	slowMaximum = edges[1]
 	fastMaximum = edges[2]
 	
-	slowUnits = empty([1, 29])
-	fastUnits = empty([1, 29])
-	
+	#print 'slowMaximum',slowMaximum
+	#print 'fastMaximum',fastMaximum
+		
 	# Por cada cluster recorro las units
-	for clusterId in range(int(max(Units[:,26]))+1):
+	numClusters = int(max(Units[:,26]))
+	for clusterId in range(numClusters + 1):
+		slowUnits = empty([1, 29])
+		fastUnits = empty([1, 29])
 		# Por cada unit las separo en lentas y rapidas dependiendo del Hist anerior
 		for unitId in range(len(Units)):
 			if Units[unitId,26] == clusterId:
+				#print 'clusterId',clusterId
+				#print 'peak',Units[unitId,27]
 				if Units[unitId,27] <= slowMaximum:
 					slowUnits = append(slowUnits,Units[unitId].reshape(1, 29), axis=0)
 				else:
@@ -134,6 +139,9 @@ def main():
 		
 		areaTotal = Units[:,25]
 		
+		print 'clusterId',clusterId
+		print 'slowUnits',shape(slowUnits)
+		print 'fastUnits',shape(fastUnits)
 		# Podria quedar un bin vacio (creo)?
 		if shape(slowUnits)[0] > 0 :
 			# Extraigo caracteristica de interes
