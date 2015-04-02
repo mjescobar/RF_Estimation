@@ -53,18 +53,23 @@ from numpy import arange
 # peakTime
 # On/Off 
 
+clustersColours = ['blue', 'red', 'green', 'orange', 'black','yellow', \
+				'#ff006f','#00e8ff','#fcfa00', '#ff0000', '#820c2c', \
+				'#ff006f', '#af00ff','#0200ff','#008dff','#00e8ff', \
+				'#0c820e','#28ea04','#ea8404','#c8628f','#6283ff', \
+				'#5b6756','#0c8248','k','#820cff','#932c11', \
+				'#002c11','#829ca7']
+				
 def loadClusterFile(sourceFile):
 	data = loadtxt(sourceFile, delimiter=',')
 	
 	return data
 
-def graficaHistograma(areaTotal,areaInteres,outputFolder,titulo,clusterId):
-	binwidth=30
-	binsCalculados=arange(min(areaTotal), max(areaTotal) + binwidth, binwidth)
+def graficaHistograma(areaTotal,areaInteres,outputFolder,titulo,clusterId,binsCalculados):
 	plt.hist(areaTotal, bins=binsCalculados,\
 	 histtype='stepfilled', normed=0, color='grey', alpha=0.2, label='Total')
 	plt.hist(areaInteres, bins=binsCalculados,\
-	 histtype='stepfilled', normed=0, color='blue', alpha=0.4, label=titulo)
+	 histtype='stepfilled', normed=0, color=clustersColours[clusterId], alpha=0.4, label=titulo)
 	plt.title('Total/'+titulo)
 	plt.xlabel('Area')
 	plt.ylabel('Units')
@@ -139,22 +144,21 @@ def main():
 		
 		areaTotal = Units[:,25]
 		
-		print 'clusterId',clusterId
-		print 'slowUnits',shape(slowUnits)
-		print 'fastUnits',shape(fastUnits)
+		binwidth = 30
+		binsCalculados = arange(min(areaTotal), max(areaTotal) + binwidth, binwidth)
 		# Podria quedar un bin vacio (creo)?
 		if shape(slowUnits)[0] > 0 :
 			# Extraigo caracteristica de interes
 			areaSlows = slowUnits[:,25]
 			# Graficas
-			graficaHistograma(areaTotal,areaSlows,outputFolder,'Slows',clusterId)
+			graficaHistograma(areaTotal,areaSlows,outputFolder,'Slows',clusterId,binsCalculados)
 
 		# Podria quedar un bin vacio (creo)?
 		if shape(fastUnits)[0] > 0 :
 			# Extraigo caracteristica de interes
 			areaFasts = fastUnits[:,25]
 			# Graficas
-			graficaHistograma(areaTotal,areaFasts,outputFolder,'Fasts',clusterId)
+			graficaHistograma(areaTotal,areaFasts,outputFolder,'Fasts',clusterId,binsCalculados)
 			
 	return 0
 
