@@ -53,6 +53,8 @@ from numpy import unique
 from numpy import mean
 from numpy import absolute
 from math import pi
+from numpy import float64
+from numpy import empty
 from numpy import reshape
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import normalize
@@ -146,12 +148,14 @@ def main():
 	#the size is equal to the number of frames, aka, the time component
 	#plus 5 as we are incorporating the 2 dimensions of the ellipse, 
 	#x position, y position and angle
-	dataCluster = zeros((1,framesNumber+6))
+	dataCluster = zeros((1,framesNumber+7))
 	units = []
-	dato = zeros((1,1))
+	dato = empty((1,1))
 	for unitFile in os.listdir(sourceFolder):
-		if os.path.isdir(sourceFolder+unitFile):			
+		if os.path.isdir(sourceFolder+unitFile):	
+			dato = empty((1,1))		
 			unitName = unitFile.rsplit('_', 1)[0]
+			#print unitName
 			dataUnit, coordinates = rfe.loadSTACurve(sourceFolder,unitFile,unitName)
 			xSize = dataUnit.shape[0]
 			ySize = dataUnit.shape[1]
@@ -176,28 +180,37 @@ def main():
 			dataUnitCompleta = concatenate((dataUnitCompleta,dato),1)
 			#X coordinate of the RF ellipse
 			xCoordinate = fitResult[0][4]
+			#print 'xCoordinate',xCoordinate
 			dato[0] = xCoordinate
 			dataUnitCompleta = concatenate((dataUnitCompleta,dato),1)
 			#Y coordinate of the RF ellipse
 			yCoordinate = fitResult[0][5]
+			#print 'yCoordinate',yCoordinate
 			dato[0] = yCoordinate
 			dataUnitCompleta = concatenate((dataUnitCompleta,dato),1)
 			#Area of the RF ellipse
 			area = aRadius*bRadius*pi
 			dato[0] = area
 			dataUnitCompleta = concatenate((dataUnitCompleta,dato),1)
+			#UnitName
+			dato=empty(1, dtype='|S16')
+			dato[0]=unitName
+			dataUnitCompleta = concatenate((dataUnitCompleta,dato.reshape(1, 1)),1)
 			
 			dataCluster = append(dataCluster,dataUnitCompleta, axis=0)
+			
 			units.append(unitName)
 	# remove the first row of zeroes
 	dataCluster = dataCluster[1:,:]	
 		
 	#Solo temporal dataCluster[:,0:framesNumber]
+	#data = empty((len(dataCluster),framesNumber), dtype='|f8')
 	data = dataCluster[:,0:framesNumber]
+	data = data.astype(float64, copy=False)
 	
 	# Calculates the next 5-step for the y-coordinate
-	maxData =  ceil(amax(dataCluster[:,0:framesNumber])/5)*5
-	minData = floor(amin(dataCluster[:,0:framesNumber])/5)*5
+	maxData =  ceil(amax(data)/5)*5
+	minData = floor(amin(data)/5)*5
 
 	if clusteringAlgorithm == 'spectral':
 		from sklearn.cluster import SpectralClustering
@@ -222,18 +235,12 @@ def main():
 		km.fit(data)
 		labels = km.labels_
 	
-	fig = plt.figure()
-	ax = fig.add_subplot(111)
-	# generate graphics of all ellipses
-	dataFile = zeros((1,framesNumber+8))
-	datos = zeros((1,framesNumber+6))
-	dato = zeros((1,1))
+	dataFile = empty((1,framesNumber+9),dtype='|S16')
+	datos = empty((1,framesNumber+7),dtype='|S16')
+	dato = empty((1,1),dtype='|S16')
 	for clusterId in range(clustersNumber):
-		dataGrilla = zeros((1,framesNumber+6))
 		for unitId in range(dataCluster.shape[0]):
 			if labels[unitId] == clusterId:			
-				datos[0] = dataCluster[unitId,:]
-				dataGrilla = append(dataGrilla,datos, axis=0)		
 				dato[0] = clusterId
 				dataFileTmp = concatenate(([dataCluster[unitId,:]],dato),1)
 				x = linspace(1, framesNumber, framesNumber)
@@ -252,57 +259,11 @@ def main():
 				dato[0] = unique(where(peakTempCurve==ys)[0])[0]
 				dataFileTmp = concatenate((dataFileTmp,dato),1)
 				dataFile = append(dataFile, dataFileTmp, axis=0)
-
-				#ax.plot(dataCluster[unitId,0:framesNumber],clustersColours[clusterId],alpha=0.2)
-				ax.plot(ys,clustersColours[clusterId],alpha=0.2)
-
-		## remove the first row of zeroes
-		dataGrilla = dataGrilla[1:,:]
-		
-		meanData = dataGrilla.mean(axis=0)
-		x = linspace(1, framesNumber, framesNumber)
-		s = UnivariateSpline(x, meanData[0:framesNumber], s=0)
-		xs = linspace(1, framesNumber, framesNumber*1000)
-		ys = s(xs)			
-		#ax.plot(meanData[0:framesNumber],clustersColours[clusterId],linewidth=4)
-		ax.plot(ys,clustersColours[clusterId],linewidth=4)
-		ax.set_xlim(0, 1000*framesNumber-1)		
-		#ax.set_xlim(0, framesNumber)
-		ax.set_ylim(minData,maxData)
-		rfe.graficaGrilla(dataGrilla, outputFolder+'Grilla_'+str(clusterId)+'.png', framesNumber, clustersColours[clusterId], xSize, ySize)
-		figCluster = plt.figure()
-		axCluster = figCluster.add_subplot(111)
-		for curve in range(dataGrilla.shape[0]):
-			x = linspace(1, framesNumber, framesNumber)
-			s = UnivariateSpline(x, dataGrilla[curve,0:framesNumber], s=0)
-			xs = linspace(1, framesNumber, framesNumber*1000)
-			ys = s(xs)
-			#axCluster.plot(dataGrilla[curve,0:framesNumber],clustersColours[clusterId],alpha=0.2)
-			#axCluster.plot(meanData[0:framesNumber],clustersColours[clusterId],linewidth=4)
-			axCluster.plot(ys,clustersColours[clusterId],alpha=0.2)
-			x = linspace(1, framesNumber, framesNumber)
-			s = UnivariateSpline(x, meanData[0:framesNumber], s=0)
-			xs = linspace(1, framesNumber, framesNumber*1000)
-			ys = s(xs)
-			axCluster.plot(ys,clustersColours[clusterId],linewidth=4)
-		
-		axCluster.set_xlim(0, 1000*framesNumber-1)
-		#axCluster.set_xlim(0, framesNumber)
-		axCluster.set_ylim(minData,maxData)
-		figCluster.savefig(outputFolder+'cluster_'+str(clusterId)+'.png', bbox_inches='tight')
 		
 	# remove the first row of zeroes
 	dataFile = dataFile[1:,:]
 	savetxt(outputFolder+'outputFile.csv',dataFile, fmt='%s', delimiter=',', newline='\n')
-	savetxt(outputFolder+'labels.csv',units,fmt='%s',delimiter=',', newline='\n')
-	
-	#Estimate fit for the clusterings
-	fit = metrics.silhouette_score(data, labels, metric='euclidean')
-	ax.text(0.01, 0.01, 'Silhouette score: '+str(round(fit,4)),
-		verticalalignment='bottom', horizontalalignment='left',
-		transform=ax.transAxes,
-		color='green', fontsize=15)
-	fig.savefig(outputFolder+clusteringAlgorithm+'_media.png', bbox_inches='tight')
+	#savetxt(outputFolder+'labels.csv',units,fmt='%s',delimiter=',', newline='\n')
 		
 	rfe.guardaClustersIDs(outputFolder, units, labels, 'clusterings.csv')
 
