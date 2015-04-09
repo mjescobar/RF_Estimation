@@ -1,4 +1,4 @@
-function signalAnalyzer2(mcdFile,experimentName,sampleRating,EntityNumber,inicio,distanciaFrames,outputFolder);
+function signalAnalyzerParaGratings(mcdFile,experimentName,sampleRating,EntityNumber,inicio,outputFolder);
 % Synchrony signal ANALIZER 3
 
 % mcdFile, full path al archivo
@@ -61,7 +61,7 @@ datosname = experimentName;
 %load(['syn_signal1_',datosname]);
 %load([signalFile]);
 
-duracion_segundos = 30*60+12;
+duracion_segundos = 18*60+12;
 
 total_datos = duracion_segundos*sampleRating;
 
