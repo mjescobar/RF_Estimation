@@ -29,13 +29,8 @@ import sys, os
 sys.path.append(os.path.join(os.path.dirname(__file__), '../..','LIB'))
 import rfestimationLib as rfe				#Some custom functions
 import argparse 							#argument parsing
-import scipy.ndimage
 from sklearn import metrics
 from sklearn import preprocessing
-import matplotlib
-matplotlib.use('Agg')
-from matplotlib import pyplot as plt
-from matplotlib import mlab as mlab
 from math import ceil
 from math import floor
 from scipy.interpolate import UnivariateSpline
@@ -56,9 +51,6 @@ from math import pi
 from numpy import float64
 from numpy import empty
 from numpy import reshape
-from sklearn.decomposition import PCA
-from sklearn.preprocessing import normalize
-from mpl_toolkits.mplot3d import Axes3D
 
 #Output file format
 
@@ -160,9 +152,6 @@ def main():
 			xSize = dataUnit.shape[0]
 			ySize = dataUnit.shape[1]
 			fitResult = rfe.loadFitMatrix(sourceFolder,unitFile)
-			#Time data from STA with gauss fit
-			#dataUnitTemporal = scipy.ndimage.gaussian_filter(dataUnit[coordinates[0][0],[coordinates[1][0]],:],2)
-			#Time data from STA without  gauss fit
 			dataUnitTemporal = dataUnit[coordinates[0][0],[coordinates[1][0]],:]
 			#Time data from FITResult
 			#dataUnitTemporal = rfe.loadVectorAmp(sourceFolder,unitFile).T
@@ -204,7 +193,6 @@ def main():
 	dataCluster = dataCluster[1:,:]	
 		
 	#Solo temporal dataCluster[:,0:framesNumber]
-	#data = empty((len(dataCluster),framesNumber), dtype='|f8')
 	data = dataCluster[:,0:framesNumber]
 	data = data.astype(float64, copy=False)
 	
@@ -263,10 +251,7 @@ def main():
 	# remove the first row of zeroes
 	dataFile = dataFile[1:,:]
 	savetxt(outputFolder+'outputFile.csv',dataFile, fmt='%s', delimiter=',', newline='\n')
-	#savetxt(outputFolder+'labels.csv',units,fmt='%s',delimiter=',', newline='\n')
 		
-	rfe.guardaClustersIDs(outputFolder, units, labels, 'clusterings.csv')
-
 	return 0
 
 if __name__ == '__main__':
