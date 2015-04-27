@@ -64,7 +64,7 @@ from numpy import reshape
 # clusterId
 # peakTime
           
-clustersColours = ['green', 'red', 'blue', 'yellow', 'black','indigo', \
+clustersColours = ['green', 'red', 'blue', 'cyan', 'black','indigo', \
 '#ff006f','#00e8ff','#fcfa00', '#ff0000', '#820c2c', \
 '#ff006f', '#af00ff','#0200ff','#008dff','#00e8ff', \
 '#0c820e','#28ea04','#ea8404','#c8628f','#6283ff', \

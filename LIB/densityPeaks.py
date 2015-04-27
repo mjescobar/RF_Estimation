@@ -90,7 +90,7 @@ def predict(data, percentage):
 
 	for i in range(len(clustersCenters),length):
 		iDistance = ordDeltas[-i] - ordDeltas[-i-1]
-		if iDistance >= (previousDistance*30/100):
+		if iDistance >= (previousDistance*45/100):
 			break
 		else:
 			for cluster in np.where(deltas==ordDeltas[-i-1])[0]:

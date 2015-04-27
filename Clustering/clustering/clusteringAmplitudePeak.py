@@ -51,6 +51,7 @@ from math import pi
 from numpy import float64
 from numpy import empty
 from numpy import reshape
+from sklearn.preprocessing import normalize
 
 #Output file format
 
@@ -140,7 +141,7 @@ def main():
 			xSize = dataUnit.shape[0]
 			ySize = dataUnit.shape[1]
 			fitResult = rfe.loadFitMatrix(sourceFolder,unitFile)
-			dataUnitTemporal = dataUnit[coordinates[0][0],[coordinates[1][0]],:]
+			dataUnitTemporal = dataUnit[coordinates[0][0],[coordinates[1][0]],0:framesNumber]
 			#Time data from FITResult
 			#dataUnitTemporal = rfe.loadVectorAmp(sourceFolder,unitFile).T
 			#A radius of the RF ellipse
@@ -206,8 +207,10 @@ def main():
 		amplitudePeak[unitId,0] = peak
 		amplitudePeak[unitId,1] = delta
 	
-	data = amplitudePeak
-		
+	#data = normalize(amplitudePeak, norm='l2', axis=0)
+	#data = 	amplitudePeak
+	data = rfe.scale_linear_bycolumn(amplitudePeak, high=100.0, low=0.0)
+	
 	savetxt(outputFolder+'data.csv',data, fmt='%s', delimiter=',', newline='\n')
 	
 	# Calculates the next 5-step for the y-coordinate

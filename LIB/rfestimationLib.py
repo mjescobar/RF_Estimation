@@ -22,7 +22,6 @@
 #  
 #  
 
-
 clustersColours = ['red', 'blue', 'black', 'green','magenta','DeepSkyBlue',\
 'Orange','Indigo','OrangeRed','DarkCyan','Red','Blue','Green','green']
 
@@ -34,6 +33,15 @@ clustersMarkers = ['o', '^', 'v', '*', 's','p', \
 # Set of functions used on different codes of the project
 # 
 
+def scale_linear_bycolumn(rawpoints, high=100.0, low=0.0):
+	from numpy import min
+	from numpy import max
+	mins = min(rawpoints, axis=0)
+	maxs = max(rawpoints, axis=0)
+	rng = maxs - mins
+	
+	return high - (((high - low) * (maxs - rawpoints)) / rng)
+    
 def fixPath(folderName):
 	pathCharacter = returnPathCharacter()
 	# Check for trailing / on the folder
