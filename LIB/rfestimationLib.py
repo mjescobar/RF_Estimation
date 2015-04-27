@@ -22,6 +22,15 @@
 #  
 #  
 
+
+clustersColours = ['red', 'blue', 'black', 'green','magenta','DeepSkyBlue',\
+'Orange','Indigo','OrangeRed','DarkCyan','Red','Blue','Green','green']
+
+clustersMarkers = ['o', '^', 'v', '*', 's','p', \
+				'<','>','1', '2', '3', \
+				'4', '8','h','H','+', \
+				'x','D','d','|','_']
+				
 # Set of functions used on different codes of the project
 # 
 
