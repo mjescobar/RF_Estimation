@@ -576,25 +576,9 @@ def calculaSTA(args):
 			ax = fig.add_subplot(3,6,1)
 			component = stavisual_lin[:,:,0]
 			ax.pcolormesh( component,vmin = 0,vmax = 255, cmap=cm.jet )
-			'''
 			ax.set_yticklabels([])
 			ax.set_xticklabels([])
 			ax.set_aspect(1)
-			'''
-			ax.set_xlim([0, xSize])
-			ax.set_ylim([0, ySize])
-			ax.set_aspect(1)
-			plt.tight_layout()
-			plt.tick_params(
-				which='both',
-				bottom='off',
-				top='off',
-				labelbottom='off',
-				left='off',
-				labelleft='off',
-				right='off',
-				labelright='off'
-			)
 			
 			kcontador = 2
 			#casep, cambio de 17 a framesNumber-1 para prevenir "out of bounds" al procesar menos de 18+2 frames
@@ -602,25 +586,9 @@ def calculaSTA(args):
 				ax = fig.add_subplot(3,6,kcontador)
 				component = stavisual_lin[:,:,kcontador-1]
 				ax.pcolormesh( component,vmin = 0,vmax = 255, cmap=cm.jet )
-				'''
 				ax.set_aspect(1)
 				ax.set_yticklabels([])
 				ax.set_xticklabels([])
-				'''
-				ax.set_aspect(1)
-				plt.tight_layout()
-				ax.set_xlim([0, xSize])
-				ax.set_ylim([0, ySize])
-				plt.tick_params(
-					which='both',
-					bottom='off',
-					top='off',
-					labelbottom='off',
-					left='off',
-					labelleft='off',
-					right='off',
-					labelright='off'
-				)
 				kcontador+=1
 			
 			plt.savefig(finalfolder_lin+"/STA-"+str(neurontag)+"_.png",format='png', bbox_inches='tight')
