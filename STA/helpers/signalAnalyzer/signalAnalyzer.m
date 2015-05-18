@@ -110,7 +110,7 @@ end
 % inicio = 200000-20000;
 %2545471-10000; %546000; %100000; %30000; %354000;
 
-bloque = 10000*2;
+bloque = 10*2;
 
 xplot = data(inicio:inicio+bloque-1);
 posiciones = find((posicion_bajada>inicio) & (posicion_bajada<inicio+bloque) );

@@ -1,5 +1,5 @@
 function signalAnalyzerParaGratings(mcdFile,experimentName,sampleRating,EntityNumber,inicio,outputFolder);
-% Synchrony signal ANALIZER 3
+% Synchrony signal for gratings
 
 % mcdFile, full path al archivo
 % signalFile, full path al archivo syn_signal1_merged.mat
@@ -10,15 +10,6 @@ function signalAnalyzerParaGratings(mcdFile,experimentName,sampleRating,EntityNu
 % distanciaFrames, 334 = 1/60*20000
 % outputFolder , 'D:\Experimentos_CINV\2014-08-21\'
 
-% AASTUDILLO 17 OCTOBER 2013
-% Modificado por Ricardo Villarroel 2 Diciembre 2013
-% Modificado por Monica y Carlos 13 Junio 2014 para no tener q usarlo justo
-% despues del get_synchrony_signal
-% % %% for mcd file case
-% % 
-% % % open mcd lib files 
-% %
-% Casep, Cambio para cargar la biblioteca correspondiente de acuerdo al OS
 if isunix
     % Debiera ser parametro?
     addpath('../../lib/NeuroShare/');
@@ -61,7 +52,7 @@ datosname = experimentName;
 %load(['syn_signal1_',datosname]);
 %load([signalFile]);
 
-duracion_segundos = 18*60+12;
+duracion_segundos = 103*60+6;
 
 total_datos = duracion_segundos*sampleRating;
 
@@ -158,6 +149,7 @@ inicio_frame = fin_frame - distancias2(1: length(fin_frame)); %valores estimados
 inicio_fin_frame = [inicio_frame', fin_frame'];
 %save('sync_analysis_output.mat','s','s2','cantobajada2','frameduracion');
 save([outputFolder,'inicio_fin_frame_',experimentName,'.txt' ],'inicio_fin_frame', '-ASCII' ,'-DOUBLE');
+save([outputFolder,'lost_frames_',experimentName,'.txt' ],'lost_frames', '-ASCII');
 
 % inicio de frames corresponde a : cantobajada2(1)-frameduracion
 % posici�n inicial de cada frame (i) corresponde al vector : s2(:,1)-frameduracion
