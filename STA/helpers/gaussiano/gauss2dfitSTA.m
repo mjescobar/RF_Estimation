@@ -1,4 +1,4 @@
-function gauss2dfitSTA(folder,cell)
+function gauss2dfitSTA(folder,cell,frame)
 
 % ------------------------------------------------------------
 % 2D GAUSS FIT TO ESTIMATED RECEPTIVE FIELDS STA
@@ -56,14 +56,20 @@ promedio = mean(STA_promedio(:));
 
 [min_sta,frame_min] = min(min(min(STA)));
 [max_sta,frame_max] = max(max(max(STA)));
-amp_min = promedio - min_sta;
-amp_max = max_sta - promedio;
+amp_min = promedio - min_sta
+amp_max = max_sta - promedio
 
 if amp_min >= amp_max
     frame_ajuste = frame_min;
+    if frame > 0
+        frame_ajuste = frame;
+    end
     STA_ajuste = (STA(:,:,frame_ajuste) - 255)*(-1); 
 else
     frame_ajuste = frame_max;
+    if frame > 0
+        frame_ajuste = frame;
+    end
     STA_ajuste = STA(:,:,frame_ajuste);
 end
 
