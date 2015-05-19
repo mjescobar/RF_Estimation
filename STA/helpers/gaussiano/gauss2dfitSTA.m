@@ -6,6 +6,10 @@ function gauss2dfitSTA(folder,cell,frame)
 % AASTUDILLO 2014
 % ------------------------------------------------------------
 
+if nargin == 2
+  frame = -1;
+end
+
 % FOLDER NAME OF THE CELL
 nombre_cell_grupo = cell;
 
@@ -49,6 +53,22 @@ STA_promedio = mean(STAarray_lin,3);
 
 STA = STAarray_lin(:,end:-1:1,:);
 
+% Casep, aca calculo de forma alternativa el frame de interes
+% a cada frame la calculo la varianza y el de mayor varianza sera
+% el que se utilizara para calculo del gaussfit
+[x,y,frames]=size(STA);
+
+varianza=0;
+frameMaxVarianza=1;
+for i=1:frames
+    frameSTA=STA(:,:,i);
+	varianzaTmp = var(frameSTA(:));
+	if varianzaTmp > varianza
+		varianza = varianzaTmp;
+		frameMaxVarianza = i;
+	end
+end
+
 [n_filas,n_columnas] = size(STA_promedio);
 aux =[];
 
@@ -59,17 +79,14 @@ promedio = mean(STA_promedio(:));
 amp_min = promedio - min_sta
 amp_max = max_sta - promedio
 
-if amp_min >= amp_max
-    frame_ajuste = frame_min;
-    if frame > 0
-        frame_ajuste = frame;
-    end
+frame_ajuste = frameMaxVarianza;
+%si recibi Numero de frame como parametro, lo uso
+if frame > 0
+	frame_ajuste = frame;
+end
+if amp_min >= amp_max    
     STA_ajuste = (STA(:,:,frame_ajuste) - 255)*(-1); 
 else
-    frame_ajuste = frame_max;
-    if frame > 0
-        frame_ajuste = frame;
-    end
     STA_ajuste = STA(:,:,frame_ajuste);
 end
 
@@ -78,7 +95,7 @@ tic;
 save([carpeta,'STA_ajuste.mat'],'STA_ajuste');
 
 [fitresult, zfit, xData2D, yData2D, fiterr, zerr, resnorm, rr] = fmgaussfit(STA_ajuste);
-tempofit = toc
+tempofit = toc;
 
 %% figures: 3d profile of one  STA frame and its fit.
 [n_filas,n_columnas] = size(STA_ajuste);
