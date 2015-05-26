@@ -22,8 +22,9 @@
 #  
 #  
 
-clustersColours = ['red', 'blue', 'black', 'green','magenta','DeepSkyBlue',\
-'Orange','Indigo','OrangeRed','DarkCyan','Red','Blue','Green','green']
+clustersColours = ['Magenta', 'DarkOrange', 'RoyalBlue', \
+	'Purple','black','Brown','Gold','Red','YellowGreen','DarkCyan', \
+	'Magenta','DarkOrange','RoyalBlue']
 
 clustersMarkers = ['o', '^', 'v', '*', 's','p', \
 				'<','>','1', '2', '3', \
@@ -75,6 +76,7 @@ def loadVectorAmp(sourceFolder,unitFile):
 	vectorAmpFile = loadmat(vectorAmpFileName)
 	
 	return vectorAmpFile['vector_amp']	
+
 #
 # loadSTACurve will load the curve, adjusted with a Gaussian filter.
 # for the a unit previously processed with the STA code
@@ -197,3 +199,55 @@ def graficaGrilla(dataGrilla,name,framesNumber,colour,xPixels,yPixels):
 	ax.set_ylim(0, yPixels)
 	savefig(name, dpi=None, bbox_inches='tight')
 	return 0
+
+#
+# Load the file resuslt of the clustering.py, please notice that it
+# works better with 18 frames.
+#
+def loadClusterFile(sourceFile, framesNumber):
+	from numpy import loadtxt, zeros
+
+	#Input file format
+
+	# 0-17 Timestamps
+	# aRadius
+	# bRadius
+	# angle
+	# xCoordinate
+	# yCoordinate
+	# area
+	# Unit label
+	# clusterId
+	# peakTime
+	# On/OFF
+
+	cols=zeros(framesNumber+9)
+	#Time
+	for f in range(0,framesNumber):
+		cols[f]=f
+	#aRadius
+	cols[framesNumber]=framesNumber
+	#bRadius	
+	cols[framesNumber+1]=framesNumber+1
+	#angle	
+	cols[framesNumber+2]=framesNumber+2
+	#X	
+	cols[framesNumber+3]=framesNumber+3
+	#Y
+	cols[framesNumber+4]=framesNumber+4
+	#Area	
+	cols[framesNumber+5]=framesNumber+5
+	#Unit Label	
+	#cols[framesNumber+6]=framesNumber+6
+	#ClusterId	
+	cols[framesNumber+6]=framesNumber+7
+	#PeakTime	
+	cols[framesNumber+7]=framesNumber+8
+	#On/Off
+	cols[framesNumber+8]=framesNumber+9
+	
+	cols = cols.astype(int, copy=False)
+	
+	data = loadtxt(sourceFile, delimiter=',',usecols=cols)
+		
+	return data
