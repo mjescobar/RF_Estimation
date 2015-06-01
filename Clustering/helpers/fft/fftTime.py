@@ -30,10 +30,10 @@ import argparse 							#argument parsing
 import matplotlib
 matplotlib.use('Agg')
 from matplotlib import pyplot as plt
-from numpy import shape, append, empty, linspace, amax, amin, fft
+from numpy import append, empty, fft, sqrt, linspace, shape
 from math import ceil, floor
-from scipy.interpolate import UnivariateSpline
-from scipy.ndimage import gaussian_filter
+#from scipy.interpolate import UnivariateSpline
+#from scipy.ndimage import gaussian_filter
 
 xSize = 31
 ySize = 31
@@ -75,11 +75,7 @@ def main():
 	framesNumber = args.framesNumber
 	Units = rfe.loadClusterFile(sourceFile,framesNumber)
 	numeroClusters = int(max(Units[:,framesNumber+6]))
-	
-	# Calculates the next 5-step for the y-coordinate
-	maxData =  ceil(amax(Units[:,0:framesNumber])/5)*5
-	minData = floor(amin(Units[:,0:framesNumber])/5)*5
-	
+		
 	# Por cada cluster recorro las units
 	for clusterId in range(numeroClusters + 1):
 		clusterUnits = empty([1, framesNumber+9])
@@ -96,8 +92,13 @@ def main():
 
 		fftData = fft.fft(meanData)
 		freq = fft.fftfreq(meanData.shape[-1])
-		axCluster.plot(freq, fftData.real, freq, fftData.imag)
-		
+		freq = linspace(1,300,framesNumber)
+		isqr = fftData.imag*fftData.imag
+		rsqr = fftData.real*fftData.real
+		axCluster.plot(freq, fftData.real, label='Real')
+		axCluster.plot(freq, fftData.imag, label='Imaginario')
+		axCluster.plot(freq, sqrt(rsqr + isqr), label='Modulo')
+		plt.legend(loc="upper right", bbox_to_anchor=[0, 1], ncol=1, shadow=True, title="Legenda", fancybox=True)
 		figCluster.savefig(outputFolder+'cluster_'+str(clusterId)+'.png', bbox_inches='tight')	
 		plt.close()
 		
