@@ -29,28 +29,11 @@ import sys, os
 sys.path.append(os.path.join(os.path.dirname(__file__), '../..','LIB'))
 import rfestimationLib as rfe				#Some custom functions
 import argparse 							#argument parsing
-from sklearn import metrics
-from sklearn import preprocessing
-from math import ceil
-from math import floor
+from sklearn import metrics,preprocessing
+from math import ceil,floor
 from scipy.interpolate import UnivariateSpline
-from numpy import zeros
-from numpy import linspace
-from numpy import concatenate
-from numpy import append
-from numpy import amax
-from numpy import amin
-from numpy import chararray
-from numpy import shape
-from numpy import savetxt
-from numpy import where
-from numpy import unique
-from numpy import mean
-from numpy import absolute
-from math import pi
-from numpy import float64
-from numpy import empty
-from numpy import reshape
+from numpy import zeros,linspace,concatenate,append,amax,amin,chararray, \
+ shape,savetxt,where,unique,mean,absolute,pi,float64,empty,reshape
 
 #Output file format
 
