@@ -49,6 +49,9 @@ if do_v7
 save(['stim_mini_',outputname,'.mat'],'stim','-v7');
 else 
 save(['stim_mini_',outputname,'.mat'],'stim','-v7.3');
+fid = fopen('magic5.bin', 'w');
+fwrite(fid, , 'uint8');
+fclose(fid);
 end
 %% validates
 

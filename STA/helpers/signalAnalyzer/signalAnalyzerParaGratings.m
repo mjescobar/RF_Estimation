@@ -52,7 +52,7 @@ datosname = experimentName;
 %load(['syn_signal1_',datosname]);
 %load([signalFile]);
 
-duracion_segundos = 103*60+6;
+duracion_segundos = 89*60+4;
 
 total_datos = duracion_segundos*sampleRating;
 

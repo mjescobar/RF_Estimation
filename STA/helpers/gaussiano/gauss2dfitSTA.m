@@ -1,4 +1,4 @@
-function gauss2dfitSTA(folder,cell,frame)
+function gauss2dfitSTA(carpeta,cell,frame)
 
 % ------------------------------------------------------------
 % 2D GAUSS FIT TO ESTIMATED RECEPTIVE FIELDS STA
@@ -13,9 +13,11 @@ end
 % FOLDER NAME OF THE CELL
 nombre_cell_grupo = cell;
 
-carpeta = [folder,nombre_cell_grupo,'_lineal/'];
+%carpeta = [folder,nombre_cell_grupo,'_lineal/'];
 
+%load([carpeta,'stavisual_lin_array_',nombre_cell_grupo,'.mat']);
 load([carpeta,'stavisual_lin_array_',nombre_cell_grupo,'.mat']);
+
 
 %% normalize STA matrix for plot purposes
 % correct the color scale for plot
@@ -268,6 +270,7 @@ if doforallframes
         axis off
         axis square  
     end
+    set(fig4,'visible','off')
 
     colormap= 'jet';
 % colorbar
@@ -284,3 +287,4 @@ print(fig3,'-dpdf',[carpeta,'rf_fit2d_',num2str(frame_ajuste),'.pdf']);
 print(fig33,'-dpdf',[carpeta,'rf_temp_',num2str(frame_ajuste),'.pdf']);
 
 save([carpeta,'fit_var.mat'],'fitresult', 'zfit', 'xData2D', 'yData2D', 'fiterr', 'zerr', 'resnorm', 'rr','vector_amp');
+close all
