@@ -27,11 +27,14 @@ def Ellipse(a,b,an,x0,y0): #an is the rotational angle
 
 coordenadas = []
 sourceFolder = args.sourceFolder
-
+if sourceFolder[-1] != '/':
+	sourceFolder = sourceFolder+'/'
+name_experiment = sourceFolder.split('/')[-3]
 for unit in os.listdir(sourceFolder):
 	dir = sourceFolder + unit 
 	if os.path.isdir(dir):
-		coordenadas.append(numpy.loadtxt(dir+"/resultado.txt")) 	
+		if os.path.isfile(dir+"/resultado.txt"):
+			coordenadas.append(numpy.loadtxt(dir+"/resultado.txt")) 	
 		
 
 fig = p.figure(figsize=(8,15))
@@ -54,7 +57,7 @@ for iter in range(len(coordenadas)):
 	# 	p.plot(X,Y) 
 	# 	p.gca().set_color_cycle(None)
 	p.plot(X,Y) 
-	p.title("Mapa campos receptivos, exp 20140620 con SpyKing Circus")
+	p.title("Mapa campos receptivos,"+name_experiment)
 	p.gca().set_color_cycle(None)
 
  
