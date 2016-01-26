@@ -11,7 +11,7 @@ args = parser.parse_args()
 
 filename = args.spiketimesFile
 outputFolder = args.outputFolder
-sample = 20000
+sample = 20000.0
 mintime = 40
 
 if outputFolder[-1] != '/':
@@ -25,6 +25,6 @@ hfile = h5py.File(filename,'r')
 f = hfile.get("spiketimes")
 for key in f.keys():
 	data = f.get(key)
-	data = np.array(data)/sample
+	data2 = np.array(data)/sample
 	if len(data) > mintime:
-		np.savetxt(outputFolder+key+'.txt',data)
+		np.savetxt(outputFolder+key+'.txt',data2)
