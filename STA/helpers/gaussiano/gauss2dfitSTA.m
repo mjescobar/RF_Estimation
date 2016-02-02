@@ -12,7 +12,7 @@ end
 
 % FOLDER NAME OF THE CELL
 nombre_cell_grupo = cell;
-
+poster
 %carpeta = [folder,nombre_cell_grupo,'_lineal/'];
 
 %load([carpeta,'stavisual_lin_array_',nombre_cell_grupo,'.mat']);
