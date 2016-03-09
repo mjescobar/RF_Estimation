@@ -42,7 +42,7 @@ ymin = min(yData);
 Lower = [0, 0, 0, 0, xmin, ymin, 0];
 Upper = [255, 180, Inf, Inf, xmax, ymax, 255]; % angles greater than 90 are redundant
 StartPoint = [amp, ang, sx, sy, xo, yo, zo];%[amp, sx, sxy, sy, xo, yo, zo];
-
+fprintf('amp: %d ang: %d sx: %d sy: %d xo: %d yo: %d zo: %d\n',amp, ang, sx, sy, xo, yo, zo) 
 % tols = 1e-16;
 % options = optimset('Algorithm','levenberg-marquardt',...
 %     'Display','off',...
@@ -87,9 +87,7 @@ end
 
 function z = gaussian2D(par,xy)
 % compute 2D gaussian
-z = pa/r(7) + ...
-    par(1)*exp(-(((xy{1}-par(5)).*cosd(par(2))+(xy{2}-par(6)).*sind(par(2)))./par(3)).^2-...
-    ((-(xy{1}-par(5)).*sind(par(2))+(xy{2}-par(6)).*cosd(par(2)))./par(4)).^2);
+z = par(7) + par(1)*exp(-(((xy{1}-par(5)).*cosd(par(2))+(xy{2}-par(6)).*sind(par(2)))./par(3)).^2- ((-(xy{1}-par(5)).*sind(par(2))+(xy{2}-par(6)).*cosd(par(2)))./par(4)).^2);
 end
 
 function [dpar,zf,dzf] = gaussian2Duncert(par,resid,xy)

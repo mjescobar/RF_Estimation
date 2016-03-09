@@ -13,8 +13,8 @@ end
 % FOLDER NAME OF THE CELL
 nombre_cell_grupo = cell;
 
-%carpeta = [folder,nombre_cell_grupo,'_lineal/'];
-
+carpeta = [carpeta,nombre_cell_grupo,'_lineal/'];
+disp(carpeta)
 %load([carpeta,'stavisual_lin_array_',nombre_cell_grupo,'.mat']);
 load([carpeta,'stavisual_lin_array_',nombre_cell_grupo,'.mat']);
 
@@ -53,7 +53,7 @@ v = 1;
 
 STA_promedio = mean(STAarray_lin,3);
 
-STA = STAarray_lin(:,end:-1:1,:);
+STA = STAarray_lin(:,end:-1:1,1:18);
 
 % Casep, aca calculo de forma alternativa el frame de interes
 % a cada frame la calculo la varianza y el de mayor varianza sera
@@ -76,22 +76,33 @@ aux =[];
 
 promedio = mean(STA_promedio(:));
 
-[min_sta,frame_min] = min(min(min(STA)));
-[max_sta,frame_max] = max(max(max(STA)));
+%%-------------------------------------------------------
+%calcula la diferencia entre el minimo y al maximo suavizado 
+%para elegir si es on o off y convertir el minimo 
+%en maximo, de esta forma el fmgaussfit siempre busca el maximo
+
+H = fspecial('disk',2);
+STABlur = imfilter(STA,H,'replicate');
+ 
+[min_sta,frame_min] = min(min(min(STABlur)));
+[max_sta,frame_max] = max(max(max(STABlur)));
 amp_min = promedio - min_sta
 amp_max = max_sta - promedio
+%%--------------------------------------------------------
 
 frame_ajuste = frameMaxVarianza;
 %si recibi Numero de frame como parametro, lo uso
 if frame > 0
 	frame_ajuste = frame;
 end
+fprintf('FRAME AJUSTE %d\n',frame_ajuste);
 if amp_min >= amp_max    
     STA_ajuste = (STA(:,:,frame_ajuste) - 255)*(-1); 
+    fprintf('min mayor que max');
 else
     STA_ajuste = STA(:,:,frame_ajuste);
 end
-
+%STA_ajuste = STA(:,:,frame_ajuste);
 tic;
 
 save([carpeta,'STA_ajuste.mat'],'STA_ajuste');
@@ -223,52 +234,52 @@ for frame = vent_ini+1:vent_fin+1,
     win = zeros(3);
 
     if x_p > 30 && y_p > 30
-        win(1:2,1:2) = STA(y_p-1:y_p,x_p-1:x_p,frame)
-        win(1,3) = win(1,1)
-        win(2,3) = win(2,1)
-        win(3,1) = win(1,1)
-        win(3,2) = win(1,2)
+        win(1:2,1:2) = STA(y_p-1:y_p,x_p-1:x_p,frame);
+        win(1,3) = win(1,1);
+        win(2,3) = win(2,1);
+        win(3,1) = win(1,1);
+        win(3,2) = win(1,2);
         win(3,3) = win(1,1)
     elseif x_p > 30 && y_p < 2
         win(1:2,1:2) = STA(y_p:y_p+1,x_p-1:x_p,frame);
-        win(1,3) = win(1,1)
-        win(2,3) = win(2,1)
-        win(3,1) = win(1,1)
-        win(3,2) = win(1,2)
+        win(1,3) = win(1,1);
+        win(2,3) = win(2,1);
+        win(3,1) = win(1,1);
+        win(3,2) = win(1,2);
         win(3,3) = win(1,1)
     elseif x_p <2 && y_p > 30
         win(1:2,1:2) = STA(y_p-1:y_p,x_p:x_p+1,frame);
-        win(1,3) = win(1,1)
-        win(2,3) = win(2,1)
-        win(3,1) = win(1,1)
-        win(3,2) = win(1,2)
-        win(3,3) = win(1,1)
+        win(1,3) = win(1,1);
+        win(2,3) = win(2,1);
+        win(3,1) = win(1,1);
+        win(3,2) = win(1,2);
+        win(3,3) = win(1,1);
     elseif x_p < 2 && y_p < 2
         win(1:2,1:2) = STA(y_p:y_p+1,x_p:x_p+1,frame);
-        win(1,3) = win(1,1)
-        win(2,3) = win(2,1)
-        win(3,1) = win(1,1)
-        win(3,2) = win(1,2)
-        win(3,3) = win(1,1)
+        win(1,3) = win(1,1);
+        win(2,3) = win(2,1);
+        win(3,1) = win(1,1);
+        win(3,2) = win(1,2);
+        win(3,3) = win(1,1);
     elseif x_p > 30
         win(1:3,1:2) = STA(y_p-1:y_p+1,x_p-1:x_p,frame);
-        win(1:3,3) = win(1:3,1)
+        win(1:3,3) = win(1:3,1);
     elseif x_p < 2 
         win(1:3,2:3) = STA(y_p-1:y_p+1,x_p:x_p+1,frame);
-        win(1:3,1) = win(1:3,3)
+        win(1:3,1) = win(1:3,3);
     elseif y_p > 30
         win(1:2,1:3) = STA(y_p-1:y_p,x_p-1:x_p+1,frame);
-        win(3,1:3) = win(1,1:3)
+        win(3,1:3) = win(1,1:3);
     elseif y_p < 2
         win(2:3,1:3) = STA(y_p:y_p+1,x_p-1:x_p+1,frame);
-        win(1,1:3) = win(3,1:3)
+        win(1,1:3) = win(3,1:3);
     else
         win = STA(y_p-1:y_p+1,x_p-1:x_p+1,frame);
     end
     
-    H = fspecial('disk',1); 
+    %H = fspecial('disk',1); 
     %Da mejores resultados el filtro disk que el gaussino
-    %H = fspecial('gaussian',[3 3],0.5);  
+    H = fspecial('gaussian',[3 3],0.5);  
     vector_amp_nuevo = [vector_amp; sum(sum(win.*H)) ]; 
     vector_amp = vector_amp_nuevo;
 end
