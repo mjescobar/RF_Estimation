@@ -27,7 +27,9 @@ except OSError:
   pass
 
 hfile = h5py.File(filename,'r') 
+clusterfile = h5py.File(clustername,'r') 
 f = hfile.get("spiketimes")
+cluster = clusterfile.get("electrodes")
 for key  in f.keys():
 	data = f.get(key)
 	data2 = np.array(data)/sample + offset
@@ -36,5 +38,5 @@ for key  in f.keys():
 			data2 = np.transpose(data2)
 		else:
 			print key+': No superera el minimo de '+str(mintime)+' timestamp, dimension'+str(data2.shape)
-	np.savetxt(outputFolder+key+'_'+clustername[i]+'.txt',data2)
+	np.savetxt(outputFolder+key+'_'+str(int(cluster[0][i]))+'.txt',data2)
 	i += 1
