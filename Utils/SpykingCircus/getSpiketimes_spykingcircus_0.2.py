@@ -31,12 +31,8 @@ clusterfile = h5py.File(clustername,'r')
 f = hfile.get("spiketimes")
 cluster = clusterfile.get("electrodes")
 cluster = np.array(cluster)
-print cluster.shape
-print cluster[0]
 if len(cluster) < 2:
 	cluster = np.transpose(cluster)
-print cluster.shape
-print cluster[0]
 
 
 for key  in f.keys():
