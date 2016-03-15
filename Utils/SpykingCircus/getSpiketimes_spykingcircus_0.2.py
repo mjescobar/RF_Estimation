@@ -18,7 +18,7 @@ outputFolder = args.outputFolder
 offset = args.offset
 sample = 20000.0
 mintime = 20
-i = 0
+
 if outputFolder[-1] != '/':
 	outputFolder = outputFolder + '/'
 try:
@@ -32,9 +32,11 @@ f = hfile.get("spiketimes")
 cluster = clusterfile.get("electrodes")
 cluster = np.array(cluster)
 print cluster.shape
+print cluster[0]
 if len(cluster) < 2:
 	cluster = np.transpose(cluster)
 print cluster.shape
+print cluster[0]
 
 
 for key  in f.keys():
@@ -45,5 +47,6 @@ for key  in f.keys():
 			data2 = np.transpose(data2)
 		else:
 			print key+': No superera el minimo de '+str(mintime)+' timestamp, dimension'+str(data2.shape)
-	np.savetxt(outputFolder+key+'-'+str(int(cluster[i]))+'.txt',data2)
-	i += 1
+	template = key.split("_")
+	print outputFolder+key+'-'+str(int(cluster[int(template[1])]))
+	
