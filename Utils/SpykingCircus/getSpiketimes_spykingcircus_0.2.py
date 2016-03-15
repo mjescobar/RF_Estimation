@@ -48,5 +48,5 @@ for key  in f.keys():
 		else:
 			print key+': No superera el minimo de '+str(mintime)+' timestamp, dimension'+str(data2.shape)
 	template = key.split("_")
-	print outputFolder+key+'-'+str(int(cluster[int(template[1])]))
+	np.savetxt(outputFolder+key+'-'+str(int(cluster[int(template[1])]))+'.txt',data2) 
 	
