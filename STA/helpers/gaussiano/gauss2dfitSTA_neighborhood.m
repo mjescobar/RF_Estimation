@@ -83,14 +83,18 @@ promedio = mean(STA_promedio(:));
 
 H = fspecial('disk',2);
 STABlur = imfilter(STA,H,'replicate');
- 
+meanSTA = mean2(STABlur);
+STABlur = abs(STABlur - meanSTA); 
 [min_sta,frame_min] = min(min(min(STABlur)));
 [max_sta,frame_max] = max(max(max(STABlur)));
+disp('frame max con min max')
+disp(frame_max)
 amp_min = promedio - min_sta
 amp_max = max_sta - promedio
 %%--------------------------------------------------------
 
-frame_ajuste = frameMaxVarianza;
+%frame_ajuste = frameMaxVarianza;
+frame_ajuste = frame_max
 %si recibi Numero de frame como parametro, lo uso
 if frame > 0
 	frame_ajuste = frame;
