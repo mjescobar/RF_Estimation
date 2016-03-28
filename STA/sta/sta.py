@@ -585,17 +585,17 @@ def calculaSTA(args):
 			ax.set_ylim([0, ySize])
 			ax.set_aspect(1)
 			plt.tight_layout()
-			plt.tick_params(
-				which='both',
-				bottom='off',
-				top='off',
-				labelbottom='off',
-				left='off',
-				labelleft='off',
-				right='off',
-				labelright='off'
-			)
-			
+			# plt.tick_params(
+			# 	which='both',
+			# 	bottom='off',
+			# 	top='off',
+			# 	labelbottom='off',
+			# 	left='off',
+			# 	labelleft='off',
+			# 	right='off',
+			# 	labelright='off'
+			# )
+			ax.axis('off')
 			kcontador = 2
 			#casep, cambio de 17 a framesNumber-1 para prevenir "out of bounds" al procesar menos de 18+2 frames
 			for ksubplot in range(framesNumber-1):
@@ -611,20 +611,21 @@ def calculaSTA(args):
 				plt.tight_layout()
 				ax.set_xlim([0, xSize])
 				ax.set_ylim([0, ySize])
-				plt.tick_params(
-					which='both',
-					bottom='off',
-					top='off',
-					labelbottom='off',
-					left='off',
-					labelleft='off',
-					right='off',
-					labelright='off'
-				)
+				# plt.tick_params(
+				# 	which='both',
+				# 	bottom='off',
+				# 	top='off',
+				# 	labelbottom='off',
+				# 	left='off',
+				# 	labelleft='off',
+				# 	right='off',
+				# 	labelright='off'
+				# )
+				ax.axis('off')
 				kcontador+=1
 			
-			plt.savefig(finalfolder_lin+"/STA-"+str(neurontag)+"_.png",format='png', bbox_inches='tight')
-			plt.savefig(outputFolder+"STA-"+str(neurontag)+"_.png",format='png', bbox_inches='tight')
+			plt.savefig(finalfolder_lin+"/STA-"+str(neurontag)+"_.png",format='png', bbox_inches='tight', dpi=300)
+			plt.savefig(outputFolder+"STA-"+str(neurontag)+"_.png",format='png', bbox_inches='tight',dpi=300)
 			plt.show()        
 			plt.clf()
 			plt.close()
