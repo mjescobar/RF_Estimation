@@ -22,13 +22,25 @@ function [fitresult, zfit, xData2D, yData2D, fiterr, zerr, resnorm, rr] = fmgaus
 
 %% Condition the data
 fprintf('Preparing data...\n')
-[xData, yData, zData, xData2D, yData2D] = prepareSurfaceData(STA);
+mean = mean2(STA)
+STA_rectified = abs(STA-mean);
+[xData, yData, zData, xData2D, yData2D] = prepareSurfaceData(STA_rectified);
 xyData = {xData,yData};
 
 %% Set up the startpoint
 [amp, ind] = max(zData); % amp is the amplitude.
+disp('amp')
+disp(amp)
+disp(ind)
 xo = xData(ind); % guess that it is at the maximum
 yo = yData(ind); % guess that it is at the maximum
+%[min_vval,min_vector] = min(STA);
+%[min_val, position] = min(min_vval);
+%xo = position;
+%yo = min_vector(position);
+amp=STA(yo,xo);
+disp(xo)
+disp(yo)
 ang = 45; % angle in degrees.
 sy = 1;
 sx = 1;
