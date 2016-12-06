@@ -113,7 +113,7 @@ tic;
 
 save([carpeta,'STA_ajuste.mat'],'STA_ajuste');
 
-[fitresult, zfit, xData2D, yData2D, fiterr, zerr, resnorm, rr] = fmgaussfit(STA_ajuste);
+[fitresult, zfit, xData2D, yData2D, fiterr, zerr, resnorm, rr] = fmgaussfit(abs(STA_ajuste-mean2(STA_ajuste)));
 tempofit = toc;
 
 %% figures: 3d profile of one  STA frame and its fit.
