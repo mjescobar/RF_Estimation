@@ -1,12 +1,11 @@
-function gauss2dfitSTA_neighborhood(carpeta,cell,frame)
+function gauss2dfitSTA_neighborhood(carpeta,cell,pre_frame,pos_frame,frame)
 
 % ------------------------------------------------------------
 % 2D GAUSS FIT TO ESTIMATED RECEPTIVE FIELDS STA
 % ------------------------------------------------------------
 % AASTUDILLO 2014
 % ------------------------------------------------------------
-
-if nargin == 2
+if nargin == 4
   frame = -1;
 end
 
@@ -31,8 +30,8 @@ STA_VISUAL2 = STA_VISUAL2(:,end:-1:1,:);
 
 %% show all the loaded STA frames
 fig1 = figure;
-for k = 1:18
-    subplot(3,6,k);
+for k = 1:pre_frame
+    subplot(ceil(pre_frame/6),6,k);
     I = STA_VISUAL2(:,:,k);
     J2 = imresize(I, 2, 'bilinear');
 %     J2 = STA_VISUAL2(:,:,k);
@@ -41,7 +40,7 @@ for k = 1:18
     axis off
     axis square  
 end
-colormap= 'jet';
+colormap= 'hot';
 
 v = 1;
 
@@ -53,7 +52,7 @@ v = 1;
 
 STA_promedio = mean(STAarray_lin,3);
 
-STA = STAarray_lin(:,end:-1:1,1:18);
+STA = STAarray_lin(:,end:-1:1,:);
 
 % Casep, aca calculo de forma alternativa el frame de interes
 % a cada frame la calculo la varianza y el de mayor varianza sera
@@ -106,6 +105,9 @@ if amp_min >= amp_max
 else
     STA_ajuste = STA(:,:,frame_ajuste);
 end
+
+
+
 %STA_ajuste = STA(:,:,frame_ajuste);
 tic;
 
@@ -175,6 +177,7 @@ else
    %mesh(Xpixel2D, Ypixel2D, double(STA_ajuste));
    imagesc(double(STA_ajuste), [0 255] ); 
 end
+ellipse(fitresult(3),fitresult(4),deg2rad(fitresult(2)),fitresult(5),fitresult(6));
 titulo_im_frame = strcat('Frame ',vent_str,' 2D Profile');
 title(titulo_im_frame)
 %axis([0 n_columnas+20 0 n_filas+20 -50 300])
@@ -223,8 +226,8 @@ save([carpeta,'resultado.txt'],'Resultad','-ascii');
 % resultadoex = num2cell(Resultad);
 % xlswrite([carpeta,'resultadoex.xls'],Resultad,1,'B1');
 
-vent_ini = 0; %frame inicial para el perfil temporal(contando desde el frame 0)
-vent_fin = 17;%frame final para el perfil temporal 
+vent_ini = 1; %frame inicial para el perfil temporal(contando desde el frame 0)
+vent_fin = pre_frame;%frame final para el perfil temporal 
 
 % Obteniendo amplitudes temporales
 %Para elimar el ruido en un solo punto se toma la vecindad de 3x3
@@ -232,49 +235,68 @@ vent_fin = 17;%frame final para el perfil temporal
 %las esquinas se extrapola con los datos opuestos. 
 
 vector_amp = [];
-for frame = vent_ini+1:vent_fin+1,
-    y_p = round(Resultad(7));
-    x_p = round(Resultad(6));
+
+%para guardar el curva temporal en el maximo y no en el centro de la
+%aproximacion gauss
+STA_ajuste_avg = abs(STA_ajuste-mean2(STA_ajuste))
+[M I]=max(STA_ajuste_avg);
+[N J]=max(max(STA_ajuste_avg));
+x_p=J
+y_p=I(J)
+disp([x_p,y_p])
+%[M I]=min(sta);
+%[N J]=min(min(sta));
+%x_p=J
+%y_p=I(J)
+
+ %y_p = round(Resultad(7))
+ %x_p = round(Resultad(6))
+
+STA_shape=size(STA)
+x_lim=STA_shape(1)
+y_lim=STA_shape(2)
+for frame = vent_ini:vent_fin,
+
     win = zeros(3);
 
-    if x_p > 30 && y_p > 30
+    if x_p == x_lim && y_p == y_lim %limite inferior derecho
         win(1:2,1:2) = STA(y_p-1:y_p,x_p-1:x_p,frame);
         win(1,3) = win(1,1);
         win(2,3) = win(2,1);
         win(3,1) = win(1,1);
         win(3,2) = win(1,2);
         win(3,3) = win(1,1)
-    elseif x_p > 30 && y_p < 2
+    elseif x_p == x_lim && y_p == 1 %limite superior derecha
         win(1:2,1:2) = STA(y_p:y_p+1,x_p-1:x_p,frame);
         win(1,3) = win(1,1);
         win(2,3) = win(2,1);
         win(3,1) = win(1,1);
         win(3,2) = win(1,2);
         win(3,3) = win(1,1)
-    elseif x_p <2 && y_p > 30
+    elseif x_p == 1 && y_p == y_lim %limite inferior izquierda
         win(1:2,1:2) = STA(y_p-1:y_p,x_p:x_p+1,frame);
         win(1,3) = win(1,1);
         win(2,3) = win(2,1);
         win(3,1) = win(1,1);
         win(3,2) = win(1,2);
         win(3,3) = win(1,1);
-    elseif x_p < 2 && y_p < 2
+    elseif x_p == 1 && y_p == 1 %limite superior izquierdo
         win(1:2,1:2) = STA(y_p:y_p+1,x_p:x_p+1,frame);
         win(1,3) = win(1,1);
         win(2,3) = win(2,1);
         win(3,1) = win(1,1);
         win(3,2) = win(1,2);
         win(3,3) = win(1,1);
-    elseif x_p > 30
+    elseif x_p == x_lim %limite derecho
         win(1:3,1:2) = STA(y_p-1:y_p+1,x_p-1:x_p,frame);
         win(1:3,3) = win(1:3,1);
-    elseif x_p < 2 
+    elseif x_p == 1 %limite izquierdo
         win(1:3,2:3) = STA(y_p-1:y_p+1,x_p:x_p+1,frame);
         win(1:3,1) = win(1:3,3);
-    elseif y_p > 30
+    elseif y_p == y_lim %limite inferior
         win(1:2,1:3) = STA(y_p-1:y_p,x_p-1:x_p+1,frame);
         win(3,1:3) = win(1,1:3);
-    elseif y_p < 2
+    elseif y_p == 1 %limite superior
         win(2:3,1:3) = STA(y_p:y_p+1,x_p-1:x_p+1,frame);
         win(1,1:3) = win(3,1:3);
     else
@@ -284,12 +306,18 @@ for frame = vent_ini+1:vent_fin+1,
     %H = fspecial('disk',1); 
     %Da mejores resultados el filtro disk que el gaussino
     H = fspecial('gaussian',[3 3],0.5);  
-    vector_amp_nuevo = [vector_amp; sum(sum(win.*H)) ]; 
-    vector_amp = vector_amp_nuevo;
+    vector_amp = [vector_amp; sum(sum(win.*H)) ]; 
+    
 end
 
+data_temporal = reshape(STA(y_p,x_p,:),STA_shape(3),1);
+vector_amp_raw = data_temporal(1:pre_frame);
+
+%vector_amp = STA_ajuste
+disp(vector_amp)
 fig33 = figure;
-plot(vent_ini:vent_fin,vector_amp,'LineWidth',2);
+plot(vent_ini:vent_fin,vector_amp,'LineWidth',2);hold on;
+plot(vent_ini:vent_fin,vector_amp_raw,'LineWidth',2);
 title('Max Amplitude Temporal Evolution')
 xlabel('N Frame STA')
 ylabel('Pixel value')
@@ -356,5 +384,5 @@ print(fig2,'-dpdf',[carpeta,'rf_fit',num2str(frame_ajuste),'.pdf']);
 print(fig3,'-dpdf',[carpeta,'rf_fit2d_',num2str(frame_ajuste),'.pdf']);
 print(fig33,'-dpdf',[carpeta,'rf_temp_',num2str(frame_ajuste),'.pdf']);
 
-save([carpeta,'fit_var.mat'],'fitresult', 'zfit', 'xData2D', 'yData2D', 'fiterr', 'zerr', 'resnorm', 'rr','vector_amp');
+save([carpeta,'fit_var.mat'],'fitresult', 'zfit', 'xData2D', 'yData2D', 'fiterr', 'zerr', 'resnorm', 'rr','vector_amp','vector_amp_raw');
 close all
