@@ -437,6 +437,14 @@ def sta_4(args):
 			
 		sta18 = bigsta18 / (1.0 * len(stimei) ) # one part of the sta matrix
 		stac[:,:,framesNumber-1 - numeroframe] = sta18
+	print 'numero de frame post'+str(numberframespost)
+	for kframe in range(numberframespost): #for 18 frames
+		bigsta18 = npy.zeros( ( xSize,ySize ) )
+		for kiter in range(len(stimei)-numberframespost):			
+			bigsta18[:,:] = bigsta18[:,:] + estim[ :,:,stimei[kiter]+kframe+1] - meanimagearray
+		sta18 = bigsta18 / (1.0 * len(stimei) ) # one part of the sta matrix
+		stac[:,:,framesNumber+kframe] = sta18
+
 	acumula = npy.zeros((xSize,ySize,framesNumber+numberframespost))
 	STA = stac
 	#print ' \n '
@@ -571,11 +579,11 @@ def calculaSTA(args):
 			#print 'Saving images in lineal scale...'
 			
 			plt.clf()
-			fig = plt.figure(1, figsize=(12,10))
-			
-			ax = fig.add_subplot(3,6,1)
+			fig = plt.figure(1, figsize=(22,20))
+			#fig = plt.figure(1)
+			ax = fig.add_subplot(5,6,1)
 			component = stavisual_lin[:,:,0]
-			ax.pcolormesh( component,vmin = 0,vmax = 255, cmap=cm.jet )
+			ax.pcolormesh( component,vmin = 0,vmax = 255, cmap=cm.plasma )
 			'''
 			ax.set_yticklabels([])
 			ax.set_xticklabels([])
@@ -584,7 +592,8 @@ def calculaSTA(args):
 			ax.set_xlim([0, xSize])
 			ax.set_ylim([0, ySize])
 			ax.set_aspect(1)
-			plt.tight_layout()
+			ax.axis('off')
+			#plt.tight_layout()
 			# plt.tick_params(
 			# 	which='both',
 			# 	bottom='off',
@@ -595,20 +604,20 @@ def calculaSTA(args):
 			# 	right='off',
 			# 	labelright='off'
 			# )
-			ax.axis('off')
 			kcontador = 2
 			#casep, cambio de 17 a framesNumber-1 para prevenir "out of bounds" al procesar menos de 18+2 frames
 			for ksubplot in range(framesNumber-1):
-				ax = fig.add_subplot(3,6,kcontador)
+				ax = fig.add_subplot(5,6,kcontador)
 				component = stavisual_lin[:,:,kcontador-1]
-				ax.pcolormesh( component,vmin = 0,vmax = 255, cmap=cm.jet )
+				ax.pcolormesh( component,vmin = 0,vmax = 255, cmap=cm.plasma )
 				'''
 				ax.set_aspect(1)
 				ax.set_yticklabels([])
 				ax.set_xticklabels([])
 				'''
 				ax.set_aspect(1)
-				plt.tight_layout()
+				ax.axis('off')
+				#plt.tight_layout()
 				ax.set_xlim([0, xSize])
 				ax.set_ylim([0, ySize])
 				# plt.tick_params(
@@ -621,7 +630,6 @@ def calculaSTA(args):
 				# 	right='off',
 				# 	labelright='off'
 				# )
-				ax.axis('off')
 				kcontador+=1
 			
 			plt.savefig(finalfolder_lin+"/STA-"+str(neurontag)+"_.png",format='png', bbox_inches='tight', dpi=300)
@@ -633,7 +641,7 @@ def calculaSTA(args):
 	
 			#print 'Saving mean image in lineal scale...'
 			pl.figure()
-			im = pl.pcolormesh(MEANSTA_lin,vmin = 0,vmax = 255, cmap=cm.jet)
+			im = pl.pcolormesh(MEANSTA_lin,vmin = 0,vmax = 255, cmap=cm.plasma)
 			pl.jet()
 			pl.colorbar(im)
 			ax = pl.axes()
