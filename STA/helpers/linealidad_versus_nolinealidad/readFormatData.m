@@ -2,12 +2,12 @@ function readFormatData(pathCell,cellId,pathStim, pathTimeStamp)
 %% Format and read data
 %addpath('NIMtoolbox/');
 %addpath('.');
-addpath(genpath('/home/cesar/Downloads/linealidad_versus_nolinealidad/'))
+addpath('NIMtoolbox/')
 
-%pathCell = '/media/cesar/experiments/2016-06-06/sorting/2016-06-06_periferia/STA_gratings/STA/'
-%cellId = 'A14_temp0103-206'
-%pathStim = '/media/cesar/experiments/2016-06-06/sync/stim_mini_2016-06-10.mat'
-%pathTimeStamp = '/media/cesar/experiments/2016-06-06/sorting/2016-06-06_periferia/TS_1/'
+% pathCell = '/home/cesar/Dropbox/Experimentos/Clustering/exp/2015-01-29/'
+% cellId = 'C7_temp0778-248'
+% pathStim = '/home/cesar/exp/2015-01-29/sync/stim_mini_2015-01-29.mat'
+% pathTimeStamp = '/home/cesar/Dropbox/Experimentos/Clustering/exp/TS/2015-01-29/'
 
 %cd /home/cesar/Downloads/linealidad_versus_nolinealidad/F4_temp0331-069_lineal
 %cellId='F4_temp0331-069';

@@ -1,4 +1,4 @@
-function signalAnalyzerParaGratings(mcdFile,experimentName,sampleRating,EntityNumber,inicio,outputFolder);
+function signalAnalyzerParaGratings(mcdFile,experimentName,sampleRating,EntityNumber,inicio,duracionExp,outputFolder);
 % Synchrony signal for gratings
 
 % mcdFile, full path al archivo
@@ -8,6 +8,7 @@ function signalAnalyzerParaGratings(mcdFile,experimentName,sampleRating,EntityNu
 % EntityNumber, 253
 % inicio, 200000-20000, aun entendiendo que significa
 % distanciaFrames, 334 = 1/60*20000
+% duracionExp, 188000 [ms]
 % outputFolder , 'D:\Experimentos_CINV\2014-08-21\'
 
 if isunix
@@ -52,9 +53,9 @@ datosname = experimentName;
 %load(['syn_signal1_',datosname]);
 %load([signalFile]);
 
-duracion_segundos = (97*60+47)*1000+600;
+% duracionExp = (120*60+2)*1000+800;
 
-total_datos = duracion_segundos*sampleRating/1000;
+total_datos = duracionExp*sampleRating/1000;
 
 x = data(1:total_datos);
 %x = datos;
