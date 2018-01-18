@@ -5,7 +5,7 @@ function readFormatData(pathCell,cellId,pathStim, pathTimeStamp)
 addpath('NIMtoolbox/')
 
 % pathCell = '/home/cesar/Dropbox/Experimentos/Clustering/exp/2015-01-29/'
-% cellId = 'C7_temp0778-248'
+% cellId = 'A8_temp0016-060'
 % pathStim = '/home/cesar/exp/2015-01-29/sync/stim_mini_2015-01-29.mat'
 % pathTimeStamp = '/home/cesar/Dropbox/Experimentos/Clustering/exp/TS/2015-01-29/'
 
