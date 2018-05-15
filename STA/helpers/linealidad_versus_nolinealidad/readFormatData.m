@@ -1,7 +1,17 @@
-function readFormatData(pathCell,cellId,pathStim, pathTimeStamp)
+function readFormatData(pathCell,cellId,stim, pathTimeStamp, spk_start, spk_end, sta_start, sta_end)
+% % pathCell: ruta donde esta la carpeta con los archivos del STA
+% % cellId: nombre de la unidad que se quiere analisar
+% % stim: ruta completa del archivo .mat donde esta el estimulo del WN
+% % pathTimeStamp: ruta de la carpeta donde esta el archivo .txt con los TS
+% % spk_start: tiempo donde comienza el WN en el registro (en seg)
+% % spk_end: tiempo donde termina el WN en el registro (en seg)
+% % sta_start: frame de inicio del filtro STA
+% % sta_end: frame de termino del filtro STA
+
+% % sta_start y sta_end permiten definir los el largo del filtro del STA, 
+% % esto dado que hay diferentes largos de filtros en los experimentos.
+
 %% Format and read data
-%addpath('NIMtoolbox/');
-%addpath('.');
 addpath('NIMtoolbox/')
 
 % pathCell = '/home/cesar/Dropbox/Experimentos/Clustering/exp/2015-01-29/'
@@ -9,41 +19,44 @@ addpath('NIMtoolbox/')
 % pathStim = '/home/cesar/exp/2015-01-29/sync/stim_mini_2015-01-29.mat'
 % pathTimeStamp = '/home/cesar/Dropbox/Experimentos/Clustering/exp/TS/2015-01-29/'
 
-%cd /home/cesar/Downloads/linealidad_versus_nolinealidad/F4_temp0331-069_lineal
-%cellId='F4_temp0331-069';
+% pathCell = '/home/cesar/Dropbox/Experimentos/Clustering/stim/';
+% cellId = 'A4_temp0163-216';
+% cellId = 'B3_temp0402-211';
+% pathStim = '/home/cesar/Dropbox/Experimentos/Clustering/stim/stim_mini_2016-06-10.mat';
+% pathTimeStamp = '/home/cesar/Dropbox/Experimentos/Clustering/stim/';
 
-%cd(pathCell)
-dt=1.0/60;
-disp(cellId)
+dt=1.0/60.0;
+fprintf('Unidad en analisis %s\n',cellId)
+
 % Loading and formatting stim_mini
-%stim = load('../stim_mini.mat');
+% stim = load(pathStim);
+% [nx,ny,tt,nfr] = size(stim.stim);
+% tt = stim.stim(:,:,2,:);
+% stim=reshape(tt,nx,ny,nfr);
+% clear tt;
+% clear ny;
+% clear nx;
 
-stim = load(pathStim);
-[nx,ny,tt,nfr] = size(stim.stim);
-tt = stim.stim(:,:,2,:);
-stim=reshape(tt,nx,ny,nfr);
-clear tt;
-clear ny;
-clear nx;
-
-% Creating raster from spikelist
-%spks=load(['../' cellId '_lineal/' cellId, '.txt']);
+%% Creating raster from spikelist
+[~,~,~,nfr] = size(stim);
 spks=load([pathTimeStamp, cellId, '.txt']);
-size(spks)
+spks_temp = spks(spks < spk_end) - spk_start;
+spks=spks_temp(spks_temp >0);
+fprintf('Unidad con %d spikes.\n',length(spks))
 raster=createRaster(spks,nfr,dt);
 
-% Creating data structure
+%% Creating data structure
 data.stim = stim;
 data.raster = raster';
 clear raster;
-clear stim;
+% clear stim;
 clear spks;
 
 % Loading STA data
 statemp = load([pathCell cellId '_lineal/' 'sta_array_' cellId '.mat']);
 sta = statemp.STA_array;
 clear statemp;
-sta = sta(:,:,1:18);
+sta = sta(:,:,sta_start:sta_end);
 [nx,ny,nt]=size(sta);
 for i=1:nt
     statemp(:,:,i)=sta(:,:,nt-i+1); % Inverting temporal data
@@ -63,8 +76,7 @@ fitres{1} = fit_data.fitresult;
 clear fit_data;
 
 %% Ready to launch ComputeNLfromSTA code
-dt = round(dt*1000); % Time in msec
-[nlData,fitparams] = ComputeNLfromSTA(data,sta_array,fitres,nt,nx,dt);
+[nlData,~] = ComputeNLfromSTA(data,sta_array,fitres,nt,nx,round(dt*1000));
 save([pathCell cellId '_lineal/' 'NL.txt'],'fitparams','-ascii');
 save([pathCell cellId '_lineal/' 'NL.mat'],'nlData','-mat');
 
