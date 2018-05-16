@@ -14,7 +14,6 @@ nombre_cell_grupo = cell;
 
 carpeta = [carpeta,nombre_cell_grupo,'_lineal/'];
 disp(carpeta)
-%load([carpeta,'stavisual_lin_array_',nombre_cell_grupo,'.mat']);
 load([carpeta,'stavisual_lin_array_',nombre_cell_grupo,'.mat']);
 
 
@@ -25,19 +24,17 @@ load([carpeta,'stavisual_lin_array_',nombre_cell_grupo,'.mat']);
 STA_VISUAL = STAarray_lin + abs( min(STAarray_lin(:)) );
 STA_VISUAL2 = STA_VISUAL*255/abs(max(STA_VISUAL(:)));
 
-% correct the axis positions according to the MEA map position
-STA_VISUAL2 = STA_VISUAL2(:,end:-1:1,:);
-
 %% show all the loaded STA frames
 fig1 = figure;
 for k = 1:pre_frame
     subplot(ceil(pre_frame/6),6,k);
     I = STA_VISUAL2(:,:,k);
-    J2 = imresize(I, 2, 'bilinear');
-%     J2 = STA_VISUAL2(:,:,k);
-    imagesc(J2, [0 255] ); 
+%     J2 = imresize(I, 2, 'bilinear');
+    h = pcolor(I ); 
+    set(h, 'EdgeColor', 'none');
+    caxis([0,255])
     title(['f ',num2str(k),' t ',num2str(k - 1 -12)]);
-    axis off
+%     axis off
     axis square  
 end
 colormap= 'hot';
@@ -52,26 +49,28 @@ v = 1;
 
 STA_promedio = mean(STAarray_lin,3);
 
-STA = STAarray_lin(:,end:-1:1,:);
+%STA = STAarray_lin(:,end:-1:1,:);
+STA = STAarray_lin;
 
 % Casep, aca calculo de forma alternativa el frame de interes
 % a cada frame la calculo la varianza y el de mayor varianza sera
 % el que se utilizara para calculo del gaussfit
-[x,y,frames]=size(STA);
-
-varianza=0;
-frameMaxVarianza=1;
-for i=1:frames
-    frameSTA=STA(:,:,i);
-	varianzaTmp = var(frameSTA(:));
-	if varianzaTmp > varianza
-		varianza = varianzaTmp;
-		frameMaxVarianza = i;
-	end
-end
-
-[n_filas,n_columnas] = size(STA_promedio);
-aux =[];
+% [x,y,frames]=size(STA);
+% 
+% varianza=0;
+% frameMaxVarianza=1;
+% for i=1:frames
+%     frameSTA=STA(:,:,i);
+% 	varianzaTmp = var(frameSTA(:));
+% 	if varianzaTmp > varianza
+% 		varianza = varianzaTmp;
+% 		frameMaxVarianza = i;
+% 	end
+% end
+% 
+% [n_filas,n_columnas] = size(STA_promedio);
+% aux =[];
+% 
 
 promedio = mean(STA_promedio(:));
 
@@ -84,16 +83,14 @@ H = fspecial('disk',2);
 STABlur = imfilter(STA,H,'replicate');
 meanSTA = mean2(STABlur);
 STABlur = abs(STABlur - meanSTA); 
-[min_sta,frame_min] = min(min(min(STABlur)));
+[min_sta,~] = min(min(min(STABlur)));
 [max_sta,frame_max] = max(max(max(STABlur)));
-disp('frame max con min max')
-disp(frame_max)
-amp_min = promedio - min_sta
-amp_max = max_sta - promedio
+amp_min = promedio - min_sta;
+amp_max = max_sta - promedio;
 %%--------------------------------------------------------
 
 %frame_ajuste = frameMaxVarianza;
-frame_ajuste = frame_max
+frame_ajuste = frame_max;
 %si recibi Numero de frame como parametro, lo uso
 if frame > 0
 	frame_ajuste = frame;
@@ -172,12 +169,14 @@ fig3 = figure;
 subplot(2,2,1)
 if (amp_min >= amp_max)
    %mesh(Xpixel2D, Ypixel2D, double(255-STA_ajuste));
-   imagesc(double(255-STA_ajuste), [0 255] ); 
+   pcolor(double(255-STA_ajuste) );
+   caxis([0,255]);
 else
    %mesh(Xpixel2D, Ypixel2D, double(STA_ajuste));
-   imagesc(double(STA_ajuste), [0 255] ); 
+   pcolor(double(STA_ajuste));
+   caxis([0,255]);
 end
-ellipse(fitresult(3),fitresult(4),deg2rad(fitresult(2)),fitresult(5),fitresult(6));
+ellipse(fitresult(3),fitresult(4),deg2rad(fitresult(2)),fitresult(5),fitresult(6),'r');
 titulo_im_frame = strcat('Frame ',vent_str,' 2D Profile');
 title(titulo_im_frame)
 %axis([0 n_columnas+20 0 n_filas+20 -50 300])
@@ -185,10 +184,12 @@ title(titulo_im_frame)
 subplot(2,2,2)
 if amp_min >= amp_max
    %mesh(xData2D, yData2D,255-zfit);
-   imagesc(255-zfit, [0 255] );
+   pcolor(255-zfit);
+   caxis([0,255]);
 else
    %mesh(xData2D, yData2D,zfit);
-   imagesc(zfit, [0 255] );
+   pcolor(zfit);
+   caxis([0,255]);
 end
 titulo_im_ajuste_frame = strcat('2D Gauss fit frame',vent_str);
 title(titulo_im_ajuste_frame)
@@ -363,7 +364,8 @@ if doforallframes
             J2 = (J2 - promedio)*(-1); 
         end
 
-        imagesc(J2, [0 255] ); 
+        pcolor(J2); 
+        caxis([0,255]);
         title(['f ',num2str(k),' t ',num2str(k - 1 -12)]);
         axis off
         axis square  
