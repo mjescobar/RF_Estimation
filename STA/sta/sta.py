@@ -514,7 +514,7 @@ def calculaSTA(args):
 					if (vector_inicio_frame[i] < punto_spike) & (punto_spike <= vector_fin_frame[i]):
 						# if the spike time is into a frame time points (start and ends)
 						spikeframe_matrix[contator,0] = punto_spike
-						spikeframe_matrix[contator,1] = vector_fin_frame[i]
+						spikeframe_matrix[contator,1] = i
 						spikeframe_matrix[contator,2] = inicio_fin_frame[i,0]
 						spikeframe_matrix[contator,3] = inicio_fin_frame[i,1]
 						stimei.append(i)
