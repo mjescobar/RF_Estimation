@@ -10,7 +10,7 @@ parser.add_argument('--number',help='number of merge ',  default='', type=str, r
 parser.add_argument('--outputFolder',help='Output folder',type=str, required=True)
 	 
 args = parser.parse_args()
-rename_electrodoes = open('rename_electronode.txt', 'r')
+rename_electrodoes = open('./rename_electronode.txt', 'r')
 #rename_electrodoes = open('rename_electronode.txt', 'r')
 filename = args.resultFile
 clustername = args.clusterFile

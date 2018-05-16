@@ -59,12 +59,15 @@
 % in_stim = 16300133/20000; % beginning of protocol 16307133, 152896858
 % fin_stim = 17145072/20000; % end of protocol 17102072, 153739351
 
-mcdfilepath = '/home/cesar/exp/2016-11-14_periferia/raw/'
-mcdfilename = '2016-11-14_periferia_analogo.mcd'; % mcd file name with extension
-in_stim = 21437771/20000; % beginning of protocol 21467771 22397664 - 125959242
-fin_stim = 22302711/20000; % end of protocol 22262711 23252604 - 125959242
+% mcdfilepath = '/home/cesar/exp/2016-11-14_periferia/raw/'
+% mcdfilename = '2016-11-14_periferia_analogo.mcd'; % mcd file name with extension
+% in_stim = 21437771/20000; % beginning of protocol 21467771 22397664 - 125959242
+% fin_stim = 22302711/20000; % end of protocol 22262711 23252604 - 125959242
 
-
+mcdfilepath = '/home/cesar/exp/exp/sync/'
+mcdfilename = '2018-01-25_analog.mcd'; % mcd file name with extension
+in_stim = (11939782+400000)/20000; % beginning of protocol 21467771 22397664 - 125959242
+fin_stim = (28898575-90000)/20000; % end of protocol 22262711 23252604 - 125959242
 
 sr = 20000; % sampling rate
 [stimTS] = OnOffPulses(mcdfilepath,mcdfilename,in_stim,fin_stim,sr);
