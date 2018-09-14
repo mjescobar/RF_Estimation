@@ -13,41 +13,24 @@
 #============================================================
 # Package import section:
 #============================================================
+import sys  # system lib
+import os  # operative system lib
+import random  # Random number methods
+import time         # System timer options
+import argparse  # A|rgument parsing
+from multiprocessing import Pool, freeze_support  # Parallel powa!
 
-#============================================================
-# Package import section:
-#============================================================
-import matplotlib # Graph and plot library
-matplotlib.use("Agg") # for save images without show it in windows (for server use)
-import pylab as pl
+import matplotlib  # Graph and plot library
+matplotlib.use("Agg")  # For save images without show it in windows (for server use)
 import matplotlib.cm as cm        # plot lib
 import matplotlib.pyplot as plt       # plot lib (for figures)
-import mpl_toolkits.mplot3d.axes3d as p3d # 3D Plot lib
-
-from matplotlib.pyplot import *      # plot lib python
-from matplotlib.ticker import NullFormatter # ticker formatter
 
 #-----------------------------------------------------------
 # Methods, Signal processing, etc:
 #-----------------------------------------------------------
-import scipy           # numerical methods lib (like Matlab functions)
-import scipy.io       # input output lib (for save matlab matrix)
-import scipy.signal as signal # signal processing lib
-import numpy as npy       # numerical methods lib
-import sys# system lib
-import os # operative system lib
-import random # Random number methods
-import time         # System timer options
-import scipy.misc as scim # scientific python package for image basic process
-import glob # package for get file names from files in a folder
-import matplotlib.pyplot as plt
-
-from pylab import *     # laboratory and plot methods lib
-from scipy import misc
-from PIL import Image, ImageChops
-
-import argparse #argument parsing
-from multiprocessing import Pool, freeze_support #Parallel powa!
+from scipy.io import loadmat, savemat
+import scipy.misc as scim  # Scientific python package for image basic process
+import numpy as npy  # Numerical methods lib
 
 #=============================================
 # Inputs
@@ -278,8 +261,7 @@ lenSyncFile = len(vector_fin_frame)
 stimMini = args.stimMini
 if stimMini.lower().endswith('.mat'):
     try:
-        import scipy.io as sio
-        ensemble = sio.loadmat(stimMini)
+        ensemble = loadmat(stimMini)
         estimulos = ensemble['stim']
     except NotImplementedError:
         import h5py
@@ -389,7 +371,7 @@ def sta_2():
     timeAlgorithm2Ini = time.time()
     kframe = 0
     cadena_texto = "mean_image"
-    contenedor = scipy.io.loadmat(outputFolder+cadena_texto+'.mat')
+    contenedor = loadmat(outputFolder+cadena_texto+'.mat')
     meanimagearray = contenedor['meanimagearray']
     del contenedor
     xSize = 380
@@ -451,7 +433,7 @@ def sta_3():
                 line = ifn2[kframe-(framesNumber-1)+ b ]
                 imagen = scim.imread(line, flatten = True )
                 if dosmall:
-                    imagenSmall = scipy.misc.imresize(imagen, [sizesmall,sizesmall] , interp = 'bilinear' , mode = None )
+                    imagenSmall = scim.imresize(imagen, [sizesmall,sizesmall] , interp = 'bilinear' , mode = None )
                 spk[:,:,b,kiter] = imagen
                 if dosmall:
                     spkSmall[:,:,b,kiter] = imagenSmall
@@ -473,7 +455,7 @@ def sta_3():
     for b in range(framesNumber+numberframespost):
         STA[:,:,b] = STA[:,:,b] - meanimagearray
     if dosmall:
-        meansmall = scipy.misc.imresize(meanimagearray,[sizesmall,sizesmall], interp='bilinear', mode=None)
+        meansmall = scim.imresize(meanimagearray,[sizesmall,sizesmall], interp='bilinear', mode=None)
         STASmall = acumulaSmall // N
         for b in range(framesNumber+numberframespost):
             STASmall[:,:,b] = STASmall[:,:,b] - meansmall
@@ -642,7 +624,7 @@ def calculaSTA(args):
                 # spikeframe_matrix_array =  npy.array(spikeframe_matrix)
                 # spikeframe_filename = "spikeframe_matrix"+str(neurontag)
                 # #print "Save spike frame matrix as mat file: ",spikeframe_filename
-                # scipy.io.savemat(finalfolder_lin+'/'+spikeframe_filename+'.mat',mdict={'spikeframe_matrix':spikeframe_matrix_array},oned_as='column')
+                # savemat(finalfolder_lin+'/'+spikeframe_filename+'.mat',mdict={'spikeframe_matrix':spikeframe_matrix_array},oned_as='column')
 
                 #----------------------------------------------------
                 # save true STA matrix (NON SCALED for visual plot)
@@ -650,7 +632,7 @@ def calculaSTA(args):
                 STA_array = npy.array(STA)
                 cadena_texto = "sta_array_"+str(neurontag)
                 #print "Saving NON rescaled STA as mat file: ",cadena_texto
-                scipy.io.savemat(finalfolder_lin+'/'+cadena_texto+'.mat',mdict={'STA_array':STA_array},oned_as='column')
+                savemat(finalfolder_lin+'/'+cadena_texto+'.mat',mdict={'STA_array':STA_array},oned_as='column')
 
                 #----------------------------------------------------
                 # save visual STA matrix ( RE SCALED for visual plot)
@@ -658,7 +640,7 @@ def calculaSTA(args):
                 stavisual_lin_array = npy.array(stavisual_lin)
                 cadena_texto = "stavisual_lin_array_"+str(neurontag)
                 #print "Saving visual STA (lineal) as mat file: ",cadena_texto
-                scipy.io.savemat(finalfolder_lin+'/'+cadena_texto+'.mat',mdict={'STAarray_lin':stavisual_lin_array},oned_as='column')
+                savemat(finalfolder_lin+'/'+cadena_texto+'.mat',mdict={'STAarray_lin':stavisual_lin_array},oned_as='column')
 
                 #print 'Saving images in lineal scale...'
 
