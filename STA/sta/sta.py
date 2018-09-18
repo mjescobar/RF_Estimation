@@ -294,6 +294,8 @@ else:
     raise ValueError('It necesary load a stim File')
 
 xSize, ySize, lenEstimulos = estim.shape
+stim_min, stim_max = stim.min(), stim.max()
+estim = (estim - stim_min) / ((stim_max - stim_min) / 2) - 1
 if lenEstimulos < lenSyncFile:
     lenSyncFile = lenEstimulos
 
