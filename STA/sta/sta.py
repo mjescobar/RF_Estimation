@@ -279,10 +279,11 @@ if stimMini.lower().endswith('.mat'):
 elif stimMini.lower().endswith('.hdf5'):
     import h5py
     with h5py.File(stimMini, 'r') as hf:
+        estimulos = npy.zeros(hf['checkerboard'].shape, dtype=npy.float)
         estimulos = hf['checkerboard'][...]
     estimulos = npy.transpose(estimulos, (2, 3, 1, 0))
     xSize, ySize, nchannels, lenEstimulos = estimulos.shape
-    estim = npy.zeros((xSize, ySize, lenEstimulos))
+    estim = npy.zeros((xSize, ySize, lenEstimulos), dtype=npy.float)
     for ke in range(lenEstimulos):
         rgb = estimulos[:, :, :, ke]
         gray = npy.dot(rgb[..., :3], [0.299, 0.587, 0.144])
@@ -295,7 +296,8 @@ else:
 
 xSize, ySize, lenEstimulos = estim.shape
 estim_min, estim_max = estim.min(), estim.max()
-estim = (estim - estim_min) / ((estim_max - estim_min) / 2) - 1
+estim = ((estim - estim_min) / ((estim_max - estim_min) / 2) - 1)*100
+print 'stim min : {} stom max: {}'.format(estim.min(),estim.max())
 if lenEstimulos < lenSyncFile:
     lenSyncFile = lenEstimulos
 
