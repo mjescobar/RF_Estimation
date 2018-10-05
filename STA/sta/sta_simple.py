@@ -283,11 +283,12 @@ def pool_sta(args):
 def plot_sta(sta_array, unit_name):
     nrow = (preFrame+postFrame)/6+1
     fig = plt.figure(figsize=(6, nrow))
-    v_min, v_max = sta_array.min(), sta_array.max()
+    max_abs_amp = np.max([np.abs(sta_array.max()), np.abs(sta_array.max())])
+    v_min, v_max = -max_abs_amp, max_abs_amp
     for kplot in range(preFrame+postFrame):
         ax = fig.add_subplot(nrow, 6, kplot+1)
         # ax.pcolor(sta_array[:,:,kplot],vmin = 0,vmax = 255, cmap=cm.plasma)
-        ax.pcolor(sta_array[:, :, kplot], vmin=v_min, vmax=v_max, cmap='RdBu')
+        ax.pcolor(sta_array[:, :, kplot], vmin=v_min, vmax=v_max, cmap='jet')
         ax.set_xlim([0, xSize])
         ax.set_ylim([0, ySize])
         ax.set_aspect(1)
